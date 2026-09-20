@@ -211,9 +211,10 @@ footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
 <li>pakiety wymienione w <a href="requirements.txt"><code>requirements.txt</code></a></li>
 </ul>
 <p><strong>Pracujesz na własnym komputerze?</strong> Zacznij od <a href="00-instalacja.html"><code>00_INSTALACJA.md</code></a> - instrukcja krok po kroku, z rozwiązaniami typowych problemów. Potem uruchom <a href="00-sprawdz-srodowisko.html"><code>00_sprawdz_srodowisko.ipynb</code></a>, żeby potwierdzić, że wszystko działa.</p>
-<p><strong>Pracujesz na instancji obliczeniowej Azure ML albo w GitHub Codespaces?</strong> Pakiety są już zainstalowane (w Codespaces wykonaj <code>pip install -r cwiczenia-ml/requirements.txt</code>). Możesz od razu przejść do ćwiczenia 01.</p>
+<p><strong>Pracujesz na instancji obliczeniowej Azure ML albo w GitHub Codespaces?</strong> Pakiety są już zainstalowane (w Codespaces wykonaj <code>pip install -r materialy/cwiczenia-ml/requirements.txt</code>). Możesz od razu przejść do ćwiczenia 01.</p>
 <p>W skrócie, dla niecierpliwych:</p>
-<pre><code class="language-bash">cd cwiczenia-ml
+<pre><code class="language-bash">git clone https://github.com/razitpl/MachineLearningCourse.git
+cd MachineLearningCourse/materialy/cwiczenia-ml
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt

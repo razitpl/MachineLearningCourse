@@ -199,7 +199,58 @@ footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
 <p><strong>Której wersji Pythona użyć</strong>: nie zawsze najnowszej. Biblioteki obliczeniowe potrzebują czasem kilku tygodni, żeby wypuścić paczki dla świeżo wydanej wersji Pythona. Jeśli przy instalacji pakietów zobaczysz błędy o kompilacji, zainstaluj Pythona o jedno wydanie starszego.</p>
 </blockquote>
 <hr />
-<h2>Krok 2: Utwórz środowisko wirtualne</h2>
+<h2>Krok 2: Pobierz materiały</h2>
+<p>Notatniki, dane i lista pakietów leżą w publicznym repozytorium
+<a href="https://github.com/razitpl/MachineLearningCourse">razitpl/MachineLearningCourse</a>.
+Wybierz jedną z dwóch dróg.</p>
+<h3>Droga A: git clone (polecana)</h3>
+<p>Wymaga zainstalowanego <a href="https://git-scm.com/downloads">Gita</a>, ale pozwala potem pobierać
+poprawki jednym poleceniem <code>git pull</code> - a materiały bywają poprawiane w trakcie kursu.</p>
+<pre><code class="language-bash">git clone https://github.com/razitpl/MachineLearningCourse.git
+</code></pre>
+<h3>Droga B: archiwum ZIP</h3>
+<p>Bez Gita, za to bez aktualizacji - przy każdej poprawce trzeba pobrać całość od nowa.</p>
+<ol>
+<li>Otwórz <a href="https://github.com/razitpl/MachineLearningCourse">repozytorium</a> w przeglądarce.</li>
+<li>Kliknij zielony przycisk <strong>Code</strong>, a potem <strong>Download ZIP</strong>.</li>
+<li>Rozpakuj archiwum w dowolnym miejscu.</li>
+</ol>
+<h3>Co dostajesz</h3>
+<p>Ćwiczenia z uczenia maszynowego są w podkatalogu <code>materialy/cwiczenia-ml</code>:</p>
+<table>
+<thead>
+<tr>
+  <th>Plik</th>
+  <th>Zawartość</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>01_pierwszy_model.ipynb</code> … <code>11_jakosc_kodu_ml.ipynb</code></td>
+  <td>notatniki z ćwiczeniami</td>
+</tr>
+<tr>
+  <td><code>00_sprawdz_srodowisko.ipynb</code></td>
+  <td>test poprawności instalacji</td>
+</tr>
+<tr>
+  <td><code>dane/</code></td>
+  <td>pliki CSV używane w ćwiczeniach</td>
+</tr>
+<tr>
+  <td><code>requirements.txt</code></td>
+  <td>lista pakietów do zainstalowania w kroku 4</td>
+</tr>
+<tr>
+  <td><code>00_INSTALACJA.md</code></td>
+  <td>ten dokument</td>
+</tr>
+</tbody>
+</table>
+<p>Obok, w <code>materialy/azure-ml</code>, leżą materiały do kursu Azure Machine Learning - jeśli
+realizujesz tylko część o uczeniu maszynowym, możesz je zignorować.</p>
+<hr />
+<h2>Krok 3: Utwórz środowisko wirtualne</h2>
 <p><strong>Środowisko wirtualne</strong> (ang. <em>virtual environment</em>) to odizolowany katalog z własnym kompletem pakietów.</p>
 <p>Po co? Bo różne projekty potrzebują różnych wersji tych samych bibliotek. Bez izolacji instalacja czegoś na potrzeby jednego projektu potrafi zepsuć inny - klasyczny problem znany jako „piekło zależności&quot;. Środowisko wirtualne sprawia, że ten kurs ma swoją własną piaskownicę, a reszta systemu pozostaje nietknięta.</p>
 <p>Przejdź do katalogu z ćwiczeniami:</p>
@@ -230,13 +281,13 @@ source .venv/bin/activate
 <p>i spróbuj ponownie.</p>
 </blockquote>
 <hr />
-<h2>Krok 3: Zainstaluj pakiety</h2>
+<h2>Krok 4: Zainstaluj pakiety</h2>
 <p>Przy <strong>aktywnym</strong> środowisku:</p>
 <pre><code class="language-bash">pip install -r requirements.txt
 </code></pre>
 <p>Instalacja potrwa od kilkudziesięciu sekund do kilku minut - pobierane są paczki o łącznej wielkości kilkuset megabajtów.</p>
 <hr />
-<h2>Krok 4: Uruchom JupyterLab</h2>
+<h2>Krok 5: Uruchom JupyterLab</h2>
 <pre><code class="language-bash">jupyter lab
 </code></pre>
 <p>W przeglądarce otworzy się JupyterLab. Po lewej stronie zobaczysz pliki - otwórz <strong><code>00_sprawdz_srodowisko.ipynb</code></strong> i uruchom wszystkie komórki (<strong>Run → Run All Cells</strong>).</p>
@@ -295,7 +346,7 @@ source .venv/bin/activate
 <p>Jeśli nie chcesz lub nie możesz niczego instalować, masz dwie możliwości - w obu środowisko jest gotowe:</p>
 <p><strong>Instancja obliczeniowa Azure Machine Learning</strong> (jeśli realizujesz też kurs Azure w tym repozytorium): wszystkie pakiety są już zainstalowane. Uruchom instancję, otwórz JupyterLab i sklonuj repozytorium.</p>
 <p><strong>GitHub Codespaces</strong>: na stronie repozytorium wybierz <strong>Code → Codespaces → Create codespace</strong>. Dostajesz Visual Studio Code w przeglądarce. Po uruchomieniu wykonaj w terminalu:</p>
-<pre><code class="language-bash">pip install -r cwiczenia-ml/requirements.txt
+<pre><code class="language-bash">pip install -r materialy/cwiczenia-ml/requirements.txt
 </code></pre>
 <hr />
 <h2>Sprawdź się przed zajęciami</h2>

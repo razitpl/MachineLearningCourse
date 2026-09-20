@@ -194,7 +194,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </nav>
 </div></header>
 <main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
-<a class="pobierz" href="pobierz/08_uczenie_nienadzorowane.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=22e21935"><div class="prompt input_prompt">
+<a class="pobierz" href="pobierz/08_uczenie_nienadzorowane.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=d07459d0"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="%C4%86wiczenie-8:-Uczenie-nienadzorowane---grupowanie-i-redukcja-wymiarowo%C5%9Bci">Ćwiczenie 8: Uczenie nienadzorowane - grupowanie i redukcja wymiarowości<a class="anchor-link" href="#%C4%86wiczenie-8:-Uczenie-nienadzorowane---grupowanie-i-redukcja-wymiarowo%C5%9Bci">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>Wszystkie dotychczasowe ćwiczenia miały wspólny fundament: obok cech (ang. <em>features</em>) mieliśmy <strong>etykietę</strong>. Model przewidywał, my porównywaliśmy przewidywanie z prawdą i liczyliśmy, ile razy trafił. Tak działa <strong>uczenie nadzorowane</strong> (ang. <em>supervised learning</em>).</p>
@@ -218,7 +218,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=e339140e"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ef6cda8d"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="1.-Te-same-dane,-ale-bez-odpowiedzi">1. Te same dane, ale bez odpowiedzi<a class="anchor-link" href="#1.-Te-same-dane,-ale-bez-odpowiedzi">¶</a></h2><p>Zostajemy przy zbiorze <code>dane/diabetes.csv</code>, który znasz z poprzednich ćwiczeń. Tym razem jednak robimy coś, co może wydać się dziwne: <strong>zasłaniamy kolumnę <code>Diabetic</code></strong>.</p>
@@ -228,7 +228,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=b4186929">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4b57efe0">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -253,7 +253,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=305af039"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=4d374335"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="2.-Dlaczego-skalowanie-jest-tu-obowi%C4%85zkowe">2. Dlaczego skalowanie jest tu obowiązkowe<a class="anchor-link" href="#2.-Dlaczego-skalowanie-jest-tu-obowi%C4%85zkowe">¶</a></h2><p>Spójrz na wypisaną tabelę statystyk. Zakresy cech są <strong>dramatycznie różne</strong>: <code>SerumInsulin</code> liczy się w setkach, <code>BMI</code> w dziesiątkach, a <code>DiabetesPedigree</code> przyjmuje wartości poniżej jedności.</p>
@@ -291,7 +291,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=99030aa5">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=762fd395">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -314,7 +314,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=814ff29b"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=982405ef"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="3.-Pierwsze-grupowanie:-k-%C5%9Brednich">3. Pierwsze grupowanie: k-średnich<a class="anchor-link" href="#3.-Pierwsze-grupowanie:-k-%C5%9Brednich">¶</a></h2><p><strong>K-średnich</strong> (<code>KMeans</code>) działa według zaskakująco prostego przepisu:</p>
@@ -333,7 +333,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=ce29d1bd">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a75dc345">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -356,7 +356,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1ce23666"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7c495756"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Co-to-znaczy-%E2%80%9Egrupa-0%22?">Co to znaczy „grupa 0"?<a class="anchor-link" href="#Co-to-znaczy-%E2%80%9Egrupa-0%22?">¶</a></h3><p>Nic. Dosłownie nic.</p>
@@ -365,7 +365,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=307b8918">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1e999933">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -383,7 +383,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=b5acf817"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=62f6dffa"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <blockquote>
@@ -419,7 +419,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=f10b58e5">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f4cfab40">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -449,7 +449,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=40124d97">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5a2907c3">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -475,7 +475,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=392f26ac"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=322a226f"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Uczciwa-uwaga-o-obu-wykresach">Uczciwa uwaga o obu wykresach<a class="anchor-link" href="#Uczciwa-uwaga-o-obu-wykresach">¶</a></h3><p>W podręcznikach „łokieć" jest ostry i widoczny gołym okiem. W prawdziwych danych - takich jak te - wykres inercji bywa <strong>gładką krzywą bez wyraźnego załamania</strong>, a wskaźnik sylwetki osiąga wartości niskie (rzędu 0,1-0,3), bez wyraźnego zwycięzcy.</p>
@@ -494,7 +494,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=6aae3519">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a2d46e7b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -513,7 +513,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=2a62d8f2">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b041bdde">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -541,7 +541,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=e46ded0e"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=fdd4b566"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Jak-czyta%C4%87-ten-wykres---i-czego-z-niego-nie-odczytywa%C4%87">Jak czytać ten wykres - i czego z niego nie odczytywać<a class="anchor-link" href="#Jak-czyta%C4%87-ten-wykres---i-czego-z-niego-nie-odczytywa%C4%87">¶</a></h3><p><strong>Osie nie mają jednostek.</strong> <code>PC1</code> to nie glukoza ani wiek, tylko mieszanka wszystkich ośmiu cech. Pytanie „ile wynosi PC1 = 2?" nie ma sensownej odpowiedzi w kategoriach medycznych.</p>
@@ -553,7 +553,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=586453fa">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=3c76d471">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -583,7 +583,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=0b4be0d9"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a3a0ae01"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Dlaczego-zgodno%C5%9B%C4%87-jest-tylko-cz%C4%99%C5%9Bciowa---i-dlaczego-to-nie-pora%C5%BCka">Dlaczego zgodność jest tylko częściowa - i dlaczego to nie porażka<a class="anchor-link" href="#Dlaczego-zgodno%C5%9B%C4%87-jest-tylko-cz%C4%99%C5%9Bciowa---i-dlaczego-to-nie-pora%C5%BCka">¶</a></h3><p>Prawdopodobnie zobaczysz, że grupy <strong>nie pokrywają się</strong> z chorobą: udziały chorych w grupach różnią się od średniej w zbiorze, ale żadna grupa nie okazuje się „grupą chorych". Indeks Randa wypada nisko.</p>
@@ -629,7 +629,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=5cb71234">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=fb636f2b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -642,7 +642,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=8d83804c"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=f26c4c97"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-2:-Wska%C5%BAnik-sylwetki-dla-r%C3%B3%C5%BCnych-k">Zadanie 2: Wskaźnik sylwetki dla różnych k<a class="anchor-link" href="#Zadanie-2:-Wska%C5%BAnik-sylwetki-dla-r%C3%B3%C5%BCnych-k">¶</a></h2><p>W sekcji 4 policzyliśmy sylwetkę dla <code>k</code> od 2 do 8 i zrobiliśmy to samo dla inercji.</p>
@@ -658,7 +658,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=ee3f9111">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f4b08688">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -669,7 +669,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=11536db5"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1511f48d"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-3:-Ile-sk%C5%82adowych-PCA-naprawd%C4%99-potrzeba?">Zadanie 3: Ile składowych PCA naprawdę potrzeba?<a class="anchor-link" href="#Zadanie-3:-Ile-sk%C5%82adowych-PCA-naprawd%C4%99-potrzeba?">¶</a></h2><p>W sekcji 5 wzięliśmy dwie składowe, bo tyle mieści się na wykresie. To decyzja podyktowana rysunkiem, a nie danymi.</p>
@@ -683,7 +683,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=192f176b">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=320cbab7">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -695,7 +695,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1cfd9a94"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=051ffb68"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-4:-Opisz-grupy-s%C5%82owami">Zadanie 4: Opisz grupy słowami<a class="anchor-link" href="#Zadanie-4:-Opisz-grupy-s%C5%82owami">¶</a></h2><p>Liczby w tabeli profili to jeszcze nie wynik. Wynikiem jest <strong>opis zrozumiały dla zleceniodawcy</strong>.</p>
@@ -709,7 +709,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=cfd62c6b">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=102bbc0e">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -720,7 +720,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=3ae3b731"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=09c7a270"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><em>Tutaj wpisz nazwy i opisy swoich grup (kliknij dwukrotnie, żeby edytować tę komórkę).</em></p>
@@ -732,7 +732,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=231a4dbf"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=083599ce"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-5:-Grupowanie-po-redukcji-wymiarowo%C5%9Bci">Zadanie 5: Grupowanie po redukcji wymiarowości<a class="anchor-link" href="#Zadanie-5:-Grupowanie-po-redukcji-wymiarowo%C5%9Bci">¶</a></h2><p>PCA bywa używane nie tylko do rysowania, ale i jako <strong>krok przygotowujący dane</strong> przed innym algorytmem.</p>
@@ -746,7 +746,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=b1ed40aa">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=ea39057d">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -757,7 +757,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=8f8588ae"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=4f08f4ce"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-6:-Czy-przy-innym-k-grupy-lepiej-pasuj%C4%85-do-choroby?">Zadanie 6: Czy przy innym k grupy lepiej pasują do choroby?<a class="anchor-link" href="#Zadanie-6:-Czy-przy-innym-k-grupy-lepiej-pasuj%C4%85-do-choroby?">¶</a></h2><p>W sekcji 6 sprawdziliśmy zgodność dla <code>k=2</code>. Może przy innej liczbie grup byłoby lepiej?</p>
@@ -770,7 +770,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=5f83d9a6">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=fd6414b5">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -781,7 +781,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1e03d6cd"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2eb6a747"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-7-(trudniejsze):-Z-czego-zbudowane-s%C4%85-g%C5%82%C3%B3wne-sk%C5%82adowe?">Zadanie 7 (trudniejsze): Z czego zbudowane są główne składowe?<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Z-czego-zbudowane-s%C4%85-g%C5%82%C3%B3wne-sk%C5%82adowe?">¶</a></h2><p><code>PC1</code> to kombinacja wszystkich ośmiu cech - ale z jakimi wagami? Te wagi nazywa się <strong>ładunkami</strong> (ang. <em>loadings</em>) i są dostępne jako <code>pca.components_</code>.</p>
@@ -798,7 +798,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=4d4ea52e">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f9dbb9fe">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -809,7 +809,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=2ed03d43"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=10ca9388"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>

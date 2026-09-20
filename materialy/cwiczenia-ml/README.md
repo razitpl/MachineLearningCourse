@@ -36,12 +36,13 @@ Nacisk położony jest na **samodzielne pisanie kodu**. Każdy notatnik ma tę s
 
 **Pracujesz na własnym komputerze?** Zacznij od [`00_INSTALACJA.md`](00_INSTALACJA.md) - instrukcja krok po kroku, z rozwiązaniami typowych problemów. Potem uruchom [`00_sprawdz_srodowisko.ipynb`](00_sprawdz_srodowisko.ipynb), żeby potwierdzić, że wszystko działa.
 
-**Pracujesz na instancji obliczeniowej Azure ML albo w GitHub Codespaces?** Pakiety są już zainstalowane (w Codespaces wykonaj `pip install -r cwiczenia-ml/requirements.txt`). Możesz od razu przejść do ćwiczenia 01.
+**Pracujesz na instancji obliczeniowej Azure ML albo w GitHub Codespaces?** Pakiety są już zainstalowane (w Codespaces wykonaj `pip install -r materialy/cwiczenia-ml/requirements.txt`). Możesz od razu przejść do ćwiczenia 01.
 
 W skrócie, dla niecierpliwych:
 
 ```bash
-cd cwiczenia-ml
+git clone https://github.com/razitpl/MachineLearningCourse.git
+cd MachineLearningCourse/materialy/cwiczenia-ml
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt

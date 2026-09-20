@@ -59,7 +59,47 @@ Miniconda instaluje Pythona wraz z własnym menedżerem środowisk. Jest odporni
 
 ---
 
-## Krok 2: Utwórz środowisko wirtualne
+## Krok 2: Pobierz materiały
+
+Notatniki, dane i lista pakietów leżą w publicznym repozytorium
+[razitpl/MachineLearningCourse](https://github.com/razitpl/MachineLearningCourse).
+Wybierz jedną z dwóch dróg.
+
+### Droga A: git clone (polecana)
+
+Wymaga zainstalowanego [Gita](https://git-scm.com/downloads), ale pozwala potem pobierać
+poprawki jednym poleceniem `git pull` - a materiały bywają poprawiane w trakcie kursu.
+
+```bash
+git clone https://github.com/razitpl/MachineLearningCourse.git
+```
+
+### Droga B: archiwum ZIP
+
+Bez Gita, za to bez aktualizacji - przy każdej poprawce trzeba pobrać całość od nowa.
+
+1. Otwórz [repozytorium](https://github.com/razitpl/MachineLearningCourse) w przeglądarce.
+2. Kliknij zielony przycisk **Code**, a potem **Download ZIP**.
+3. Rozpakuj archiwum w dowolnym miejscu.
+
+### Co dostajesz
+
+Ćwiczenia z uczenia maszynowego są w podkatalogu `materialy/cwiczenia-ml`:
+
+| Plik | Zawartość |
+|---|---|
+| `01_pierwszy_model.ipynb` … `11_jakosc_kodu_ml.ipynb` | notatniki z ćwiczeniami |
+| `00_sprawdz_srodowisko.ipynb` | test poprawności instalacji |
+| `dane/` | pliki CSV używane w ćwiczeniach |
+| `requirements.txt` | lista pakietów do zainstalowania w kroku 4 |
+| `00_INSTALACJA.md` | ten dokument |
+
+Obok, w `materialy/azure-ml`, leżą materiały do kursu Azure Machine Learning - jeśli
+realizujesz tylko część o uczeniu maszynowym, możesz je zignorować.
+
+---
+
+## Krok 3: Utwórz środowisko wirtualne
 
 **Środowisko wirtualne** (ang. *virtual environment*) to odizolowany katalog z własnym kompletem pakietów.
 
@@ -107,7 +147,7 @@ Po aktywacji na początku wiersza polecenia zobaczysz nazwę środowiska, np. `(
 
 ---
 
-## Krok 3: Zainstaluj pakiety
+## Krok 4: Zainstaluj pakiety
 
 Przy **aktywnym** środowisku:
 
@@ -119,7 +159,7 @@ Instalacja potrwa od kilkudziesięciu sekund do kilku minut - pobierane są pacz
 
 ---
 
-## Krok 4: Uruchom JupyterLab
+## Krok 5: Uruchom JupyterLab
 
 ```bash
 jupyter lab
@@ -168,7 +208,7 @@ Jeśli nie chcesz lub nie możesz niczego instalować, masz dwie możliwości - 
 **GitHub Codespaces**: na stronie repozytorium wybierz **Code → Codespaces → Create codespace**. Dostajesz Visual Studio Code w przeglądarce. Po uruchomieniu wykonaj w terminalu:
 
 ```bash
-pip install -r cwiczenia-ml/requirements.txt
+pip install -r materialy/cwiczenia-ml/requirements.txt
 ```
 
 ---

@@ -194,7 +194,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </nav>
 </div></header>
 <main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
-<a class="pobierz" href="pobierz/02_poznaj_swoje_dane.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=68027e1b"><div class="prompt input_prompt">
+<a class="pobierz" href="pobierz/02_poznaj_swoje_dane.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=b309b94c"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="%C4%86wiczenie-2:-Poznaj-swoje-dane-(EDA)">Ćwiczenie 2: Poznaj swoje dane (EDA)<a class="anchor-link" href="#%C4%86wiczenie-2:-Poznaj-swoje-dane-(EDA)">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 01 zbudowaliśmy model, prawie nie patrząc na dane. Zadziałało - bo zbiór <code>diabetes.csv</code> jest wyjątkowo grzeczny: same liczby, żadnej pustej komórki, sensowne zakresy. W prawdziwym projekcie tak nie będzie.</p>
@@ -226,7 +226,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=729803e7"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c64da61d"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="1.-Pierwszy-rzut-oka">1. Pierwszy rzut oka<a class="anchor-link" href="#1.-Pierwszy-rzut-oka">¶</a></h2><p>Pracujemy na tym samym zbiorze co poprzednio: <code>dane/diabetes.csv</code> - 10 000 kart pacjentów przebadanych pod kątem cukrzycy.</p>
@@ -265,7 +265,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=1f6ede2b">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d1c9973e">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -284,7 +284,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=e09a82cc">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=c7b734a9">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -300,7 +300,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=a74373f3"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0b1fac3a"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Wynik <code>isna().sum()</code> pokazuje <strong>same zera</strong> - w tym pliku nie ma ani jednej pustej komórki. Zapamiętaj to, bo w sekcji 6 pokażemy, że <em>brak pustych komórek</em> i <em>brak braków danych</em> to dwie zupełnie różne rzeczy.</p>
@@ -309,7 +309,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=da99038e">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a81b7502">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -321,7 +321,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=d6320d1c"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8b7253ff"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Jak-to-czyta%C4%87">Jak to czytać<a class="anchor-link" href="#Jak-to-czyta%C4%87">¶</a></h3><table>
@@ -364,7 +364,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=29a091f5">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=333b6505">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -382,7 +382,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=9409ffef"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=25b9f9ba"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="3.-Rozk%C5%82ad-etykiety">3. Rozkład etykiety<a class="anchor-link" href="#3.-Rozk%C5%82ad-etykiety">¶</a></h2><p>Zanim spojrzymy na cechy, sprawdzamy <strong>etykietę</strong> (ang. <em>label</em>). To pytanie: „czego ja właściwie uczę model?".</p>
@@ -390,7 +390,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=a5d6a99f">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=858560f2">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -416,7 +416,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c129acff"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9cbb5812"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Proporcja mniej więcej dwa do jednego. To <strong>umiarkowane</strong> niezrównoważenie - nieprzyjemne, ale nie dramatyczne. Dla porównania: w wykrywaniu oszustw kartowych klasa pozytywna to często 0,1% danych i tam problem jest zupełnie innego kalibru.</p>
@@ -426,7 +426,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=a806b6f8">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1558cabd">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -449,7 +449,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=9746a698"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=3a8299cd"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Co-wida%C4%87-i-co-z-tego-wynika">Co widać i co z tego wynika<a class="anchor-link" href="#Co-wida%C4%87-i-co-z-tego-wynika">¶</a></h3><p>Przejdź po wykresach i nazwij kształt każdego rozkładu. Trzy wzorce, które warto umieć rozpoznać:</p>
@@ -495,7 +495,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=f4651cec">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b65ec7c2">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -528,7 +528,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=277cd066">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a0da6f0c">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -543,7 +543,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=2985ded5"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c6f37a63"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Jak-to-interpretowa%C4%87">Jak to interpretować<a class="anchor-link" href="#Jak-to-interpretowa%C4%87">¶</a></h3><p>Trzy pułapki, w które łatwo wpaść przy czytaniu macierzy korelacji:</p>
@@ -557,7 +557,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=80873bc9">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=6de9a951">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -585,7 +585,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=cd002350">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=bedfdc1b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -605,7 +605,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=9096a086"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8598dd01"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Ostatnia kolumna to <strong>znormalizowana różnica średnich</strong> - różnica wyrażona w odchyleniach standardowych cechy. Dzięki temu da się porównywać cechy o zupełnie różnych skalach: różnica 40 jednostek w <code>SerumInsulin</code> i różnica 3 lata w <code>Age</code> przestają być nieporównywalne.</p>
@@ -632,7 +632,7 @@ górna granica = Q3 + 1,5 * IQR
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=84894979">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=bc5f76c4">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -663,14 +663,14 @@ górna granica = Q3 + 1,5 * IQR
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=d4f7c743"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=abfe843e"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Teraz najciekawsze pytanie, jakie można zadać o wartości odstające: <strong>kim są ci pacjenci?</strong> Jeśli okaże się, że odstający to w większości osoby chore, usunięcie ich byłoby usunięciem sygnału, a nie szumu.</p>
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=5ea380e7">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=dd5d77c1">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -689,7 +689,7 @@ górna granica = Q3 + 1,5 * IQR
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=b1523a52"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d84bc4b8"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Porównaj te trzy liczby. Jeśli udział chorych wśród odstających wyraźnie różni się od udziału w całym zbiorze, to znaczy, że <strong>fakt bycia wartością odstającą sam w sobie niesie informację o chorobie</strong>. W takiej sytuacji usunięcie odstających to usunięcie sygnału.</p>
@@ -727,7 +727,7 @@ górna granica = Q3 + 1,5 * IQR
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=e757a323">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=48e94fc7">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -750,7 +750,7 @@ górna granica = Q3 + 1,5 * IQR
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=6d537e18"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7e0c2b08"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Zero braków. Dane wyglądają na nienaganne - a jedna trzecia kolumny <code>SerumInsulin</code> została właśnie zniszczona.</p>
@@ -758,7 +758,7 @@ górna granica = Q3 + 1,5 * IQR
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=1d6f05e4">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=30ec9395">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -787,7 +787,7 @@ górna granica = Q3 + 1,5 * IQR
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=f137eb6e"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9f02f52a"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Teraz obraz jest jednoznaczny. <code>Pregnancies</code> ma mnóstwo zer i <strong>tak ma być</strong>. Ale zera w <code>SerumInsulin</code>, <code>TricepsThickness</code> i <code>DiastolicBloodPressure</code> nie mogą być prawdziwymi pomiarami - to braki danych w przebraniu.</p>
@@ -795,7 +795,7 @@ górna granica = Q3 + 1,5 * IQR
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=1c4475fc">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5b823fad">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -828,7 +828,7 @@ górna granica = Q3 + 1,5 * IQR
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=927b1c65"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b42f8781"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Dlaczego-to-jest-gro%C5%BAne">Dlaczego to jest groźne<a class="anchor-link" href="#Dlaczego-to-jest-gro%C5%BAne">¶</a></h3><p>Popatrz na tabelę i na lewy histogram. Sztuczne zera:</p>
@@ -981,7 +981,7 @@ DiastolicBloodPressure      69.000      73.000    4.000             0.058
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=a37f0871">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=2ea2b3f4">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -992,7 +992,7 @@ DiastolicBloodPressure      69.000      73.000    4.000             0.058
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1937ba73"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1231cef2"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-2:-Histogram-z-podzia%C5%82em-na-klasy">Zadanie 2: Histogram z podziałem na klasy<a class="anchor-link" href="#Zadanie-2:-Histogram-z-podzia%C5%82em-na-klasy">¶</a></h2><p>Narysuj histogram cechy <code>PlasmaGlucose</code> z <strong>dwoma nałożonymi rozkładami</strong>: osobno dla chorych, osobno dla zdrowych.</p>
@@ -1092,7 +1092,7 @@ DiastolicBloodPressure      69.000      73.000    4.000             0.058
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=79719dac">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f04a5224">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1103,7 +1103,7 @@ DiastolicBloodPressure      69.000      73.000    4.000             0.058
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=ce7bcb31"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=76c9e978"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-3:-Najsilniej-skorelowane-pary-cech">Zadanie 3: Najsilniej skorelowane pary cech<a class="anchor-link" href="#Zadanie-3:-Najsilniej-skorelowane-pary-cech">¶</a></h2><p>Znajdź <strong>trzy pary cech</strong> (nie licząc etykiety) o najwyższej korelacji co do wartości bezwzględnej.</p>
@@ -1195,7 +1195,7 @@ Pregnancies          BMI   0.098109     0.098109
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=e693cc94">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5dfd3b40">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1206,7 +1206,7 @@ Pregnancies          BMI   0.098109     0.098109
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=78dfd10d"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8634e0f9"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-4:-Regu%C5%82a-IQR-z-innym-mno%C5%BCnikiem">Zadanie 4: Reguła IQR z innym mnożnikiem<a class="anchor-link" href="#Zadanie-4:-Regu%C5%82a-IQR-z-innym-mno%C5%BCnikiem">¶</a></h2><p>Funkcja <code>granice_iqr</code> ma parametr <code>mnoznik</code>, domyślnie 1,5. Sprawdź, jak liczba wartości odstających w cesze <code>SerumInsulin</code> zmienia się dla mnożników 1,0, 1,5, 2,0 i 3,0.</p>
@@ -1294,7 +1294,7 @@ Pregnancies          BMI   0.098109     0.098109
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=fc6bbccd">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b377ec8f">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1305,7 +1305,7 @@ Pregnancies          BMI   0.098109     0.098109
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=4ac42818"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=37ea64d5"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-5:-Wykryj-podejrzane-zera-samodzielnie">Zadanie 5: Wykryj podejrzane zera samodzielnie<a class="anchor-link" href="#Zadanie-5:-Wykryj-podejrzane-zera-samodzielnie">¶</a></h2><p>Napisz funkcję <code>raport_zer(ramka, kolumny, prog=0.01)</code>, która:</p>
@@ -1413,7 +1413,7 @@ Pregnancies       0.288        2879
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=9501349c">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=0d38939b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1424,7 +1424,7 @@ Pregnancies       0.288        2879
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=58a69e55"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=429c8ba4"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-6:-Ile-kosztuje-jedno-przeoczone-zero?">Zadanie 6: Ile kosztuje jedno przeoczone zero?<a class="anchor-link" href="#Zadanie-6:-Ile-kosztuje-jedno-przeoczone-zero?">¶</a></h2><p>Na kolumnie <code>TricepsThickness</code> z ramki <code>dane_surowe</code>:</p>
@@ -1532,7 +1532,7 @@ Błąd średniej PO ZAMIANIE NA NaN: -0.0%
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=fa47adc9">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=727ce881">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1543,7 +1543,7 @@ Błąd średniej PO ZAMIANIE NA NaN: -0.0%
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1d245963"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=eab05254"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-7-(trudniejsze):-Czy-model-zauwa%C5%BCy-r%C3%B3%C5%BCnic%C4%99?">Zadanie 7 (trudniejsze): Czy model zauważy różnicę?<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Czy-model-zauwa%C5%BCy-r%C3%B3%C5%BCnic%C4%99?">¶</a></h2><p>Sprawdź empirycznie, czy podejrzane zera faktycznie szkodzą modelowi. Porównaj <strong>trzy warianty</strong> tych samych danych:</p>
@@ -1682,7 +1682,7 @@ Wariant C stracił 5075 wierszy (50.8% zbioru).
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=1cfa68d5">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=6af63804">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1701,7 +1701,7 @@ Wariant C stracił 5075 wierszy (50.8% zbioru).
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=29426cb1"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ba99b63b"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>

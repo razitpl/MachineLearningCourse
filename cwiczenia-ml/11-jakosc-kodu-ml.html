@@ -194,7 +194,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </nav>
 </div></header>
 <main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
-<a class="pobierz" href="pobierz/11_jakosc_kodu_ml.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=11875032"><div class="prompt input_prompt">
+<a class="pobierz" href="pobierz/11_jakosc_kodu_ml.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=e60add72"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="%C4%86wiczenie-11:-Jako%C5%9B%C4%87-kodu-w-uczeniu-maszynowym">Ćwiczenie 11: Jakość kodu w uczeniu maszynowym<a class="anchor-link" href="#%C4%86wiczenie-11:-Jako%C5%9B%C4%87-kodu-w-uczeniu-maszynowym">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 10 kod przeniósł się z notatnika do pliku <code>.py</code>: powstały funkcje <code>wczytaj_dane</code>, <code>przygotuj_cechy</code>, <code>trenuj_model</code> i <code>ocen_model</code>, parametry trafiły do wiersza poleceń, a model - na dysk. Skrypt uruchamia się w świeżym procesie i daje ten sam wynik za każdym razem.</p>
@@ -225,7 +225,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=7f1f181e"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=6823a5c1"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="1.-Co-w%C5%82a%C5%9Bciwie-da-si%C4%99-testowa%C4%87-w-kodzie-ML">1. Co właściwie da się testować w kodzie ML<a class="anchor-link" href="#1.-Co-w%C5%82a%C5%9Bciwie-da-si%C4%99-testowa%C4%87-w-kodzie-ML">¶</a></h2><p>To jest sedno całego ćwiczenia, więc warto zatrzymać się tu na dłużej.</p>
@@ -279,7 +279,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=4de1ff96"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=6a920705"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="2.-Czy-pytest-jest-zainstalowany?">2. Czy <code>pytest</code> jest zainstalowany?<a class="anchor-link" href="#2.-Czy-pytest-jest-zainstalowany?">¶</a></h2><p><code>pytest</code> to osobny pakiet - <strong>nie wchodzi w skład standardowej biblioteki Pythona</strong>. Na instancji obliczeniowej Azure ML zwykle jest, na własnym komputerze bywa różnie.</p>
@@ -287,7 +287,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=b84ee2a8">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=57ec4307">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -308,7 +308,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=19665523"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=90824e3d"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Gdy w wyniku pojawiło się „NIE jest zainstalowany", wykonaj w nowej komórce:</p>
@@ -318,7 +318,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=3919653d"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=33875f7f"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="3.-Kod,-kt%C3%B3ry-da-si%C4%99-przetestowa%C4%87">3. Kod, który da się przetestować<a class="anchor-link" href="#3.-Kod,-kt%C3%B3ry-da-si%C4%99-przetestowa%C4%87">¶</a></h2><p>Testowalność nie jest cechą testu - jest cechą <strong>kodu</strong>. Funkcja nadaje się do testowania, gdy:</p>
@@ -333,7 +333,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=ccba0631">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=38cc1bfd">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -349,7 +349,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=2df09e4c">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5d5d63d1">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -365,7 +365,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=40442a96">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4f44cd35">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -454,7 +454,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=50a7daa9"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=01dfb5bb"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="4.-Pierwszy-test">4. Pierwszy test<a class="anchor-link" href="#4.-Pierwszy-test">¶</a></h2><p>Test w <code>pytest</code> to <strong>zwykła funkcja</strong>, bez klas i bez dziedziczenia. Obowiązują tylko trzy konwencje:</p>
@@ -497,7 +497,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=49429cdd">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=00334327">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -563,7 +563,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=9112e02e"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=3fd4f6f8"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Uruchomienie-test%C3%B3w">Uruchomienie testów<a class="anchor-link" href="#Uruchomienie-test%C3%B3w">¶</a></h3><p>Polecenie to <code>python -m pytest tests/ -v</code>:</p>
@@ -576,7 +576,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=3f806c1b">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=0092aa2c">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -587,7 +587,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c4a83de5"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=fb2bb083"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Pięć testów, pięć razy <code>PASSED</code>. Warto zauważyć, czego te testy <strong>nie</strong> sprawdzają: ani jednego słowa o skuteczności, drzewie czy metrykach. Sprawdzają wyłącznie, czy przekształcenie danych robi to, co obiecuje jego nazwa.</p>
@@ -602,7 +602,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=55ab5a2c">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=393362fd">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -700,7 +700,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=f460295f">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=da0f8091">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -711,7 +711,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=d8b539fc"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=60ce9a45"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Zwróć uwagę na parę testów <code>test_podzial_jest_deterministyczny</code> i <code>test_inne_ziarno_daje_inny_podzial</code>. Same się uzupełniają:</p>
@@ -729,7 +729,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=089b2538">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1bb674a3">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -808,7 +808,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=10c0e65c">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e6c5975f">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -819,7 +819,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=8aa95350"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d11ef846"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="7.-Jak-wygl%C4%85da-test,-kt%C3%B3ry-nie-przechodzi">7. Jak wygląda test, który nie przechodzi<a class="anchor-link" href="#7.-Jak-wygl%C4%85da-test,-kt%C3%B3ry-nie-przechodzi">¶</a></h2><p>Testy przechodzące na zielono są przyjemne, ale nauczyć się trzeba czytania tych <strong>czerwonych</strong> - bo to one niosą informację.</p>
@@ -827,7 +827,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=363a631b">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=bf0ffb6f">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -846,7 +846,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=43173b1c">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b154a40a">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -857,7 +857,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=72690ca3"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=aa831fba"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>W raporcie z błędu warto zobaczyć trzy rzeczy:</p>
@@ -871,7 +871,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=20307f24">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d10c516b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -885,7 +885,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=842a6e78"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=bda6db91"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="8.-Asercje-sanity-check-wewn%C4%85trz-potoku-danych">8. Asercje sanity-check wewnątrz potoku danych<a class="anchor-link" href="#8.-Asercje-sanity-check-wewn%C4%85trz-potoku-danych">¶</a></h2><p><code>assert</code> w teście i <code>assert</code> w kodzie potoku wyglądają identycznie, ale odpowiadają na różne pytania:</p>
@@ -928,7 +928,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=0bf279b7">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=702f4201">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -956,7 +956,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=ef978518"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=570602ae"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Bez tej asercji błąd wyszedłby na jaw dopiero w <code>przygotuj_cechy</code> - albo, w gorszym wariancie, jeszcze później i pod postacią komunikatu, który z prawdziwą przyczyną nie ma nic wspólnego. <strong>Im wcześniej potok się zatrzyma, tym taniej.</strong></p>
@@ -986,7 +986,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=b1b90ec8">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5308fd20">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1019,7 +1019,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=5503ff09"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=38def349"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Uwagi lintera nie są błędami - kod z nieużywanym importem uruchomi się bez problemu. Są sygnałem, że coś jest <strong>niepotrzebne albo mylące dla czytelnika</strong>, a nieużywany import to często ślad po funkcji, która została skasowana w połowie.</p>
@@ -1052,7 +1052,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=1f0df145">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=09ded0ac">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1065,7 +1065,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=261abb2b"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0577a617"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-2:-Test-determinizmu-treningu">Zadanie 2: Test determinizmu treningu<a class="anchor-link" href="#Zadanie-2:-Test-determinizmu-treningu">¶</a></h2><p>W ćwiczeniu 10 odtwarzalność sprawdzało się, uruchamiając skrypt dwa razy i porównując pliki. Teraz zapiszemy to samo jako test, który wykonuje się w ułamku sekundy.</p>
@@ -1079,7 +1079,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=e587064f">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=c8092634">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1090,7 +1090,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c9d119b5"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=839565a3"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-3:-Test-obs%C5%82ugi-brak%C3%B3w-danych">Zadanie 3: Test obsługi braków danych<a class="anchor-link" href="#Zadanie-3:-Test-obs%C5%82ugi-brak%C3%B3w-danych">¶</a></h2><p><code>przygotuj_cechy</code> ma argument <code>usun_braki=True</code> i wywołuje <code>dropna()</code>. Sprawdź, że rzeczywiście robi to, co obiecuje.</p>
@@ -1105,7 +1105,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=ad921464">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=640b7e9d">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1116,7 +1116,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=02308c03"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9ecd7fbf"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-4:-Nowa-asercja-sanity-check-i-test,-%C5%BCe-dzia%C5%82a">Zadanie 4: Nowa asercja sanity-check i test, że działa<a class="anchor-link" href="#Zadanie-4:-Nowa-asercja-sanity-check-i-test,-%C5%BCe-dzia%C5%82a">¶</a></h2><p>Etykieta <code>Diabetic</code> jest binarna - dopuszczalne wartości to wyłącznie 0 i 1. Wartość 2 albo <code>-1</code> oznacza, że coś jest nie tak z danymi.</p>
@@ -1138,7 +1138,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=71c773ba">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e5c76d9f">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1151,7 +1151,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=41abe462"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1f90eef0"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-5:-Test,-kt%C3%B3ry-wykrywa-zostawiony-PatientID">Zadanie 5: Test, który wykrywa zostawiony <code>PatientID</code><a class="anchor-link" href="#Zadanie-5:-Test,-kt%C3%B3ry-wykrywa-zostawiony-PatientID">¶</a></h2><p>To zadanie odtwarza realny błąd z ćwiczenia 01 i pokazuje najważniejszą właściwość testu: <strong>zanim uwierzysz, że test coś sprawdza, zobacz go czerwonego</strong>.</p>
@@ -1166,7 +1166,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=d0b00f83">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a94c18be">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1177,7 +1177,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1c33bc4e"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=21961f3a"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-6:-Sprawdzenie-stylu-w%C5%82asnego-kodu">Zadanie 6: Sprawdzenie stylu własnego kodu<a class="anchor-link" href="#Zadanie-6:-Sprawdzenie-stylu-w%C5%82asnego-kodu">¶</a></h2><ol>
@@ -1190,7 +1190,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=e84123df">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=32b7d35c">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1201,7 +1201,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=61452ca8"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=64ffbcb8"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-7-(trudniejsze):-Testy-parametryzowane-i-test-ca%C5%82ego-potoku">Zadanie 7 (trudniejsze): Testy parametryzowane i test całego potoku<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Testy-parametryzowane-i-test-ca%C5%82ego-potoku">¶</a></h2><p>Dwie części - pierwsza o testach jednostkowych, druga o teście innego rodzaju.</p>
@@ -1233,7 +1233,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=5f66f13e">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b0c85aa6">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1244,7 +1244,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=4f8ca254"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c966b5e5"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>
@@ -1268,7 +1268,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=ca73a951"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=191cb4ef"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>

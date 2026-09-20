@@ -194,7 +194,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </nav>
 </div></header>
 <main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
-<a class="pobierz" href="pobierz/03_przygotowanie_danych.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=a6a339db"><div class="prompt input_prompt">
+<a class="pobierz" href="pobierz/03_przygotowanie_danych.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=e6480e0f"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="%C4%86wiczenie-3:-Przygotowanie-danych">Ćwiczenie 3: Przygotowanie danych<a class="anchor-link" href="#%C4%86wiczenie-3:-Przygotowanie-danych">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 02 znaleźliśmy w danych problemy: braki ukryte pod zerami, cechy o zupełnie różnych skalach, rozkłady skośne. Znalezienie problemu to jednak dopiero połowa pracy - teraz trzeba go naprawić, i to <strong>tak, żeby naprawa sama nie stała się większym problemem</strong>.</p>
@@ -219,7 +219,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=be7cfa57"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=4add2ba9"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="1.-Punkt-wyj%C5%9Bcia:-dane-z-problemami">1. Punkt wyjścia: dane z problemami<a class="anchor-link" href="#1.-Punkt-wyj%C5%9Bcia:-dane-z-problemami">¶</a></h2><p>Plik <code>dane/diabetes.csv</code> jest wyjątkowo czysty - nie ma w nim braków ani kolumn tekstowych. Dla ćwiczenia to niewygodne, bo nie ma czego naprawiać. Dlatego <strong>wytworzymy problemy programowo</strong>, dokładnie tak jak w ćwiczeniu 02:</p>
@@ -231,7 +231,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=fab9d9f7">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=abd0b1ce">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -278,7 +278,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=538de298"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d6703294"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Dlaczego-grupa-wiekowa,-skoro-mamy-dok%C5%82adny-wiek?">Dlaczego grupa wiekowa, skoro mamy dokładny wiek?<a class="anchor-link" href="#Dlaczego-grupa-wiekowa,-skoro-mamy-dok%C5%82adny-wiek?">¶</a></h3><p>To dobre pytanie i odpowiedź brzmi: w tym konkretnym przypadku raczej <strong>nie warto</strong>. Dzieląc ciągły wiek na cztery kubełki, tracimy informację - pacjent 44-letni i 31-letni wpadają do tego samego pudełka, a 45-letni i 46-letni do różnych.</p>
@@ -342,7 +342,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=51cb0f47">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f963f866">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -371,7 +371,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=679958e1"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0d6a12f1"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Zwróć uwagę na atrybut <code>statistics_</code> - kończąca się podkreśleniem nazwa to w scikit-learn konwencja oznaczająca <strong>coś, czego obiekt nauczył się podczas <code>fit</code></strong>. Zapamiętaj ją, bo to najprostszy sposób, żeby rozpoznać, czy dane przekształcenie w ogóle się czegoś uczy (a więc czy grozi przeciekiem).</p>
@@ -379,7 +379,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=c47863fb">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=74de2219">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -406,7 +406,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1c682242"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1b31f0f8"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Widać dokładnie to, czego należało się spodziewać: uzupełnianie <strong>jedną wartością</strong> tworzy sztuczny, bardzo wysoki słupek w miejscu tej wartości. Rozkład przestaje przypominać oryginał, a wariancja cechy spada.</p>
@@ -463,7 +463,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=63c5d1f1">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=260e326d">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -488,7 +488,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=7835209b">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=eeaef773">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -510,7 +510,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c036692d"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e15d4922"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Popatrz na środkowy wynik. Pięć prawdziwych obserwacji, które wcześniej rozkładały się ładnie w zakresie od 0 do 1, zostało <strong>zgniecionych w okolice zera</strong> - bo <code>max</code> wynosi teraz 10 000. Dla modelu te pięć wartości stało się praktycznie nierozróżnialnych.</p>
@@ -522,7 +522,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=3c2cfad5">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d62603f2">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -544,7 +544,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=2fd493bc"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=75bc2d72"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Dwa argumenty, które właśnie ustawiliśmy, są ważniejsze, niż wyglądają:</p>
@@ -571,7 +571,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=f8956976">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b9365ba2">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -609,7 +609,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1c25edc1"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b3741abf"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="6.-ColumnTransformer---r%C3%B3%C5%BCne-przekszta%C5%82cenia-do-r%C3%B3%C5%BCnych-kolumn">6. <code>ColumnTransformer</code> - różne przekształcenia do różnych kolumn<a class="anchor-link" href="#6.-ColumnTransformer---r%C3%B3%C5%BCne-przekszta%C5%82cenia-do-r%C3%B3%C5%BCnych-kolumn">¶</a></h2><p>Potok z sekcji 5 stosuje <strong>to samo</strong> do wszystkich kolumn. Nie da się tak potraktować kolumny <code>GrupaWiekowa</code>: <code>SimpleImputer(strategy='median')</code> nie policzy mediany z tekstu, a <code>StandardScaler</code> nie podzieli słowa przez odchylenie standardowe.</p>
@@ -621,7 +621,7 @@ dane wejściowe ──────────┤                               
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=57a617a6">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=9ffbba3e">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -671,7 +671,7 @@ dane wejściowe ──────────┤                               
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=de9820f8"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=072ec106"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Zwróć uwagę, że liczba kolumn urosła: jedna kolumna tekstowa zamieniła się w cztery zero-jedynkowe. Metoda <code>get_feature_names_out()</code> pozwala sprawdzić, co dokładnie dostaje model - bardzo się przydaje, gdy potem chcesz obejrzeć ważność cech albo współczynniki modelu.</p>
@@ -715,7 +715,7 @@ dane wejściowe ──────────┤                               
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=a2a8d3f1">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a7bcce16">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -767,7 +767,7 @@ dane wejściowe ──────────┤                               
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=7131b326"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=4465b1e1"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Jak-czyta%C4%87-ten-wynik---uczciwie">Jak czytać ten wynik - uczciwie<a class="anchor-link" href="#Jak-czyta%C4%87-ten-wynik---uczciwie">¶</a></h3><p>Różnica najprawdopodobniej wyszła <strong>niewielka</strong>. I bardzo dobrze, bo uczy czegoś ważniejszego niż straszenie:</p>
@@ -777,7 +777,7 @@ dane wejściowe ──────────┤                               
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=8c0e2c2a">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b2ddd632">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -814,7 +814,7 @@ dane wejściowe ──────────┤                               
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=11fef429"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0f342cab"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Ta różnica jest już wyraźna. Powód: wpisując w brakujące komórki wartość zależną od etykiety (ang. <em>label</em>), <strong>przemyciliśmy odpowiedź do cechy</strong>. Model nie musi niczego zgadywać - wystarczy, że odczyta, którą z dwóch wartości wpisano.</p>
@@ -945,7 +945,7 @@ Różnica między najlepszą a najgorszą strategią: 0.0060 (12 pacjentów na 2
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=f03873bc">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=138a1349">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -956,7 +956,7 @@ Różnica między najlepszą a najgorszą strategią: 0.0060 (12 pacjentów na 2
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=a2a2bb8d"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=fdfbee0f"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-2:-StandardScaler-kontra-MinMaxScaler">Zadanie 2: <code>StandardScaler</code> kontra <code>MinMaxScaler</code><a class="anchor-link" href="#Zadanie-2:-StandardScaler-kontra-MinMaxScaler">¶</a></h2><p>Porównaj oba skalery w tym samym potoku (uzupełnianie medianą + skaler + regresja logistyczna).</p>
@@ -1104,7 +1104,7 @@ bez skalowania   skuteczność 0.7835 | iteracji:  134 | ostrzeżeń o zbieżno�
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=7b84f2c1">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=bfb1eca8">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1115,7 +1115,7 @@ bez skalowania   skuteczność 0.7835 | iteracji:  134 | ostrzeżeń o zbieżno�
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=b57a77f6"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ecc7d739"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-3:-Kodowanie-kategorii---dobrze-i-%C5%BAle">Zadanie 3: Kodowanie kategorii - dobrze i źle<a class="anchor-link" href="#Zadanie-3:-Kodowanie-kategorii---dobrze-i-%C5%BAle">¶</a></h2><p>Porównaj dwa sposoby potraktowania kolumny <code>GrupaWiekowa</code>:</p>
@@ -1235,7 +1235,7 @@ Mapowanie użyte w wariancie B:
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=3df59a85">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1660ab90">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1246,7 +1246,7 @@ Mapowanie użyte w wariancie B:
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=32f2de8b"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b55de5a1"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-4:-W%C5%82asny-ColumnTransformer">Zadanie 4: Własny <code>ColumnTransformer</code><a class="anchor-link" href="#Zadanie-4:-W%C5%82asny-ColumnTransformer">¶</a></h2><p>Zbuduj potok, w którym <strong>różne kolumny liczbowe traktowane są inaczej</strong>:</p>
@@ -1357,7 +1357,7 @@ Dla porównania - jedna gałąź liczbowa (zadanie 3, wariant A): 0.7920
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=fb585001">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b7a154a4">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1368,7 +1368,7 @@ Dla porównania - jedna gałąź liczbowa (zadanie 3, wariant A): 0.7920
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=bf03de6c"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b1ded422"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-5:-Znajd%C5%BA-przeciek-w-cudzym-kodzie">Zadanie 5: Znajdź przeciek w cudzym kodzie<a class="anchor-link" href="#Zadanie-5:-Znajd%C5%BA-przeciek-w-cudzym-kodzie">¶</a></h2><p>Poniższy kod działa bez błędu i daje przyzwoity wynik. Zawiera <strong>dwa</strong> osobne przecieki danych.</p>
@@ -1496,7 +1496,7 @@ Statystyki wyuczone przez oba imputery (SerumInsulin):
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=e1e2d2f7">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=8aad7387">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1507,7 +1507,7 @@ Statystyki wyuczone przez oba imputery (SerumInsulin):
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=dd13454b"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ad494cff"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-6:-Ile-kosztuje-uzupe%C5%82nianie?-Por%C3%B3wnanie-z-prawd%C4%85">Zadanie 6: Ile kosztuje uzupełnianie? Porównanie z prawdą<a class="anchor-link" href="#Zadanie-6:-Ile-kosztuje-uzupe%C5%82nianie?-Por%C3%B3wnanie-z-prawd%C4%85">¶</a></h2><p>Mamy rzadki komfort: znamy prawdziwe wartości, które udajemy, że zgubiliśmy (są w <code>dane_czyste</code>).</p>
@@ -1650,7 +1650,7 @@ Zakres: od 14.00 do 795.00
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=cb203694">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b66d3361">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1661,7 +1661,7 @@ Zakres: od 14.00 do 795.00
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=a87b5752"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=20a53010"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-7-(trudniejsze):-Kiedy-przeciek-staje-si%C4%99-widoczny?">Zadanie 7 (trudniejsze): Kiedy przeciek staje się widoczny?<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Kiedy-przeciek-staje-si%C4%99-widoczny?">¶</a></h2><p>W sekcji 7 przeciek przy uzupełnianiu średnią był ledwie zauważalny. Sprawdź, <strong>od czego zależy jego skala</strong>.</p>
@@ -1806,7 +1806,7 @@ Zakres: od 14.00 do 795.00
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=df20b5ad">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4a94821f">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1817,7 +1817,7 @@ Zakres: od 14.00 do 795.00
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=45ffcec3"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=60328438"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>

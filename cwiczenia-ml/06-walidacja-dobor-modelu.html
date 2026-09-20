@@ -194,7 +194,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </nav>
 </div></header>
 <main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
-<a class="pobierz" href="pobierz/06_walidacja_dobor_modelu.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=183e7193"><div class="prompt input_prompt">
+<a class="pobierz" href="pobierz/06_walidacja_dobor_modelu.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=c08e6d38"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="%C4%86wiczenie-6:-Walidacja-i-dob%C3%B3r-modelu">Ćwiczenie 6: Walidacja i dobór modelu<a class="anchor-link" href="#%C4%86wiczenie-6:-Walidacja-i-dob%C3%B3r-modelu">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 01, w zadaniu 4, zrobiliśmy coś, co wyglądało całkowicie rozsądnie: sprawdziliśmy <code>max_depth</code> od 1 do 15, dla każdej wartości zmierzyliśmy skuteczność <strong>na zbiorze testowym</strong> i wybraliśmy tę, która wypadła najlepiej.</p>
@@ -219,14 +219,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=a07d3a34"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=da2f550b"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="1.-Dane-i-przypomnienie-b%C5%82%C4%99du">1. Dane i przypomnienie błędu<a class="anchor-link" href="#1.-Dane-i-przypomnienie-b%C5%82%C4%99du">¶</a></h2><p>Pracujemy na znanym już zbiorze <code>dane/diabetes.csv</code> - 10 000 kart pacjentów, etykieta <code>Diabetic</code> (0/1). Przygotowanie jest identyczne jak w ćwiczeniu 01: usuwamy <code>PatientID</code>, dzielimy na <code>X</code> (cechy, ang. <em>features</em>) i <code>y</code> (etykietę, ang. <em>label</em>).</p>
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=418e59b4">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=3dce082a">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -258,14 +258,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=e88077e6"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7632842b"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Odtw%C3%B3rzmy-b%C5%82%C4%85d-z-%C4%87wiczenia-01">Odtwórzmy błąd z ćwiczenia 01<a class="anchor-link" href="#Odtw%C3%B3rzmy-b%C5%82%C4%85d-z-%C4%87wiczenia-01">¶</a></h3><p>Poniższy kod robi dokładnie to, co robiliśmy poprzednio: dla każdej głębokości mierzy wynik na zbiorze testowym i wybiera najlepszą. Uruchom go i <strong>zwróć uwagę na ostatnią linię wydruku</strong>.</p>
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=22f038b4">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=8e4c46ed">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -291,7 +291,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=bdae16c7"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=608381df"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Na-czym-dok%C5%82adnie-polega-oszustwo">Na czym dokładnie polega oszustwo<a class="anchor-link" href="#Na-czym-dok%C5%82adnie-polega-oszustwo">¶</a></h3><p>Zbiór testowy ma odpowiadać na jedno pytanie: <em>jak ten model poradzi sobie na danych, których nigdy nie widział</em>. Odpowiedź jest wiarygodna tylko wtedy, gdy testu użyliśmy <strong>raz</strong>.</p>
@@ -332,7 +332,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=7e2a7711"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9410940c"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="2.-Trzy-zbiory:-ucz%C4%85cy,-walidacyjny,-testowy">2. Trzy zbiory: uczący, walidacyjny, testowy<a class="anchor-link" href="#2.-Trzy-zbiory:-ucz%C4%85cy,-walidacyjny,-testowy">¶</a></h2><p>Najprostsza naprawa: zamiast dwóch części, robimy trzy.</p>
@@ -375,7 +375,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=4510ec02">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=7ad4626a">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -395,14 +395,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=34705cd0"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e4789211"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Teraz to samo poszukiwanie głębokości, ale <strong>uczciwie</strong>: wybieramy na walidacyjnym, a zbioru testowego dotykamy dopiero na samym końcu, jeden raz.</p>
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=9b866b7c">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=9232e19b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -427,7 +427,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=202a5a82">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=9ee993a8">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -449,7 +449,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=eafb17ea"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=71c46849"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Zwróć uwagę na kolejność: <strong>najpierw wybór, potem pomiar</strong>. Gdy raz zmierzysz wynik testowy i on Ci się nie spodoba, nie wolno wrócić i poprawić hiperparametru - w tym momencie zbiór testowy jest już zużyty i przestaje być bezstronny.</p>
@@ -462,7 +462,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=54fbafb0"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=722bb6df"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="3.-Walidacja-krzy%C5%BCowa">3. Walidacja krzyżowa<a class="anchor-link" href="#3.-Walidacja-krzy%C5%BCowa">¶</a></h2><p>Pomysł jest prosty: zamiast wycinać jeden zbiór walidacyjny, dzielimy zbiór uczący na <strong>k równych części</strong> (ang. <em>folds</em>, „foldy"). Potem k razy uczymy model: za każdym razem jedna część pełni rolę walidacyjnej, a pozostałe k-1 rolę uczącej. Na koniec uśredniamy k wyników.</p>
@@ -484,7 +484,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=bebdafcf">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=855da38b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -510,7 +510,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=9a8d4552"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=fc080e3f"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Trzy argumenty <code>StratifiedKFold</code>, które warto rozumieć:</p>
@@ -546,7 +546,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=573e9404"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=eecb9493"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="4.-GridSearchCV---systematyczne-przeszukiwanie-siatki">4. <code>GridSearchCV</code> - systematyczne przeszukiwanie siatki<a class="anchor-link" href="#4.-GridSearchCV---systematyczne-przeszukiwanie-siatki">¶</a></h2><p>Skoro potrafimy uczciwie ocenić jeden zestaw hiperparametrów, możemy zautomatyzować sprawdzanie wielu. <code>GridSearchCV</code> robi dokładnie to: przyjmuje <strong>siatkę</strong> (ang. <em>grid</em>) wartości, sprawdza <strong>każdą kombinację</strong> walidacją krzyżową i zapamiętuje najlepszą.</p>
@@ -557,7 +557,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=63fccfab">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e95344fa">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -588,7 +588,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c6a7f6ab"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=670bba90"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><code>GridSearchCV</code> zapisuje pełną historię w <code>cv_results_</code>. To słownik, który najwygodniej obejrzeć jako <code>DataFrame</code> - poniżej pięć najlepszych kombinacji.</p>
@@ -596,7 +596,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=693fe292">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=30ac7c63">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -618,7 +618,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1f1c99f7"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=6f63ce73"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Porównaj kolumny <code>mean_train_score</code> i <code>mean_test_score</code>. Tam, gdzie uczący jest bliski 1,0, a walidacyjny wyraźnie niższy, patrzysz na <strong>przeuczenie</strong> (ang. <em>overfitting</em>). Tam, gdzie oba są niskie i podobne - na <strong>niedouczenie</strong> (ang. <em>underfitting</em>).</p>
@@ -626,7 +626,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=3d53ff42">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e44ef6bf">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -640,7 +640,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c798aaf0"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8901160f"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="5.-RandomizedSearchCV---losowanie-zamiast-siatki">5. <code>RandomizedSearchCV</code> - losowanie zamiast siatki<a class="anchor-link" href="#5.-RandomizedSearchCV---losowanie-zamiast-siatki">¶</a></h2><p>Siatka ma wadę: koszt rośnie wykładniczo z liczbą hiperparametrów. Cztery parametry po pięć wartości to już 625 kombinacji.</p>
@@ -652,7 +652,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=d3745b8d">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=3099bff4">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -693,7 +693,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=a4122f64"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8927fc1e"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <table>
@@ -731,7 +731,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=9e179846"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=00d3997a"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="6.-Krzywa-uczenia---czy-pomo%C5%BCe-wi%C4%99cej-danych?">6. Krzywa uczenia - czy pomoże więcej danych?<a class="anchor-link" href="#6.-Krzywa-uczenia---czy-pomo%C5%BCe-wi%C4%99cej-danych?">¶</a></h2><p>Załóżmy, że model nie działa wystarczająco dobrze. Masz do wyboru kilka kosztownych ruchów: zebrać więcej danych, dołożyć cechy, zmienić algorytm. Który z nich ma sens?</p>
@@ -767,7 +767,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=ddad5aa4">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=96c389aa">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -807,7 +807,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=09ea5857"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2c54b95c"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Porównaj oba wykresy. Po lewej obie krzywe leżą blisko siebie i nisko - dołożenie danych nie podniesie ich, bo ogranicza je sam model. Po prawej krzywa ucząca siedzi przy 1,0, a walidacyjna znacznie niżej - to przerwa, którą <strong>można</strong> zmniejszać większą liczbą danych (albo przycięciem drzewa).</p>
@@ -815,7 +815,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=4895084f"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a8659a53"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="7.-Przeciek-danych-przy-skalowaniu">7. Przeciek danych przy skalowaniu<a class="anchor-link" href="#7.-Przeciek-danych-przy-skalowaniu">¶</a></h2><p>Została najbardziej podstępna rzecz w całym ćwiczeniu. Spójrz na ten kod i spróbuj znaleźć w nim błąd:</p>
@@ -861,7 +861,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=5876ef0e">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5ca89145">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -894,14 +894,14 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=617b7d2c"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d1c29fd7"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><code>Pipeline</code> ma jeszcze jedną zaletę: jego hiperparametry można stroić razem z hiperparametrami modelu. Nazwy tworzy się jako <code>nazwa_kroku__nazwa_parametru</code> (dwa podkreślniki).</p>
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=f34ea1dc">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=de1956d5">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -926,7 +926,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=784fa674"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d1a67aee"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>
@@ -936,7 +936,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=8e7ec209">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=9114118b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -948,7 +948,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=568e4be6"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=4b74bbb5"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-2:-Uczciwe-por%C3%B3wnanie-trzech-modeli">Zadanie 2: Uczciwe porównanie trzech modeli<a class="anchor-link" href="#Zadanie-2:-Uczciwe-por%C3%B3wnanie-trzech-modeli">¶</a></h2><p>Porównaj walidacją krzyżową trzy modele:</p>
@@ -962,7 +962,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=42ea6fd0">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a097940f">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -973,7 +973,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=6079f6cc"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=dcf329eb"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-3:-Ile-fold%C3%B3w?">Zadanie 3: Ile foldów?<a class="anchor-link" href="#Zadanie-3:-Ile-fold%C3%B3w?">¶</a></h2><p>Sprawdź, jak liczba foldów wpływa na ocenę. Dla <code>n_splits</code> równego 3, 5 i 10 (<code>StratifiedKFold(shuffle=True, random_state=42)</code>) oceń drzewo <code>max_depth=5</code> i wypisz średnią, odchylenie oraz <strong>czas wykonania</strong>.</p>
@@ -987,7 +987,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=458aed1d">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=2db21beb">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -998,7 +998,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c1d13a67"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8787cdd9"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-4:-W%C5%82asna-siatka-dla-regresji-logistycznej">Zadanie 4: Własna siatka dla regresji logistycznej<a class="anchor-link" href="#Zadanie-4:-W%C5%82asna-siatka-dla-regresji-logistycznej">¶</a></h2><p>Zbuduj <code>Pipeline</code> ze <code>StandardScaler</code> i <code>LogisticRegression(max_iter=1000, random_state=42)</code>, a następnie przeszukaj <code>GridSearchCV</code> siatkę:</p>
@@ -1011,7 +1011,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=057dc2dd">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e78f8d32">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1022,7 +1022,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=e2acd6e0"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=00a7853d"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-5:-Siatka-kontra-losowanie-przy-tym-samym-bud%C5%BCecie">Zadanie 5: Siatka kontra losowanie przy tym samym budżecie<a class="anchor-link" href="#Zadanie-5:-Siatka-kontra-losowanie-przy-tym-samym-bud%C5%BCecie">¶</a></h2><p>Porównaj dwa podejścia do strojenia drzewa przy <strong>identycznym budżecie 20 kombinacji</strong>:</p>
@@ -1034,7 +1034,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=be207ec0">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=13b4080b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1045,7 +1045,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=a0fbf482"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=f1c6dc4b"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-6:-Krzywa-uczenia-dla-dobrze-dobranego-modelu">Zadanie 6: Krzywa uczenia dla dobrze dobranego modelu<a class="anchor-link" href="#Zadanie-6:-Krzywa-uczenia-dla-dobrze-dobranego-modelu">¶</a></h2><p>Narysuj krzywą uczenia dla modelu z najlepszymi parametrami znalezionymi w sekcji 4 (<code>szukanie.best_estimator_</code>). Użyj <code>train_sizes=np.linspace(0.1, 1.0, 6)</code>.</p>
@@ -1059,7 +1059,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=3d55b9f7">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a7878109">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1070,7 +1070,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=3166b633"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=580e44e4"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-7-(trudniejsze):-Zobacz-przeciek-na-w%C5%82asne-oczy">Zadanie 7 (trudniejsze): Zobacz przeciek na własne oczy<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Zobacz-przeciek-na-w%C5%82asne-oczy">¶</a></h2><p>W sekcji 7 różnica między poprawnym a błędnym skalowaniem była znikoma. Teraz zobaczysz przeciek, który <strong>niszczy wynik całkowicie</strong> - i to przy użyciu kodu, który u wielu osób przechodzi przez recenzję bez mrugnięcia okiem.</p>
@@ -1089,7 +1089,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=da5dd37c">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=7d054d3b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1100,7 +1100,7 @@ przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=7d6008ef"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b016d065"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>

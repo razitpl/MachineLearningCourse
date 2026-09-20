@@ -194,7 +194,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </nav>
 </div></header>
 <main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
-<a class="pobierz" href="pobierz/05_klasyfikacja_metryki.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=26378870"><div class="prompt input_prompt">
+<a class="pobierz" href="pobierz/05_klasyfikacja_metryki.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=98b37277"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="%C4%86wiczenie-5:-Klasyfikacja-i-metryki">Ćwiczenie 5: Klasyfikacja i metryki<a class="anchor-link" href="#%C4%86wiczenie-5:-Klasyfikacja-i-metryki">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 01 pojawił się model odniesienia (ang. <em>baseline</em>), który zawsze odpowiadał „ten pacjent jest zdrowy". Nie patrzył na wyniki badań, nie miał żadnej wiedzy o medycynie - a mimo to jego skuteczność (ang. <em>accuracy</em>) wyniosła około <strong>66,6%</strong>, bo dokładnie tyle osób w zbiorze jest zdrowych.</p>
@@ -219,7 +219,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=bc0a639d"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b1dc28c7"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="1.-Punkt-wyj%C5%9Bcia:-te-same-dane,-te-same-dwa-modele">1. Punkt wyjścia: te same dane, te same dwa modele<a class="anchor-link" href="#1.-Punkt-wyj%C5%9Bcia:-te-same-dane,-te-same-dwa-modele">¶</a></h2><p>Zaczynamy dokładnie tam, gdzie skończyło się ćwiczenie 01: zbiór <code>dane/diabetes.csv</code>, <code>PatientID</code> wyrzucony z cech (to identyfikator, nie wynik badania), podział ze stratyfikacją i ustalonym ziarnem losowości.</p>
@@ -231,7 +231,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=09faead8">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5d9392a7">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -270,7 +270,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=dc004d5b"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=dc3b999f"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="2.-Dlaczego-jedna-liczba-to-za-ma%C5%82o">2. Dlaczego jedna liczba to za mało<a class="anchor-link" href="#2.-Dlaczego-jedna-liczba-to-za-ma%C5%82o">¶</a></h2><p>Skuteczność to po prostu <strong>odsetek trafnych odpowiedzi</strong>:</p>
@@ -303,7 +303,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=c90455d9">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=ce3d8a20">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -320,7 +320,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1fcc9b62"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=240c305a"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Model odniesienia nie wskazał <strong>ani jednego</strong> chorego. Wszyscy chorzy pacjenci ze zbioru testowego zostali odesłani do domu z informacją „wszystko w porządku".</p>
@@ -377,7 +377,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=3085d39a">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a1b34abd">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -399,7 +399,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=5f57b6f7">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=c77d6444">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -426,7 +426,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=e17b23a9"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=f5b8aa1e"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Po lewej stronie widać w liczbach to, o czym była mowa: cała prawa kolumna modelu odniesienia jest pusta (zero fałszywych alarmów, ale i zero wykrytych chorych), a wszyscy chorzy siedzą w polu FN.</p>
@@ -468,7 +468,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=9753a85e">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=317e40c1">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -493,7 +493,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=9f23ed0d"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=cdeff64e"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="5.-classification_report---wszystko-naraz">5. <code>classification_report</code> - wszystko naraz<a class="anchor-link" href="#5.-classification_report---wszystko-naraz">¶</a></h2><p>Ręczne wypisywanie metryk jest dobre do nauki, ale w praktyce używa się jednej funkcji, która liczy je <strong>dla każdej klasy osobno</strong>.</p>
@@ -529,7 +529,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=d0774935">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4d46b3e0">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -550,7 +550,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=ccfdaad2"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1197d7d1"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>W raporcie modelu odniesienia wiersz <code>chory</code> ma same zera - precyzja, czułość i F1 równe 0. Dokładnie to chcieliśmy zobaczyć: metryka, która <strong>od razu</strong> pokazuje, że model jest bezwartościowy, mimo przyzwoicie wyglądającej skuteczności.</p>
@@ -562,7 +562,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=d9ede2da">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e28441c7">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -584,7 +584,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=35fed3d6"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c44dbc5d"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Zwróć uwagę na <strong>ostatni wiersz wydruku</strong> - ten z napisem <code>Sprawdzenie: ... True</code>. Właśnie potwierdził rzecz, która brzmi banalnie, a ma spore konsekwencje: <code>predict()</code> to dosłownie <code>predict_proba() &gt;= 0,5</code>. Nic więcej się tam nie dzieje.</p>
@@ -594,7 +594,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=d8fd51e1">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e51038ea">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -615,7 +615,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=ade4aa1d"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=5a26a6da"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Gdyby obie grupy były całkowicie rozdzielone, wybór progu nie miałby znaczenia - wystarczyłoby postawić kreskę w pustym miejscu. W rzeczywistości rozkłady się <strong>nakładają</strong>, i to w tym obszarze nakładania rodzą się wszystkie błędy.</p>
@@ -624,7 +624,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=a0e33f4c">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=ed7bb302">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -652,7 +652,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=86fa80a9"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=88a1912d"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Przeczytaj tę tabelę w dwóch kierunkach:</p>
@@ -666,7 +666,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=9a5e5a88">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4b81ff3c">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -693,7 +693,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=9703715a"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=81ac0934"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Dwie krzywe biegnące w przeciwnych kierunkach - to jest obraz, który warto zapamiętać z tego ćwiczenia.</p>
@@ -712,7 +712,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=e5c513d3">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=764c8f35">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -737,7 +737,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1f39de86"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=402d3ca5"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="9.-Krzywa-precyzja-czu%C5%82o%C5%9B%C4%87---uczciwsza-przy-rzadkiej-klasie">9. Krzywa precyzja-czułość - uczciwsza przy rzadkiej klasie<a class="anchor-link" href="#9.-Krzywa-precyzja-czu%C5%82o%C5%9B%C4%87---uczciwsza-przy-rzadkiej-klasie">¶</a></h2><p>ROC ma jedną niewygodną właściwość: jej oś pozioma, czyli FPR, ma w mianowniku $FP + TN$ - a więc <strong>wszystkich zdrowych pacjentów</strong>. Gdy zdrowych jest bardzo dużo, nawet spora liczba fałszywych alarmów daje mały ułamek i krzywa wygląda dobrze.</p>
@@ -783,7 +783,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=c2f88b09">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4f3b52a5">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -810,7 +810,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=93f8269b"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b297ceea"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>
@@ -821,7 +821,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=aec7f489">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a2528740">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -833,7 +833,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=53f212d1"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e84b48eb"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-2:-Metryki-ze-wzoru,-bez-gotowych-funkcji">Zadanie 2: Metryki ze wzoru, bez gotowych funkcji<a class="anchor-link" href="#Zadanie-2:-Metryki-ze-wzoru,-bez-gotowych-funkcji">¶</a></h2><p>Napisz funkcję <code>metryki_recznie(y_prawda, y_przewidziane)</code>, która na podstawie macierzy pomyłek policzy <strong>ze wzorów</strong> precyzję, czułość i F1, i zwróci je jako słownik.</p>
@@ -842,7 +842,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=70a92f1f">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f227c8aa">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -853,7 +853,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=7795373e"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=53ae04ac"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-3:-W%C5%82asna-tabela-prog%C3%B3w">Zadanie 3: Własna tabela progów<a class="anchor-link" href="#Zadanie-3:-W%C5%82asna-tabela-prog%C3%B3w">¶</a></h2><p>Zbuduj tabelę metryk dla progów od 0,05 do 0,95 co 0,05 (<code>np.arange(0.05, 1.0, 0.05)</code>).</p>
@@ -867,7 +867,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=b9bdbffe">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=dd1fe09a">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -878,7 +878,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=412696ac"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e7c00bed"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-4:-Pr%C3%B3g-dla-czu%C5%82o%C5%9Bci-co-najmniej-0,9">Zadanie 4: Próg dla czułości co najmniej 0,9<a class="anchor-link" href="#Zadanie-4:-Pr%C3%B3g-dla-czu%C5%82o%C5%9Bci-co-najmniej-0,9">¶</a></h2><p>To zadanie jest w tym ćwiczeniu najważniejsze, bo odwraca zwykły sposób myślenia: zamiast pytać „jakie metryki ma mój model", stawiamy <strong>wymaganie</strong> i pytamy, ile ono kosztuje.</p>
@@ -892,7 +892,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=23a5dd74">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f8ad8245">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -906,7 +906,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=0e826916"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d6f8e6bd"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-5:-Kt%C3%B3re-por%C3%B3wnanie-modeli-jest-uczciwe?">Zadanie 5: Które porównanie modeli jest uczciwe?<a class="anchor-link" href="#Zadanie-5:-Kt%C3%B3re-por%C3%B3wnanie-modeli-jest-uczciwe?">¶</a></h2><p>Wytrenuj <code>DecisionTreeClassifier(max_depth=5, random_state=42)</code> i porównaj go z regresją logistyczną na cztery sposoby:</p>
@@ -921,7 +921,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=fd685d14">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=8ecfefd6">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -934,7 +934,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=0a78cd3b"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1186fce3"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-6:-Wagi-klas-kontra-przesuni%C4%99cie-progu">Zadanie 6: Wagi klas kontra przesunięcie progu<a class="anchor-link" href="#Zadanie-6:-Wagi-klas-kontra-przesuni%C4%99cie-progu">¶</a></h2><p>Przesuwanie progu to nie jedyny sposób na zwiększenie czułości. Drugi to powiedzenie modelowi <strong>już na etapie uczenia</strong>, że pomyłka na chorym pacjencie boli bardziej. Służy do tego argument <code>class_weight='balanced'</code> w <code>LogisticRegression</code>.</p>
@@ -948,7 +948,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=79ac3762">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5767c688">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -959,7 +959,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=189bcf4a"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=3db3816e"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-7-(trudniejsze):-Pr%C3%B3g-wyznaczony-z-koszt%C3%B3w">Zadanie 7 (trudniejsze): Próg wyznaczony z kosztów<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Pr%C3%B3g-wyznaczony-z-koszt%C3%B3w">¶</a></h2><p>Do tej pory próg wybieraliśmy „na oko" albo pod zadane wymaganie. Teraz wyznaczymy go rachunkiem.</p>
@@ -996,7 +996,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=79e4e4f2">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=35bb5de0">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1007,7 +1007,7 @@ rzeczywiście 1             FN                TP
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=b56cb24c"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=6933120c"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>

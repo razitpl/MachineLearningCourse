@@ -194,7 +194,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </nav>
 </div></header>
 <main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
-<a class="pobierz" href="pobierz/07_drzewa_i_lasy.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=05818102"><div class="prompt input_prompt">
+<a class="pobierz" href="pobierz/07_drzewa_i_lasy.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=a6e79331"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="%C4%86wiczenie-7:-Drzewa-i-lasy">Ćwiczenie 7: Drzewa i lasy<a class="anchor-link" href="#%C4%86wiczenie-7:-Drzewa-i-lasy">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 01 narysowaliśmy drzewo decyzyjne i przeczytaliśmy jego reguły jak zdania po polsku: <em>„jeśli glukoza ≤ 122,5 oraz BMI ≤ 29,4, to pacjent jest zdrowy"</em>. To rzadka i bardzo cenna właściwość - większość modeli uczenia maszynowego jest dla człowieka nieprzejrzysta, a drzewo można pokazać lekarzowi i zapytać, czy to ma sens medyczny.</p>
@@ -218,14 +218,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=305edce9"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=75e5ffeb"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="1.-Jak-drzewo-podejmuje-decyzje">1. Jak drzewo podejmuje decyzje<a class="anchor-link" href="#1.-Jak-drzewo-podejmuje-decyzje">¶</a></h2><p>Wczytujemy dane dokładnie tak jak poprzednio.</p>
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=79a67b97">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=38c7d603">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -253,7 +253,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=acca7f67"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e27f0465"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Wska%C5%BAnik-Giniego---jak-drzewo-wybiera-pytanie">Wskaźnik Giniego - jak drzewo wybiera pytanie<a class="anchor-link" href="#Wska%C5%BAnik-Giniego---jak-drzewo-wybiera-pytanie">¶</a></h3><p>Drzewo buduje się zachłannie: w każdym węźle algorytm sprawdza <strong>każdą cechę i każdy sensowny próg</strong> i wybiera ten podział, który najbardziej „porządkuje" dane. Potrzebna jest więc miara nieporządku.</p>
@@ -300,7 +300,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=78153758">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=deee4274">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -332,7 +332,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1d5d2087"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=262fbae8"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Zwróć uwagę na kształt tej listy: zysk rośnie, osiąga szczyt przy pewnym progu i znów maleje. Drzewo robi dokładnie to samo, tylko dla <strong>wszystkich cech naraz i wszystkich progów występujących w danych</strong>, po czym wybiera najlepszą parę (cecha, próg). Potem powtarza to w każdym z powstałych węzłów.</p>
@@ -347,7 +347,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=e491116c"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a2d025c1"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="2.-Jak-drzewo-widzi-przestrze%C5%84-cech">2. Jak drzewo widzi przestrzeń cech<a class="anchor-link" href="#2.-Jak-drzewo-widzi-przestrze%C5%84-cech">¶</a></h2><p>Drzewo zadaje pytania postaci „cecha ≤ próg", więc każda granica, którą rysuje, jest <strong>prostopadła do osi</strong>. Efekt: przestrzeń cech zostaje pocięta na prostokąty, a wewnątrz każdego prostokąta model odpowiada zawsze tak samo.</p>
@@ -355,7 +355,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=cc612346">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d2b75ad4">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -392,7 +392,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=89bc848f"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=63335298"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Po lewej widać kilka dużych prostokątów - prostą, czytelną regułę. Po prawej ta sama przestrzeń jest poszatkowana na setki drobnych plamek, z których wiele obejmuje po kilku pacjentów. <strong>Te plamki to przeuczenie</strong> (ang. <em>overfitting</em>) narysowane wprost: model nie opisuje zjawiska, tylko obrysowuje pojedyncze punkty ze zbioru uczącego.</p>
@@ -401,7 +401,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=7645df6a">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=884772f6">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -426,7 +426,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=7267e3c0"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=dd6d919e"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="3.-Przycinanie-drzewa">3. Przycinanie drzewa<a class="anchor-link" href="#3.-Przycinanie-drzewa">¶</a></h2><p>Drzewo bez ograniczeń rośnie, aż każdy liść będzie czysty - w skrajnym przypadku po jednym pacjencie na liść. Trzeba mu w tym przeszkodzić. Scikit-learn daje trzy główne sposoby:</p>
@@ -465,7 +465,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=f73668ee">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4225cb23">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -498,7 +498,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=4a82d4c7"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d207a187"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Widać tu wprost, o co chodzi w przycinaniu: przy rosnącej <code>alpha</code> liczba liści spada gwałtownie - z tysięcy do kilkunastu - a skuteczność na danych uczących obniża się nieporównanie wolniej. Tysiące liści prawie nic nie wnosiły; istniały tylko po to, żeby obsłużyć pojedyncze przypadki.</p>
@@ -506,7 +506,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c0ed7c3b"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=cff7ec91"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="4.-Las-losowy---dlaczego-wiele-s%C5%82abszych-drzew-bije-jedno-dobre">4. Las losowy - dlaczego wiele słabszych drzew bije jedno dobre<a class="anchor-link" href="#4.-Las-losowy---dlaczego-wiele-s%C5%82abszych-drzew-bije-jedno-dobre">¶</a></h2><p>Pojedyncze drzewo ma jedną fundamentalną wadę: jest <strong>niestabilne</strong>. Zmień kilkadziesiąt wierszy w danych uczących, a drzewo potrafi wybrać w korzeniu inną cechę i wyjść zupełnie inne. Mówimy, że ma <strong>dużą wariancję</strong> (ang. <em>variance</em>).</p>
@@ -552,7 +552,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=ff9e2fe0">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=887edad5">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -575,14 +575,14 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=cd74f367"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=bd96ceba"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Zobaczmy-%E2%80%9Erozpraszanie-b%C5%82%C4%99d%C3%B3w%22-na-w%C5%82asne-oczy">Zobaczmy „rozpraszanie błędów" na własne oczy<a class="anchor-link" href="#Zobaczmy-%E2%80%9Erozpraszanie-b%C5%82%C4%99d%C3%B3w%22-na-w%C5%82asne-oczy">¶</a></h3><p>Poniższy kod trenuje 50 pojedynczych drzew, każde na innej losowej próbce danych, i sprawdza dwie rzeczy: jak dobre jest <strong>przeciętne drzewo</strong> i jak dobre jest ich <strong>wspólne głosowanie</strong>.</p>
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=b93bf6d1">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=65c32a68">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -617,7 +617,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=90e88482"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=96a05be5"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>To jest sedno metod zespołowych (ang. <em>ensemble methods</em>). Nie potrzebujemy dobrych składników - potrzebujemy składników, które <strong>mylą się niezależnie od siebie</strong>.</p>
@@ -625,7 +625,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1c7bacb1"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1e9ecd88"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="5.-Boosting---drzewa,-kt%C3%B3re-ucz%C4%85-si%C4%99-na-cudzych-b%C5%82%C4%99dach">5. Boosting - drzewa, które uczą się na cudzych błędach<a class="anchor-link" href="#5.-Boosting---drzewa,-kt%C3%B3re-ucz%C4%85-si%C4%99-na-cudzych-b%C5%82%C4%99dach">¶</a></h2><p>Las buduje wszystkie drzewa <strong>równolegle i niezależnie</strong>, a potem je uśrednia. Boosting robi coś przeciwnego: buduje drzewa <strong>po kolei</strong>, a każde kolejne zajmuje się tym, czego poprzednie nie potrafiły.</p>
@@ -683,7 +683,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=5e29bea9">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b2915c11">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -705,7 +705,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=ec099f3a"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ed0b0915"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <blockquote>
@@ -714,7 +714,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=4a90a091"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b249b521"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="6.-Wa%C5%BCno%C5%9B%C4%87-cech---i-dlaczego-domy%C5%9Blna-potrafi-k%C5%82ama%C4%87">6. Ważność cech - i dlaczego domyślna potrafi kłamać<a class="anchor-link" href="#6.-Wa%C5%BCno%C5%9B%C4%87-cech---i-dlaczego-domy%C5%9Blna-potrafi-k%C5%82ama%C4%87">¶</a></h2><p>Skoro lasu nie da się narysować, chcemy chociaż wiedzieć, <strong>na czym opiera decyzje</strong>. Służy do tego ważność cech (ang. <em>feature importance</em>).</p>
@@ -764,7 +764,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=d81a8dfd">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a4f41b6b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -803,7 +803,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=e8adec3c"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1be02227"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Porównaj obie kolumny. Jeśli kolejność się zgadza - dobrze, wnioski są wiarygodne. Jeśli któraś cecha jest wysoko według Giniego, a nisko według permutacji - to sygnał ostrzegawczy: model jej używa przy budowie drzew, ale nie przekłada się to na jakość predykcji.</p>
@@ -811,7 +811,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=974b7df1"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1c51d089"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="7.-Dok%C5%82adno%C5%9B%C4%87-kontra-wyja%C5%9Bnialno%C5%9B%C4%87">7. Dokładność kontra wyjaśnialność<a class="anchor-link" href="#7.-Dok%C5%82adno%C5%9B%C4%87-kontra-wyja%C5%9Bnialno%C5%9B%C4%87">¶</a></h2><p>Zbierzmy wątek przewodni w jedną tabelę.</p>
@@ -861,7 +861,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=5e1e98de"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9fd1a9db"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>
@@ -876,7 +876,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=e3fdfd37">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=c82e5607">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -887,7 +887,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=9472708b"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8efc2f0a"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-2:-Czytelno%C5%9B%C4%87-drzewa-a-jego-g%C5%82%C4%99boko%C5%9B%C4%87">Zadanie 2: Czytelność drzewa a jego głębokość<a class="anchor-link" href="#Zadanie-2:-Czytelno%C5%9B%C4%87-drzewa-a-jego-g%C5%82%C4%99boko%C5%9B%C4%87">¶</a></h2><ol>
@@ -899,7 +899,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=6da4682c">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=ec24f9ac">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -910,7 +910,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=3a55363f"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7cfad6ad"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-3:-Przycinanie-przez-ccp_alpha">Zadanie 3: Przycinanie przez <code>ccp_alpha</code><a class="anchor-link" href="#Zadanie-3:-Przycinanie-przez-ccp_alpha">¶</a></h2><p>Wybierz <code>ccp_alpha</code> uczciwie - walidacją krzyżową.</p>
@@ -925,7 +925,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=66ea5b70">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=80e02b5e">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -936,7 +936,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=7512cf8f"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ef4e82a6"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-4:-Ile-drzew-potrzebuje-las?">Zadanie 4: Ile drzew potrzebuje las?<a class="anchor-link" href="#Zadanie-4:-Ile-drzew-potrzebuje-las?">¶</a></h2><p>Sprawdź, jak wynik lasu zależy od <code>n_estimators</code>.</p>
@@ -950,7 +950,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=719ae8ec">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=7f7fda92">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -961,7 +961,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=55868d49"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=612a4108"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-5:-Czy-losowanie-cech-naprawd%C4%99-pomaga?">Zadanie 5: Czy losowanie cech naprawdę pomaga?<a class="anchor-link" href="#Zadanie-5:-Czy-losowanie-cech-naprawd%C4%99-pomaga?">¶</a></h2><p>To zadanie sprawdza twierdzenie z sekcji 4 - że losowanie cech w węzłach jest tym, co odróżnia las losowy od zwykłego uśredniania drzew.</p>
@@ -971,7 +971,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=e6a25bcf">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=7787d4d1">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -982,7 +982,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=167e4cbc"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=79aa8318"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-6:-Boosting---learning_rate-i-liczba-drzew">Zadanie 6: Boosting - <code>learning_rate</code> i liczba drzew<a class="anchor-link" href="#Zadanie-6:-Boosting---learning_rate-i-liczba-drzew">¶</a></h2><ol>
@@ -994,7 +994,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=b0b0ebdf">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1ce45e80">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1005,7 +1005,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=0376501a"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=399b4799"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-7-(trudniejsze):-Zdemaskuj-wa%C5%BCno%C5%9B%C4%87-cech">Zadanie 7 (trudniejsze): Zdemaskuj ważność cech<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Zdemaskuj-wa%C5%BCno%C5%9B%C4%87-cech">¶</a></h2><p>Sprawdzisz teraz empirycznie zarzut postawiony w sekcji 6: że <code>feature_importances_</code> faworyzuje cechy o wielu różnych wartościach.</p>
@@ -1035,7 +1035,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=97e0cf7f">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=670f9432">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1046,7 +1046,7 @@ To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczow
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=ec68f4ab"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=28d78253"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>

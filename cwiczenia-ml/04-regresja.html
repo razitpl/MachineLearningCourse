@@ -194,7 +194,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </nav>
 </div></header>
 <main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
-<a class="pobierz" href="pobierz/04_regresja.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=06b241a7"><div class="prompt input_prompt">
+<a class="pobierz" href="pobierz/04_regresja.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=173f7992"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="%C4%86wiczenie-4:-Regresja---przewidywanie-warto%C5%9Bci-liczbowej">Ćwiczenie 4: Regresja - przewidywanie wartości liczbowej<a class="anchor-link" href="#%C4%86wiczenie-4:-Regresja---przewidywanie-warto%C5%9Bci-liczbowej">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>Dotąd model odpowiadał na pytanie <strong>„która klasa?"</strong> - chory czy zdrowy. Ale ogromna część realnych zadań wygląda inaczej: <em>ile będzie kosztowało to mieszkanie</em>, <em>ile energii zużyje budynek jutro</em>, <em>o ile wzrośnie stężenie markera po podaniu leku</em>. Odpowiedzią nie jest wtedy etykieta, tylko <strong>liczba</strong>.</p>
@@ -223,7 +223,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=f070f29f"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=563d7269"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="1.-Regresja-a-klasyfikacja---co-si%C4%99-w%C5%82a%C5%9Bciwie-zmienia">1. Regresja a klasyfikacja - co się właściwie zmienia<a class="anchor-link" href="#1.-Regresja-a-klasyfikacja---co-si%C4%99-w%C5%82a%C5%9Bciwie-zmienia">¶</a></h2><p>Różnica sprowadza się do jednego: <strong>jakiego typu jest etykieta</strong> (ang. <em>label</em>). Wszystko inne wynika z tego automatycznie.</p>
@@ -301,7 +301,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=116c356f">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a5349cf8">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -332,7 +332,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c4c8d6fe"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=3fde1cb4"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Popatrz na podsumowanie celu: wartości rozciągają się od około 25 do około 346, a odchylenie standardowe wynosi około 77 jednostek. <strong>Zapamiętaj rząd wielkości tego odchylenia</strong> - to naturalna zmienność celu i za chwilę posłuży nam za punkt odniesienia dla błędów modelu. Błąd rzędu 77 oznaczałby, że model nie wie nic ponad to, co wiadomo bez niego.</p>
@@ -345,7 +345,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=fd36b2da">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=33cdd237">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -374,7 +374,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=2e4b6c5f"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=20e1a2f9"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Ten sam wynik dla każdego pacjenta - dokładnie o to chodziło. Teraz trzeba go zmierzyć.</p>
@@ -432,7 +432,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=2bdf4709">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=aeb93117">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -463,7 +463,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=5bd65c25"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1f1cfe28"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Porównaj RMSE modelu odniesienia z odchyleniem standardowym celu wypisanym poniżej tabeli. Są niemal identyczne - i nie jest to przypadek. Przewidywanie średniej to dokładnie to, co robi odchylenie standardowe: mierzy typowe odchylenie obserwacji od średniej. <strong>RMSE modelu odniesienia ≈ odchylenie standardowe celu</strong> to tożsamość, którą warto znać, bo pozwala oszacować poprzeczkę bez trenowania czegokolwiek.</p>
@@ -482,7 +482,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=9ca0accc">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=05f8e925">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -504,7 +504,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c20bda6b"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7c000a5c"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Tym razem tabela wygląda tak, jak podręcznik obiecuje: <strong>regresja liniowa wyraźnie bije model odniesienia</strong>. RMSE spada o blisko dwadzieścia jednostek, MAE o ponad dwadzieścia, a R² wychodzi w okolicach 0,45 - model wyjaśnia blisko połowę zmienności celu, korzystając wyłącznie z wieku, BMI, ciśnienia i sześciu wyników badań krwi.</p>
@@ -513,7 +513,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=6b036940">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=95512e14">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -534,7 +534,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=282051ec"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c76d3881"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Współczynnik przy <code>bmi</code> czyta się tak: <strong>jeżeli BMI wzrośnie o jedną jednostkę, a wszystkie pozostałe cechy pozostaną bez zmian, przewidywany postęp choroby zmieni się o tyle jednostek</strong>. Zwrot „przy pozostałych cechach bez zmian" (po łacinie <em>ceteris paribus</em>) jest częścią definicji, a nie ozdobnikiem - bez niego zdanie jest po prostu nieprawdziwe.</p>
@@ -589,7 +589,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=6e715953">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b198a13d">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -622,7 +622,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=c053e2e0"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=77b29848"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Popatrz na ostatnie trzy linie. MAE urosło mniej więcej dwukrotnie, MSE - blisko stukrotnie, RMSE gdzieś pośrodku. Arytmetyka jest prosta: model przewidział dla tego pacjenta około 140, więc błąd na zepsutym rekordzie wynosi około 4860. Do MAE dokłada to <code>4860 / 89</code>, czyli około 55 jednostek. Do MSE dokłada <code>4860² / 89</code>, czyli ponad ćwierć miliona - prawie sto razy więcej niż wynosił cały MSE przed zepsuciem danych.</p>
@@ -659,7 +659,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=c14b25c0">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1f88fb3e">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -686,7 +686,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=ada1be04"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a93c6afe"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>To jest wynik, który warto zapamiętać: <strong>jedna błędna wartość na 353 rekordy uczące zabrała modelowi większość jego skuteczności</strong>. R² spadło z okolic 0,45 do kilku setnych - model, który przed chwilą wyjaśniał blisko połowę zmienności celu, po tej jednej zmianie jest ledwie lepszy od przewidywania średniej.</p>
@@ -730,7 +730,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=965b8a42">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d181bc8e">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -768,7 +768,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=08e4bb2a"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=890980e2"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Ten wykres warto przeczytać powoli, bo tym razem naprawdę jest na nim co oglądać:</p>
@@ -787,7 +787,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=3faf4459">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=2f3f9001">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -821,7 +821,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=d45c2fc1">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=7b3b168a">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -864,7 +864,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=d2bb0860"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7e366c89"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Trzy obrazki i trzy zupełnie różne historie:</p>
@@ -943,7 +943,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=9d232f72">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=469b9bf5">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -981,7 +981,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=7aea8ec2">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=3431115f">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1022,7 +1022,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=96b2d0e9"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d49ee6bd"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>
@@ -1037,7 +1037,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=377921b5">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e72868b5">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1050,7 +1050,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=4e2b897e"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=99bd299a"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-2:-Ile-wnosi-cecha-bmi?">Zadanie 2: Ile wnosi cecha <code>bmi</code>?<a class="anchor-link" href="#Zadanie-2:-Ile-wnosi-cecha-bmi?">¶</a></h2><p><code>bmi</code> ma najsilniejszą korelację z celem spośród wszystkich cech. Sprawdź, ile model traci, gdy ta kolumna znika.</p>
@@ -1064,7 +1064,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=68aa8ea9">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a330a362">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1075,7 +1075,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=a3fea0d4"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b97a7acb"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-3:-Kt%C3%B3re-cechy-naprawd%C4%99-wa%C5%BC%C4%85-najwi%C4%99cej?">Zadanie 3: Które cechy naprawdę ważą najwięcej?<a class="anchor-link" href="#Zadanie-3:-Kt%C3%B3re-cechy-naprawd%C4%99-wa%C5%BC%C4%85-najwi%C4%99cej?">¶</a></h2><p>W sekcji 4 padło ostrzeżenie: surowych współczynników <strong>nie wolno</strong> porównywać między sobą, bo każdy jest w innych jednostkach. Napraw to.</p>
@@ -1089,7 +1089,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=97c1f933">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d80967e2">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1100,7 +1100,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=05a764ac"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c722914c"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-4:-Jak-szybko-psuje-si%C4%99-ka%C5%BCda-metryka">Zadanie 4: Jak szybko psuje się każda metryka<a class="anchor-link" href="#Zadanie-4:-Jak-szybko-psuje-si%C4%99-ka%C5%BCda-metryka">¶</a></h2><p>W sekcji 5 zepsuliśmy jeden rekord, wpisując wartość celu 5000. Zbadaj teraz, jak wielkość błędnego wpisu przekłada się na metryki.</p>
@@ -1115,7 +1115,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=03c9a6d5">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=cd71e58b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1126,7 +1126,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=a4611283"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9eb7a53b"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-5:-Wykres-reszt,-kt%C3%B3ry-co%C5%9B-pokazuje">Zadanie 5: Wykres reszt, który coś pokazuje<a class="anchor-link" href="#Zadanie-5:-Wykres-reszt,-kt%C3%B3ry-co%C5%9B-pokazuje">¶</a></h2><p>Wykres reszt dla modelu BMI był bezkształtną chmurą. Teraz zrób taki, na którym wzorzec widać z drugiego końca sali.</p>
@@ -1140,7 +1140,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=bde6fb4d">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=898d8c36">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1151,7 +1151,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=1055f8bf"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2e399dd5"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-6:-Krzywa-z%C5%82o%C5%BCono%C5%9Bci">Zadanie 6: Krzywa złożoności<a class="anchor-link" href="#Zadanie-6:-Krzywa-z%C5%82o%C5%BCono%C5%9Bci">¶</a></h2><p>Sekcja 7 pokazała trzy stopnie wielomianu. Sprawdź wszystkie.</p>
@@ -1170,7 +1170,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=91b30ed0">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d6e5b72b">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1182,7 +1182,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=54b01335"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=cae673ea"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-7-(trudniejsze):-Lasso-jako-narz%C4%99dzie-selekcji-cech">Zadanie 7 (trudniejsze): Lasso jako narzędzie selekcji cech<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Lasso-jako-narz%C4%99dzie-selekcji-cech">¶</a></h2><p>Zbadaj, czy Lasso faktycznie potrafi <strong>znaleźć</strong> cechy, które mają znaczenie. Do tego potrzebne są dane, w których wiadomo, które cechy są prawdziwe - a to potrafi wygenerować <code>make_regression</code>:</p>
@@ -1204,7 +1204,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=f3971bf0">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=70afe1c5">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1215,7 +1215,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=73b3b83a"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=3d26df6c"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Zadanie-8-(na-koniec):-Kiedy-odpowiedzi-nie-ma-w-danych">Zadanie 8 (na koniec): Kiedy odpowiedzi nie ma w danych<a class="anchor-link" href="#Zadanie-8-(na-koniec):-Kiedy-odpowiedzi-nie-ma-w-danych">¶</a></h2><p>Wracamy do pliku <code>dane/diabetes.csv</code> - tego z ćwiczeń 01-03, gdzie przewidywaliśmy <code>Diabetic</code>. Tym razem zadamy mu pytanie <strong>regresyjne</strong>: spróbuj przewidzieć <code>BMI</code> na podstawie pozostałych cech.</p>
@@ -1238,7 +1238,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered" id="cell-id=ed7c60c2">
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=50d6e3a8">
 <div class="input">
 <div class="prompt input_prompt">In [ ]:</div>
 <div class="inner_cell">
@@ -1251,7 +1251,7 @@ Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered" id="cell-id=67166fce"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2432b89f"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr/>

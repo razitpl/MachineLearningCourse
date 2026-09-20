@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creating a Pipeline</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Azure ML (English)</a></div><div class="tresc">
+<a class="pobierz" href="labdocs/lab06a.html">Instrukcja do tego ćwiczenia</a><a class="pobierz" href="pobierz/06A%20-%20Creating%20a%20Pipeline.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Creating-a-Pipeline">Creating a Pipeline<a class="anchor-link" href="#Creating-a-Pipeline">¶</a></h1><p>In the previous labs, you used the Azure Machine Learning SDK v2 to explore the entire model training process from accessing data through to running training experiments and registering machine learning models. Up until now, you have performed the various steps required to create a machine learning solution interactively. In this lab, you'll explore automation of these steps using <em>pipelines</em>.</p>
+<h2 id="Connect-to-Your-Workspace">Connect to Your Workspace<a class="anchor-link" href="#Connect-to-Your-Workspace">¶</a></h2><p>The first thing you need to do is to connect to your workspace using the Azure ML SDK v2.</p>
+<blockquote>
+<p><strong>Note</strong>: If the authenticated session with your Azure subscription has expired since you completed the previous exercise, you'll be prompted to reauthenticate.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+
+<span class="n">credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
+
+<span class="n">ml_client</span> <span class="o">=</span> <span class="n">MLClient</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">credential</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Ready to work with </span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">workspace_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Prepare-Data-for-a-Pipeline">Prepare Data for a Pipeline<a class="anchor-link" href="#Prepare-Data-for-a-Pipeline">¶</a></h2><p>In this lab, you'll use the diabetes data. The pipeline's training step reads it as a single CSV file (<code>uri_file</code>), so rather than depending on the exact type/version of the shared <strong>diabetes_mltable</strong> data asset from earlier labs (which is registered as an <code>mltable</code>), you'll just pass the local <code>data/diabetes.csv</code> file directly as the pipeline input - the SDK uploads it automatically when the pipeline job is submitted.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-Scripts-for-Pipeline-Steps">Create Scripts for Pipeline Steps<a class="anchor-link" href="#Create-Scripts-for-Pipeline-Steps">¶</a></h2><p>Pipelines in the Azure ML SDK v2 consist of one or more <em>components</em>. Each component wraps a script (or other executable) together with its inputs, outputs, and environment, and can run in its own compute context. A pipeline is built by connecting components together - the output of one component becomes the input of the next.</p>
+<p>In this exercise, you'll build a simple pipeline that contains a component to train a model, and a component to register the trained model.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="c1"># Create a folder for the pipeline step files</span>
+<span class="n">experiment_folder</span> <span class="o">=</span> <span class="s1">'diabetes_pipeline'</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">experiment_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">experiment_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now you can create the script for the first step, which will train a model. The script includes parameters for <strong>training_data</strong> (the input data asset) and <strong>output_folder</strong> (the folder where the trained model should be saved). Because Azure ML jobs configure MLflow tracking automatically, the script can use <code>mlflow</code> to log metrics and save the model.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">%%writefile</span> $experiment_folder/train_diabetes.py
+<span class="c1"># Import libraries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow.sklearn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_curve</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="c1"># Get parameters</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--training_data'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'training_data'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'training data'</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--output_folder'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'output_folder'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"diabetes_model"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'output folder'</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">output_folder</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output_folder</span>
+
+<span class="c1"># load the diabetes data (passed as a component input)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Loading Data..."</span><span class="p">)</span>
+<span class="n">diabetes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">training_data</span><span class="p">)</span>
+
+<span class="c1"># Separate features and labels</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">diabetes</span><span class="p">[[</span><span class="s1">'Pregnancies'</span><span class="p">,</span><span class="s1">'PlasmaGlucose'</span><span class="p">,</span><span class="s1">'DiastolicBloodPressure'</span><span class="p">,</span><span class="s1">'TricepsThickness'</span><span class="p">,</span><span class="s1">'SerumInsulin'</span><span class="p">,</span><span class="s1">'BMI'</span><span class="p">,</span><span class="s1">'DiabetesPedigree'</span><span class="p">,</span><span class="s1">'Age'</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">diabetes</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># Split data into training set and test set</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Train a decision tree model</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Training a decision tree model'</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># calculate accuracy</span>
+<span class="n">y_hat</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y_hat</span> <span class="o">==</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Accuracy:'</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s1">'Accuracy'</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">acc</span><span class="p">))</span>
+
+<span class="c1"># calculate AUC</span>
+<span class="n">y_scores</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">auc</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_scores</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'AUC: '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">auc</span><span class="p">))</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s1">'AUC'</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">auc</span><span class="p">))</span>
+
+<span class="c1"># plot ROC curve</span>
+<span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">thresholds</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_scores</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="c1"># Plot the diagonal 50% line</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">'k--'</span><span class="p">)</span>
+<span class="c1"># Plot the FPR and TPR achieved by our model</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'False Positive Rate'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'True Positive Rate'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">'ROC Curve'</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"ROC.png"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Save the trained model in MLflow format, ready to be picked up by the next step</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Saving model to"</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">)</span>
+<span class="c1"># cloudpickle format: the default skops refuses to serialise a decision tree.</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+                          <span class="n">serialization_format</span><span class="o">=</span><span class="s2">"cloudpickle"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The script for the second step registers the model saved by the first step in the workspace. It includes a single <strong>model_folder</strong> parameter that contains the path where the model was saved. The whole MLflow-format folder is registered as it stands - the model is not loaded into memory or saved a second time along the way.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">%%writefile</span> $experiment_folder/register_diabetes.py
+<span class="c1"># Import libraries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+
+<span class="c1"># Get parameters</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--model_folder'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'model_folder'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"diabetes_model"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'model location'</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">model_folder</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">model_folder</span>
+
+<span class="c1"># Register the model saved by the training step. The folder is registered as it</span>
+<span class="c1"># stands, without loading the model into memory and saving it a second time.</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Registering model from "</span> <span class="o">+</span> <span class="n">model_folder</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="sa">f</span><span class="s2">"file://</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">model_folder</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"diabetes_model"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Model registered as diabetes_model"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Prepare-a-Compute-Target-for-the-Pipeline-Steps">Prepare a Compute Target for the Pipeline Steps<a class="anchor-link" href="#Prepare-a-Compute-Target-for-the-Pipeline-Steps">¶</a></h2><p>In this exercise, you'll use the same compute cluster for both steps, but it's important to realize that each step runs independently; so you could specify different compute targets for each step if appropriate.</p>
+<p>First, get (or create) the compute cluster.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">AmlCompute</span>
+
+<span class="n">cluster_name</span> <span class="o">=</span> <span class="s2">"aml-cluster"</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">pipeline_cluster</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cluster_name</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Found existing cluster, use it.'</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="c1"># If not, create it</span>
+    <span class="n">pipeline_cluster</span> <span class="o">=</span> <span class="n">AmlCompute</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">"amlcompute"</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="s2">"Standard_D2as_v4"</span><span class="p">,</span>
+        <span class="n">min_instances</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">max_instances</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">idle_time_before_scale_down</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ml_client</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">begin_create_or_update</span><span class="p">(</span><span class="n">pipeline_cluster</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Compute target '</span><span class="si">{</span><span class="n">pipeline_cluster</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' ready to use."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The compute will require a Python environment with the necessary package dependencies installed, so we'll create one and register it.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span>
+
+<span class="c1"># Define the conda dependencies for the pipeline steps.</span>
+<span class="c1"># mlflow is pinned: a newer one breaks artifact logging through azureml-mlflow.</span>
+<span class="n">conda_dependencies</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"diabetes-pipeline-env"</span><span class="p">,</span>
+    <span class="s2">"channels"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"conda-forge"</span><span class="p">],</span>
+    <span class="s2">"dependencies"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"python=3.10"</span><span class="p">,</span>
+        <span class="s2">"scikit-learn"</span><span class="p">,</span>
+        <span class="s2">"pandas"</span><span class="p">,</span>
+        <span class="s2">"matplotlib"</span><span class="p">,</span>
+        <span class="s2">"pip"</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">"pip"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"mlflow&lt;=3.15.0"</span><span class="p">,</span> <span class="s2">"azureml-mlflow"</span><span class="p">]},</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">pipeline_env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"diabetes-pipeline-env"</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"Training environment for the diabetes pipeline"</span><span class="p">,</span>
+    <span class="n">conda_file</span><span class="o">=</span><span class="n">conda_dependencies</span><span class="p">,</span>
+    <span class="n">image</span><span class="o">=</span><span class="s2">"mcr.microsoft.com/azureml/openmpi5.0-ubuntu24.04"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">pipeline_env</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">environments</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">pipeline_env</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Environment '</span><span class="si">{</span><span class="n">pipeline_env</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' registered, version </span><span class="si">{</span><span class="n">pipeline_env</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-and-Run-a-Pipeline">Create and Run a Pipeline<a class="anchor-link" href="#Create-and-Run-a-Pipeline">¶</a></h2><p>Now we're ready to create and run a pipeline.</p>
+<p>First we need to define the components for the pipeline. In this case, the first component must write the trained model to a folder that can be read from by the second component. Since each component runs in its own container (and could even run on different compute), the outputs and inputs of a component are declared explicitly, and Azure ML takes care of passing the data between the steps' storage locations. We'll define an <code>Output</code> for the training component's model folder, and use it as the <code>Input</code> to the registration component.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">command</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># Step 1: train the model</span>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">command</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"train_diabetes_model"</span><span class="p">,</span>
+    <span class="n">display_name</span><span class="o">=</span><span class="s2">"Train Model"</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"Trains a diabetes classification model"</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">"training_data"</span><span class="p">:</span> <span class="n">Input</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">URI_FILE</span><span class="p">)},</span>
+    <span class="n">outputs</span><span class="o">=</span><span class="p">{</span><span class="s2">"model_output"</span><span class="p">:</span> <span class="n">Output</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">MLFLOW_MODEL</span><span class="p">)},</span>
+    <span class="n">code</span><span class="o">=</span><span class="n">experiment_folder</span><span class="p">,</span>
+    <span class="n">command</span><span class="o">=</span><span class="s2">"python train_diabetes.py --training_data ${{inputs.training_data}} --output_folder ${{outputs.model_output}}"</span><span class="p">,</span>
+    <span class="n">environment</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pipeline_env</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">pipeline_env</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Step 2: register the trained model</span>
+<span class="n">register_step</span> <span class="o">=</span> <span class="n">command</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"register_diabetes_model"</span><span class="p">,</span>
+    <span class="n">display_name</span><span class="o">=</span><span class="s2">"Register Model"</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"Registers the trained model in the workspace"</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">"model_folder"</span><span class="p">:</span> <span class="n">Input</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">MLFLOW_MODEL</span><span class="p">)},</span>
+    <span class="n">code</span><span class="o">=</span><span class="n">experiment_folder</span><span class="p">,</span>
+    <span class="n">command</span><span class="o">=</span><span class="s2">"python register_diabetes.py --model_folder ${{inputs.model_folder}}"</span><span class="p">,</span>
+    <span class="n">environment</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pipeline_env</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">pipeline_env</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Pipeline steps defined"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>OK, we're ready to go. Let's build the pipeline from the components we've defined, using the <code>@dsl.pipeline</code> decorator, and run it as a job.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">dsl</span>
+
+<span class="c1"># Construct the pipeline</span>
+<span class="nd">@dsl</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Trains and registers a diabetes classification model"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">diabetes_training_pipeline</span><span class="p">(</span><span class="n">pipeline_input_data</span><span class="p">:</span> <span class="n">Input</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">URI_FILE</span><span class="p">)):</span>
+    <span class="n">train_job</span> <span class="o">=</span> <span class="n">train_step</span><span class="p">(</span><span class="n">training_data</span><span class="o">=</span><span class="n">pipeline_input_data</span><span class="p">)</span>
+    <span class="n">register_step</span><span class="p">(</span><span class="n">model_folder</span><span class="o">=</span><span class="n">train_job</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">model_output</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"trained_model"</span><span class="p">:</span> <span class="n">train_job</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">model_output</span><span class="p">}</span>
+
+<span class="n">pipeline_job</span> <span class="o">=</span> <span class="n">diabetes_training_pipeline</span><span class="p">(</span>
+    <span class="n">pipeline_input_data</span><span class="o">=</span><span class="n">Input</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">URI_FILE</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">"data/diabetes.csv"</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Set the default compute for all steps that don't specify their own</span>
+<span class="n">pipeline_job</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">default_compute</span> <span class="o">=</span> <span class="s2">"aml-cluster"</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Pipeline is built."</span><span class="p">)</span>
+
+<span class="c1"># Submit the pipeline as a job</span>
+<span class="n">pipeline_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span>
+    <span class="n">pipeline_job</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"diabetes-training-pipeline"</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Pipeline submitted for execution."</span><span class="p">)</span>
+
+<span class="c1"># Stream the job logs until the pipeline completes</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">pipeline_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <code>stream</code> call above shows the pipeline's progress until it completes. You can also monitor pipeline jobs on the <strong>Jobs</strong> page in <a href="https://ml.azure.com">Azure Machine Learning studio</a>.</p>
+<p>When the pipeline has finished, a new version of the <strong>diabetes_model</strong> should be registered. Run the following code to verify this.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_model"</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> version: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tag_name</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\t</span><span class="si">{</span><span class="n">tag_name</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is a simple example, designed to demonstrate the principle. In reality, you could build more sophisticated logic into the pipeline steps - for example, evaluating the model against some test data to calculate a performance metric like AUC or accuracy, comparing the metric to that of any previously registered versions of the model, and only registering the new model if it performs better.</p>
+<p>You can use the <a href="https://marketplace.visualstudio.com/items?itemName=ms-air-aiagility.vss-services-azureml">Azure Machine Learning extension for Azure DevOps</a> to combine Azure ML pipelines with Azure DevOps pipelines (yes, it <em>is</em> confusing that they have the same name!) and integrate model retraining into a <em>continuous integration/continuous deployment (CI/CD)</em> process. For example you could use an Azure DevOps <em>build</em> pipeline to trigger an Azure ML pipeline job that trains and registers a model, and when the model is registered it could trigger an Azure DevOps <em>release</em> pipeline that deploys the model as an endpoint, along with the application or service that consumes the model.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="05b-working-with-compute-targets.html"><span>Poprzednie</span>Working with Compute Targets</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="06b-publishing-a-pipeline.html"><span>Następne</span>Publishing a Pipeline</a>
+</nav>
+</div></main>
+
+</body>
+</html>

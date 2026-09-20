@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Running Experiments</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Azure ML (English)</a></div><div class="tresc">
+<a class="pobierz" href="labdocs/lab03a.html">Instrukcja do tego ćwiczenia</a><a class="pobierz" href="pobierz/03A%20-%20Running%20Experiments.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Running-Experiments">Running Experiments<a class="anchor-link" href="#Running-Experiments">¶</a></h1><p>You can use the Azure Machine Learning SDK to submit and track <em>jobs</em> that run code, log metrics, and generate outputs. This is at the core of most machine learning operations in Azure Machine Learning.</p>
+<h2 id="Connect-to-Your-Workspace">Connect to Your Workspace<a class="anchor-link" href="#Connect-to-Your-Workspace">¶</a></h2><p>The first thing you need to do is to connect to your workspace using the Azure ML SDK v2.</p>
+<blockquote>
+<p><strong>Note</strong>: If the authenticated session with your Azure subscription has expired since you completed the previous exercise, you'll be prompted to reauthenticate.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+
+<span class="n">credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
+<span class="n">ml_client</span> <span class="o">=</span> <span class="n">MLClient</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">credential</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Ready to use Azure ML to work with </span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">workspace_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Track-a-Run-with-MLflow">Track a Run with MLflow<a class="anchor-link" href="#Track-a-Run-with-MLflow">¶</a></h2><p>One of the most fundamental tasks that data scientists need to perform is to create and run experiments that process and analyze data. In this exercise, you'll learn how to use MLflow tracking - which is built into Azure Machine Learning - to run Python code in this notebook and record values extracted from data. In this case, you'll use a simple dataset that contains details of patients that have been tested for diabetes. You'll run some code to explore the data, extracting statistics, visualizations, and data samples. Most of the code you'll use is fairly generic Python, such as you might run in any data exploration process. However, with the addition of a few lines, the code uses MLflow to log details of the run to your Azure Machine Learning workspace.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="c1"># Start an MLflow run to track this exploration</span>
+<span class="n">run</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">(</span><span class="n">run_name</span><span class="o">=</span><span class="s2">"diabetes-exploration"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Starting run:"</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+
+<span class="c1"># load the data from a local file</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'data/diabetes.csv'</span><span class="p">)</span>
+
+<span class="c1"># Count the rows and log the result</span>
+<span class="n">row_count</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s1">'observations'</span><span class="p">,</span> <span class="n">row_count</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Analyzing </span><span class="si">{}</span><span class="s1"> rows of data'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row_count</span><span class="p">))</span>
+
+<span class="c1"># Plot and log the count of diabetic vs non-diabetic patients</span>
+<span class="n">diabetic_counts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>    
+<span class="n">diabetic_counts</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">)</span> 
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Patients with Diabetes'</span><span class="p">)</span> 
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Diagnosis'</span><span class="p">)</span> 
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Patients'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'label-distribution.png'</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="s1">'label-distribution.png'</span><span class="p">)</span>
+
+<span class="c1"># log distinct pregnancy counts</span>
+<span class="n">pregnancies</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">Pregnancies</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_param</span><span class="p">(</span><span class="s1">'pregnancy_categories'</span><span class="p">,</span> <span class="n">pregnancies</span><span class="p">)</span>
+
+<span class="c1"># Log summary statistics for numeric columns</span>
+<span class="n">med_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'PlasmaGlucose'</span><span class="p">,</span> <span class="s1">'DiastolicBloodPressure'</span><span class="p">,</span> <span class="s1">'TricepsThickness'</span><span class="p">,</span> <span class="s1">'SerumInsulin'</span><span class="p">,</span> <span class="s1">'BMI'</span><span class="p">]</span>
+<span class="n">summary_stats</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">med_columns</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">summary_stats</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">stat</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">summary_stats</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+<span class="c1"># Save a sample of the data and log it as an artifact</span>
+<span class="n">data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'sample.csv'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="s1">'sample.csv'</span><span class="p">)</span>
+
+<span class="c1"># End the run</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">end_run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="View-Run-Results">View Run Results<a class="anchor-link" href="#View-Run-Results">¶</a></h2><p>After the run has finished, you can use the MLflow client to get information about the run and its outputs:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<span class="n">run_data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+
+<span class="c1"># Get logged metrics</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Metrics:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">run_data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="c1"># Get logged parameters</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Parameters:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">run_data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="c1"># Get output artifacts</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Artifacts:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">list_artifacts</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can follow a job's progress and review its logged metrics directly in Azure Machine Learning studio.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Open <a href="https://ml.azure.com">Azure Machine Learning studio</a>, select <strong>Jobs</strong>, and find the run under the <strong>diabetes-experiment</strong> experiment. When viewing the run in Azure Machine Learning studio, note the following:</p>
+<ul>
+<li>The <strong>Overview</strong> tab shows the general properties of the run.</li>
+<li>The <strong>Metrics</strong> tab enables you to select logged metrics and view them as tables or charts.</li>
+<li>The <strong>Images</strong> tab enables you to select and view any images or plots that were logged in the run (in this case, the <em>label-distribution.png</em> plot).</li>
+<li>The <strong>Outputs + logs</strong> tab shows the output files and artifacts generated by the run.</li>
+<li>The <strong>Code</strong> tab shows a snapshot of the files used to produce the run.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Run-a-Script-as-a-Job">Run a Script as a Job<a class="anchor-link" href="#Run-a-Script-as-a-Job">¶</a></h2><p>In the previous example, you ran code inline in this notebook. A more flexible solution is to create a separate script for the code, store it in a folder along with any other files it needs, and then use Azure ML to run it as a <strong>command job</strong> on compute you choose. This makes it easy to move from ad hoc exploration on a compute instance to reproducible, scalable runs on a compute cluster.</p>
+<p>First, let's create a folder for the script files, and copy the data into it:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">shutil</span>
+
+<span class="c1"># Create a folder for the experiment files</span>
+<span class="n">folder_name</span> <span class="o">=</span> <span class="s1">'diabetes-experiment-files'</span>
+<span class="n">experiment_folder</span> <span class="o">=</span> <span class="s1">'./'</span> <span class="o">+</span> <span class="n">folder_name</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Copy the data file into a data subfolder, so the script can load it with the</span>
+<span class="c1"># same relative path it uses in this repo</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="s1">'data'</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s1">'data/diabetes.csv'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="s1">'data'</span><span class="p">,</span> <span class="s1">'diabetes.csv'</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we'll create a Python script containing the code for our job, and save it in the folder.</p>
+<blockquote>
+<p><strong>Note</strong>: running the following cell just <em>creates</em> the script file - it doesn't run it!</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">%%writefile</span> $folder_name/diabetes_experiment.py
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+
+<span class="c1"># load the diabetes dataset</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'data/diabetes.csv'</span><span class="p">)</span>
+
+<span class="c1"># Count the rows and log the result</span>
+<span class="n">row_count</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s1">'observations'</span><span class="p">,</span> <span class="n">row_count</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Analyzing </span><span class="si">{}</span><span class="s1"> rows of data'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row_count</span><span class="p">))</span>
+
+<span class="c1"># Count and log the label counts</span>
+<span class="n">diabetic_counts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">diabetic_counts</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">diabetic_counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s1">'Label:'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>
+
+<span class="c1"># Save a sample of the data in the outputs folder (job outputs are captured automatically)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">'outputs'</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">"outputs/sample.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note the following about this script:</p>
+<ul>
+<li>It uses <code>mlflow.log_metric()</code> to log metrics. Azure Machine Learning attaches an MLflow run to every job automatically, so anything you log this way ends up in the job's history.</li>
+<li>It loads the diabetes data from the <strong>data</strong> subfolder next to the script. Everything in the job's code folder is uploaded with the job, so the script finds the file at the same relative path when it runs in the cloud.</li>
+<li>It creates a folder named <strong>outputs</strong> and writes the sample file to it - files written to <strong>outputs</strong> are automatically captured as part of the job.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now you're almost ready to run the script as a job. There are just a few things you need to define:</p>
+<ol>
+<li>The <strong>environment</strong> in which to run the script - in this case, we'll use a curated Azure Machine Learning environment that already includes common Python packages.</li>
+<li>The <strong>compute</strong> on which to run the job - in this case, the <code>aml-cluster</code> compute cluster you created in an earlier lab.</li>
+<li>The <strong>command</strong> that specifies how to run the script.</li>
+</ol>
+<blockquote>
+<p><strong>Note</strong>: Don't worry too much about the environment configuration for now - we'll explore it in more depth later.</p>
+</blockquote>
+<p>The following cell configures a <code>command</code> job, and then submits it.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">command</span>
+
+<span class="c1"># configure the job</span>
+<span class="n">job</span> <span class="o">=</span> <span class="n">command</span><span class="p">(</span>
+    <span class="n">code</span><span class="o">=</span><span class="n">experiment_folder</span><span class="p">,</span>
+    <span class="n">command</span><span class="o">=</span><span class="s2">"python diabetes_experiment.py"</span><span class="p">,</span>
+    <span class="n">environment</span><span class="o">=</span><span class="s2">"azureml://registries/azureml/environments/sklearn-1.5/labels/latest"</span><span class="p">,</span>
+    <span class="n">compute</span><span class="o">=</span><span class="s2">"aml-cluster"</span><span class="p">,</span>
+    <span class="n">display_name</span><span class="o">=</span><span class="s2">"diabetes-experiment"</span><span class="p">,</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"diabetes-experiment"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># submit the job</span>
+<span class="n">returned_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+
+<span class="c1"># stream the job logs while it runs</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">returned_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As before, you can use <a href="https://ml.azure.com">Azure Machine Learning studio</a> to view the outputs generated by the job, and you can also write code to retrieve the metrics and files it generated:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<span class="n">job_run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">returned_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="c1"># Get logged metrics</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Metrics:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">job_run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Output files:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">list_artifacts</span><span class="p">(</span><span class="n">returned_job</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="View-Job-History">View Job History<a class="anchor-link" href="#View-Job-History">¶</a></h2><p>Now that you've run the same script multiple times, you can view the history in <a href="https://ml.azure.com">Azure Machine Learning studio</a> and explore each job. Or you can list jobs and filter by experiment name using the SDK:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">logged_job</span> <span class="ow">in</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">logged_job</span><span class="o">.</span><span class="n">experiment_name</span> <span class="o">==</span> <span class="s2">"diabetes-experiment"</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'Job name:'</span><span class="p">,</span> <span class="n">logged_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'Status:'</span><span class="p">,</span> <span class="n">logged_job</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'Display name:'</span><span class="p">,</span> <span class="n">logged_job</span><span class="o">.</span><span class="n">display_name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote>
+<p><strong>More Information</strong>: To find out more about running jobs, see <a href="https://learn.microsoft.com/azure/machine-learning/how-to-train-model">Train models with Azure Machine Learning CLI, SDK, and REST API</a> in the Azure ML documentation. For details of how to log metrics with MLflow, see <a href="https://learn.microsoft.com/azure/machine-learning/how-to-log-view-metrics">Log metrics, parameters, and files with MLflow</a>.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="02b-using-the-visual-designer.html"><span>Poprzednie</span>Using the Visual Designer</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="03b-training-models.html"><span>Następne</span>Training Models</a>
+</nav>
+</div></main>
+
+</body>
+</html>

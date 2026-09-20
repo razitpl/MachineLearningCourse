@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tworzenie usługi wnioskowania wsadowego</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Azure ML (polski)</a></div><div class="tresc">
+<a class="pobierz" href="labdocs/lab07b.html">Instrukcja do tego ćwiczenia</a><a class="pobierz" href="pobierz/07B%20-%20Creating%20a%20Batch%20Inferencing%20Service.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Tworzenie-us%C5%82ugi-wnioskowania-wsadowego">Tworzenie usługi wnioskowania wsadowego<a class="anchor-link" href="#Tworzenie-us%C5%82ugi-wnioskowania-wsadowego">¶</a></h1><p>W poprzednim ćwiczeniu model trafił do zarządzanego punktu końcowego online, obsługującego wnioskowanie (ang. <em>inference</em>) w czasie rzeczywistym. Teraz utworzysz <strong>punkt końcowy wsadowy</strong> (ang. <em>batch endpoint</em>), który przetwarza dane partiami. Po co? Wyobraź sobie przychodnię, która przez cały dzień zbiera wyniki badań i zapisuje dane każdego pacjenta w osobnym pliku. W nocy model może przetworzyć komplet danych z całego dnia naraz, a rano na personelu czekają gotowe predykcje - i wiadomo, do których pacjentów trzeba się odezwać. Dokładnie to zbudujesz w tym ćwiczeniu.</p>
+<h2 id="Po%C5%82%C4%85czenie-z-obszarem-roboczym">Połączenie z obszarem roboczym<a class="anchor-link" href="#Po%C5%82%C4%85czenie-z-obszarem-roboczym">¶</a></h2><p>Na początek połącz się z obszarem roboczym przy użyciu Azure ML SDK v2.</p>
+<blockquote>
+<p><strong>Uwaga</strong>: Jeśli od poprzedniego ćwiczenia wygasła uwierzytelniona sesja z subskrypcją Azure, pojawi się prośba o ponowne zalogowanie.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+
+<span class="n">credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
+<span class="n">ml_client</span> <span class="o">=</span> <span class="n">MLClient</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">credential</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Azure ML gotowe do pracy z obszarem roboczym </span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">workspace_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Trenowanie-i-rejestracja-modelu">Trenowanie i rejestracja modelu<a class="anchor-link" href="#Trenowanie-i-rejestracja-modelu">¶</a></h2><p>Wsadowy skrypt scoringowy (ang. <em>scoring script</em>), którego użyjesz w dalszej części ćwiczenia, wczytuje model przez <code>joblib</code> z pliku <code>diabetes_model.pkl</code>. Zarejestrowany model <strong>diabetes_model</strong> musi więc być zwykłym modelem scikit-learn zapisanym jako zasób typu <code>CUSTOM_MODEL</code> - a nie modelem w formacie MLflow, jaki rejestrują niektóre wcześniejsze ćwiczenia (Lab 3B, Lab 6A).</p>
+<p>Dlatego poniższa komórka jest obowiązkowa: trenuje model i rejestruje go we właściwym formacie, niezależnie od tego, które wcześniejsze ćwiczenia zostały wykonane. Bez niej dalsze kroki wdrożenia nie zadziałają.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># wczytaj zbiór danych o cukrzycy</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Wczytywanie danych..."</span><span class="p">)</span>
+<span class="n">diabetes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'data/diabetes.csv'</span><span class="p">)</span>
+
+<span class="c1"># Rozdziel cechy i etykiety</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">diabetes</span><span class="p">[[</span><span class="s1">'Pregnancies'</span><span class="p">,</span><span class="s1">'PlasmaGlucose'</span><span class="p">,</span><span class="s1">'DiastolicBloodPressure'</span><span class="p">,</span><span class="s1">'TricepsThickness'</span><span class="p">,</span><span class="s1">'SerumInsulin'</span><span class="p">,</span><span class="s1">'BMI'</span><span class="p">,</span><span class="s1">'DiabetesPedigree'</span><span class="p">,</span><span class="s1">'Age'</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">diabetes</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># Podziel dane na zbiór treningowy i testowy</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Wytrenuj model drzewa decyzyjnego</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Trenowanie modelu drzewa decyzyjnego'</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># policz skuteczność</span>
+<span class="n">y_hat</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y_hat</span> <span class="o">==</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Skuteczność:'</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+
+<span class="c1"># policz AUC</span>
+<span class="n">y_scores</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">auc</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_scores</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'AUC: '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">auc</span><span class="p">))</span>
+
+<span class="c1"># Zapisz wytrenowany model do pliku</span>
+<span class="n">model_file</span> <span class="o">=</span> <span class="s1">'diabetes_model.pkl'</span>
+<span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">model_file</span><span class="p">)</span>
+
+<span class="c1"># Zarejestruj model</span>
+<span class="n">registered_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="n">model_file</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">CUSTOM_MODEL</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_model"</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"A decision tree model that classifies patients by their likelihood of being diabetic."</span><span class="p">,</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"Training context"</span><span class="p">:</span> <span class="s2">"Inline Training"</span><span class="p">},</span>
+    <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s2">"AUC"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">auc</span><span class="p">),</span> <span class="s2">"Accuracy"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">acc</span><span class="p">)},</span>
+<span class="p">)</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">registered_model</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Model wytrenowany i zarejestrowany.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Przygotowanie-danych-wsadowych">Przygotowanie danych wsadowych<a class="anchor-link" href="#Przygotowanie-danych-wsadowych">¶</a></h2><p>Na potrzeby kursu nie ma prawdziwej przychodni, która dostarczyłaby nowe wyniki badań, więc wylosujesz próbkę z drugiego pliku CSV z danymi o cukrzycy i na niej przetestujesz punkt końcowy wsadowy. Tak przygotowane pliki zarejestrujesz w obszarze roboczym jako zasób danych typu <code>uri_folder</code>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># Wczytaj dane o cukrzycy (nowi pacjenci, dla których chcemy predykcji)</span>
+<span class="n">diabetes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'data/diabetes2.csv'</span><span class="p">)</span>
+<span class="c1"># Wylosuj 100 obserwacji, biorąc same kolumny z cechami (bez etykiety Diabetic)</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">diabetes</span><span class="p">[[</span><span class="s1">'Pregnancies'</span><span class="p">,</span><span class="s1">'PlasmaGlucose'</span><span class="p">,</span><span class="s1">'DiastolicBloodPressure'</span><span class="p">,</span><span class="s1">'TricepsThickness'</span><span class="p">,</span><span class="s1">'SerumInsulin'</span><span class="p">,</span><span class="s1">'BMI'</span><span class="p">,</span><span class="s1">'DiabetesPedigree'</span><span class="p">,</span><span class="s1">'Age'</span><span class="p">]]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># Utwórz folder lokalny</span>
+<span class="n">batch_folder</span> <span class="o">=</span> <span class="s1">'./batch-data'</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">batch_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Folder utworzony!"</span><span class="p">)</span>
+
+<span class="c1"># Zapisz każdą obserwację w osobnym pliku</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Zapisywanie plików..."</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'.csv'</span>
+    <span class="n">sample</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">batch_folder</span><span class="p">,</span> <span class="n">fname</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s2">","</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Pliki zapisane!"</span><span class="p">)</span>
+
+<span class="c1"># Zarejestruj folder z plikami jako zasób danych typu uri_folder</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Wysyłanie plików i rejestrowanie zasobu danych..."</span><span class="p">)</span>
+<span class="n">batch_data_set</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="n">batch_folder</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">URI_FOLDER</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"A folder of new patient observations to be scored in batch"</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_batch_data"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">batch_data_set</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Gotowe!"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Przygotowanie-%C5%9Brodowiska-obliczeniowego">Przygotowanie środowiska obliczeniowego<a class="anchor-link" href="#Przygotowanie-%C5%9Brodowiska-obliczeniowego">¶</a></h2><p>Wdrożenie wsadowe potrzebuje środowiska obliczeniowego, na którym wykona swoją pracę. Użyjesz klastra obliczeniowego <code>aml-cluster</code> z wcześniejszych ćwiczeń (jeśli jeszcze nie istnieje, zostanie utworzony).</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">AmlCompute</span>
+
+<span class="n">cluster_name</span> <span class="o">=</span> <span class="s2">"aml-cluster"</span>
+
+<span class="c1"># Sprawdź, czy klaster już istnieje</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">inference_cluster</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cluster_name</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Klaster już istnieje - używamy go.'</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="c1"># Utwórz klaster obliczeniowy Azure ML</span>
+    <span class="n">compute_config</span> <span class="o">=</span> <span class="n">AmlCompute</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">"amlcompute"</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="s2">"Standard_D2as_v4"</span><span class="p">,</span>
+        <span class="n">min_instances</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">max_instances</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">idle_time_before_scale_down</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">inference_cluster</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">begin_create_or_update</span><span class="p">(</span><span class="n">compute_config</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">inference_cluster</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"jest dostępny."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Wsadowy-skrypt-scoringowy">Wsadowy skrypt scoringowy<a class="anchor-link" href="#Wsadowy-skrypt-scoringowy">¶</a></h2><p>Teraz możesz zdefiniować wdrożenie (ang. <em>deployment</em>) wsadowe. Potrzebuje ono kodu w Pythonie, który wykona właściwe przetwarzanie, więc najpierw utwórz folder na pliki wdrożenia:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="c1"># Utwórz folder na pliki wdrożenia</span>
+<span class="n">experiment_folder</span> <span class="o">=</span> <span class="s1">'batch_deploy'</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">experiment_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">experiment_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Teraz utwórz skrypt Pythona, który wykona właściwą pracę, i zapisz go w folderze wdrożenia:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">%%writefile</span> $experiment_folder/batch_diabetes.py
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">init</span><span class="p">():</span>
+    <span class="c1"># Wykonuje się raz, przy inicjalizacji wdrożenia</span>
+    <span class="k">global</span> <span class="n">model</span>
+
+    <span class="c1"># Zmienną AZUREML_MODEL_DIR ustawia wdrożenie wsadowe; wskazuje ona</span>
+    <span class="c1"># folder z plikami zarejestrowanego modelu</span>
+    <span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"AZUREML_MODEL_DIR"</span><span class="p">),</span> <span class="s2">"diabetes_model.pkl"</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">mini_batch</span><span class="p">):</span>
+    <span class="c1"># Wykonuje się dla każdej porcji plików (mini-batcha)</span>
+    <span class="n">resultList</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># przetwórz każdy plik z porcji</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">mini_batch</span><span class="p">:</span>
+        <span class="c1"># Wczytaj dane rozdzielone przecinkami do tablicy</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">','</span><span class="p">)</span>
+        <span class="c1"># Zmień kształt na tablicę dwuwymiarową - model oczekuje zbioru obserwacji, nie jednej</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Dopisz predykcję do wyników</span>
+        <span class="n">resultList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="n">prediction</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">resultList</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Kolejny krok to zdefiniowanie środowiska z pakietami, których potrzebuje skrypt.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">%%writefile</span> $experiment_folder/batch_env.yml
+<span class="n">name</span><span class="p">:</span> <span class="n">batch</span><span class="o">-</span><span class="n">environment</span>
+<span class="n">dependencies</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.8</span>
+  <span class="o">-</span> <span class="n">numpy</span>
+  <span class="o">-</span> <span class="n">pip</span>
+  <span class="o">-</span> <span class="n">pip</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">scikit</span><span class="o">-</span><span class="n">learn</span>
+      <span class="o">-</span> <span class="n">joblib</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span>
+
+<span class="n">batch_env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"batch-environment"</span><span class="p">,</span>
+    <span class="n">conda_file</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">experiment_folder</span><span class="si">}</span><span class="s2">/batch_env.yml"</span><span class="p">,</span>
+    <span class="n">image</span><span class="o">=</span><span class="s2">"mcr.microsoft.com/azureml/openmpi5.0-ubuntu24.04"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Konfiguracja środowiska gotowa.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Skrypt predykcji wsadowej wdrożysz jako <strong>wdrożenie wsadowe</strong> ukryte za <strong>punktem końcowym wsadowym</strong>. Wdrożenie wsadowe samo rozdziela pliki wejściowe na porcje (mini-batche) między węzły klastra, równolegle uruchamia na nich skrypt scoringowy i scala wyniki w jeden plik wyjściowy.</p>
+<p>Potrzebne będą klasy służące do definiowania punktów końcowych i wdrożeń wsadowych.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Wszystko jest gotowe do utworzenia punktu końcowego i wdrożenia. Punkt końcowy będzie się nazywał <strong>diabetes-batch-endpoint</strong>, a wdrożenie <strong>diabetes-batch-dpl</strong>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">BatchEndpoint</span><span class="p">,</span> <span class="n">ModelBatchDeployment</span><span class="p">,</span> <span class="n">ModelBatchDeploymentSettings</span><span class="p">,</span> <span class="n">CodeConfiguration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BatchDeploymentOutputAction</span>
+
+<span class="n">endpoint_name</span> <span class="o">=</span> <span class="s2">"diabetes-batch-endpoint"</span>
+
+<span class="c1"># Utwórz punkt końcowy wsadowy</span>
+<span class="n">endpoint</span> <span class="o">=</span> <span class="n">BatchEndpoint</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"A batch endpoint for scoring diabetes patient data"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">batch_endpoints</span><span class="o">.</span><span class="n">begin_create_or_update</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="c1"># Pobierz zarejestrowany model, który chcesz wdrożyć</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_model"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"latest"</span><span class="p">)</span>
+
+<span class="c1"># Utwórz wdrożenie wsadowe</span>
+<span class="n">batch_deployment</span> <span class="o">=</span> <span class="n">ModelBatchDeployment</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"diabetes-batch-dpl"</span><span class="p">,</span>
+    <span class="n">endpoint_name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">environment</span><span class="o">=</span><span class="n">batch_env</span><span class="p">,</span>
+    <span class="n">code_configuration</span><span class="o">=</span><span class="n">CodeConfiguration</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">experiment_folder</span><span class="p">,</span> <span class="n">scoring_script</span><span class="o">=</span><span class="s2">"batch_diabetes.py"</span><span class="p">),</span>
+    <span class="n">compute</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">,</span>
+    <span class="n">settings</span><span class="o">=</span><span class="n">ModelBatchDeploymentSettings</span><span class="p">(</span>
+        <span class="n">instance_count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">max_concurrency_per_instance</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">mini_batch_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">output_action</span><span class="o">=</span><span class="n">BatchDeploymentOutputAction</span><span class="o">.</span><span class="n">APPEND_ROW</span><span class="p">,</span>
+        <span class="n">output_file_name</span><span class="o">=</span><span class="s2">"predictions.csv"</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">batch_deployments</span><span class="o">.</span><span class="n">begin_create_or_update</span><span class="p">(</span><span class="n">batch_deployment</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="c1"># Ustaw to wdrożenie jako domyślne dla punktu końcowego</span>
+<span class="n">endpoint</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">batch_endpoints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">endpoint_name</span><span class="p">)</span>
+<span class="n">endpoint</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">deployment_name</span> <span class="o">=</span> <span class="n">batch_deployment</span><span class="o">.</span><span class="n">name</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">batch_endpoints</span><span class="o">.</span><span class="n">begin_create_or_update</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Punkt końcowy wsadowy i wdrożenie utworzone.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Czas wywołać punkt końcowy wsadowy, przekazując mu zasób danych jako wejście, i poczekać na zakończenie zadania.</p>
+<blockquote>
+<p><strong>Uwaga</strong>: To może chwilę potrwać!</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">Input</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># Pobierz najnowszą wersję zarejestrowanego zasobu danych wsadowych</span>
+<span class="n">batch_data_asset</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_batch_data"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"latest"</span><span class="p">)</span>
+
+<span class="n">job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">batch_endpoints</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+    <span class="n">endpoint_name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"input_data"</span><span class="p">:</span> <span class="n">Input</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">URI_FOLDER</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">"azureml:diabetes_batch_data:</span><span class="si">{</span><span class="n">batch_data_asset</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Po zakończeniu zadania predykcje są już zapisane przez podrzędne zadanie scoringowe. Możesz je pobrać w ten sposób:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s1">'diabetes-results'</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Wdrożenie uruchamia skrypt scoringowy w zadaniu podrzędnym - pobierz referencję do niego</span>
+<span class="n">scoring_job</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">parent_job_name</span><span class="o">=</span><span class="n">job</span><span class="o">.</span><span class="n">name</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Pobierz jego wyjście (dla wdrożenia wsadowego modelu domyślnie nazywa się "score")</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">scoring_job</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">download_path</span><span class="o">=</span><span class="s1">'diabetes-results'</span><span class="p">,</span> <span class="n">output_name</span><span class="o">=</span><span class="s1">'score'</span><span class="p">)</span>
+
+<span class="c1"># Odszukaj plik z predykcjami</span>
+<span class="n">result_file</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">'diabetes-results/**/predictions.csv'</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># uporządkuj format wyników</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">result_file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">":"</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"File"</span><span class="p">,</span> <span class="s2">"Prediction"</span><span class="p">]</span>
+
+<span class="c1"># Wyświetl pierwsze 20 wyników</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Korzystanie-z-punktu-ko%C5%84cowego-wsadowego-w-aplikacji">Korzystanie z punktu końcowego wsadowego w aplikacji<a class="anchor-link" href="#Korzystanie-z-punktu-ko%C5%84cowego-wsadowego-w-aplikacji">¶</a></h2><p>Punkt końcowy wsadowy jest trwałym zasobem, gotowym do wywołania od chwili utworzenia. Aplikacja kliencka może uruchomić zadanie scoringowe metodą <code>invoke</code> z Azure ML SDK (tak jak przed chwilą), poleceniem Azure CLI (<code>az ml batch-endpoint invoke</code>) albo bezpośrednim wywołaniem interfejsu REST punktu końcowego.</p>
+<p>Wywołania REST punktów końcowych wsadowych uwierzytelnia się tokenami Microsoft Entra ID, a nie prostym kluczem. Prawdziwa aplikacja logowałaby się więc zwykle jako jednostka usługi (ang. <em>service principal</em>) i przedstawiała uzyskany token typu bearer. Szczegóły i przykłady opisuje dokumentacja <a href="https://learn.microsoft.com/azure/machine-learning/how-to-authenticate-batch-endpoint">Authorization on batch endpoints</a>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Masz już punkt końcowy wsadowy, który potrafi codziennie przetwarzać komplet danych pacjentów.</p>
+<blockquote>
+<p><strong>Więcej informacji</strong>: O wnioskowaniu wsadowym przeczytasz w dokumentacji <a href="https://learn.microsoft.com/azure/machine-learning/how-to-use-batch-model-deployments">Batch endpoints</a>.</p>
+</blockquote>
+<h2 id="Sprz%C4%85tanie">Sprzątanie<a class="anchor-link" href="#Sprz%C4%85tanie">¶</a></h2><p>Wdrożenie wsadowe zużywa zasoby obliczeniowe tylko wtedy, gdy trwa zadanie scoringowe, więc samo pozostawienie punktu końcowego niczego nie kosztuje. Jeśli mimo to chcesz go usunąć, uruchom poniższą komórkę:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ml_client.batch_endpoints.begin_delete(name=endpoint_name)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="07a-creating-a-real-time-inferencing-service.html"><span>Poprzednie</span>Tworzenie usługi wnioskowania w czasie rzeczywistym</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="08a-tuning-hyperparameters.html"><span>Następne</span>Strojenie hiperparametrów</a>
+</nav>
+</div></main>
+
+</body>
+</html>

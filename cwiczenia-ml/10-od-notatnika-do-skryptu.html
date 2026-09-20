@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenie 10: Od notatnika do skryptu</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="pobierz/10_od_notatnika_do_skryptu.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=39b8763b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="%C4%86wiczenie-10:-Od-notatnika-do-skryptu">Ćwiczenie 10: Od notatnika do skryptu<a class="anchor-link" href="#%C4%86wiczenie-10:-Od-notatnika-do-skryptu">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>Przez dziewięć ćwiczeń pracowałeś wyłącznie w notatniku. I bardzo dobrze - notatnik jest <strong>znakomitym narzędziem do eksploracji</strong>: uruchamiasz kawałek kodu, oglądasz wynik, poprawiasz, uruchamiasz jeszcze raz. Do zaglądania w dane i szukania pomysłu nic lepszego nie wymyślono.</p>
+<p>Problem zaczyna się wtedy, gdy notatnik przestaje być miejscem <strong>szukania</strong> rozwiązania, a staje się miejscem, gdzie rozwiązanie <strong>mieszka</strong>. Wtedy jego zalety zamieniają się w wady:</p>
+<ul>
+<li>komórki można uruchamiać <strong>w dowolnej kolejności</strong> - i prawie zawsze ktoś to robi,</li>
+<li>zmienna może istnieć w pamięci, chociaż komórka, która ją tworzyła, została skasowana - to <strong>ukryty stan</strong> (ang. <em>hidden state</em>),</li>
+<li>Git widzi notatnik jako jeden wielki plik JSON razem z wynikami - różnice między wersjami są nieczytelne,</li>
+<li>„u mnie zadziałało" nie oznacza, że zadziała u kogokolwiek innego, bo nikt nie wie, w jakiej kolejności komórki były uruchamiane.</li>
+</ul>
+<p>Efekt końcowy jest zawsze ten sam: model, którego <strong>nie da się odtworzyć</strong>. Ktoś pyta „skąd wzięła się ta liczba w raporcie?", a Ty nie potrafisz odpowiedzieć.</p>
+<blockquote>
+<p><strong>Dlaczego to ćwiczenie jest dziesiąte, a nie pierwsze.</strong> Gdyby zacząć kurs od pisania skryptów i argumentów wiersza poleceń, brzmiałoby to jak zbędna biurokracja. Dopiero po dziewięciu ćwiczeniach - po zgubionych wynikach, <code>NameError</code> po uruchomieniu komórek w złej kolejności i modelach, których nie dało się powtórzyć - widać, na co to jest lekarstwo. Ból musi być pierwszy, lekarstwo drugie.</p>
+</blockquote>
+<h2 id="Czego-si%C4%99-nauczysz">Czego się nauczysz<a class="anchor-link" href="#Czego-si%C4%99-nauczysz">¶</a></h2><ol>
+<li>Co notatnik robi dobrze, a czego nie powinien robić nigdy.</li>
+<li>Czym jest ukryty stan i jak go wykryć jednym kliknięciem.</li>
+<li>Jak przenieść wytrenowany model do pliku <code>.py</code> z funkcją <code>main()</code>.</li>
+<li>Jak sterować skryptem z wiersza poleceń przez <code>argparse</code>, zamiast edytować kod.</li>
+<li>Jak zapisać model na dysk (<code>joblib</code>) i wczytać go w <strong>zupełnie osobnym procesie</strong>.</li>
+<li>Czym jest <strong>odtwarzalność</strong> (ang. <em>reproducibility</em>) i jak sprawdzić, czy faktycznie ją masz.</li>
+</ol>
+<blockquote>
+<p><strong>Zanim zaczniesz</strong>: uruchamiaj komórki po kolei (Shift+Enter). Notatnik zakłada, że jesteś w katalogu <code>cwiczenia-ml/</code>.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2483e492"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Notatnik-kontra-skrypt---do-czego-kt%C3%B3ry">1. Notatnik kontra skrypt - do czego który<a class="anchor-link" href="#1.-Notatnik-kontra-skrypt---do-czego-kt%C3%B3ry">¶</a></h2><p>To nie jest konkurs, w którym jedno narzędzie wygrywa. To podział obowiązków.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Notatnik <code>.ipynb</code></th>
+<th>Skrypt <code>.py</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Do czego służy</td>
+<td>eksploracja, wykresy, nauka, prezentacja wyników</td>
+<td>kod, który ma działać powtarzalnie</td>
+</tr>
+<tr>
+<td>Kolejność wykonania</td>
+<td>dowolna - decyduje użytkownik</td>
+<td>zawsze od góry do dołu</td>
+</tr>
+<tr>
+<td>Stan zmiennych</td>
+<td>żyje w jądrze (ang. <em>kernel</em>) między uruchomieniami</td>
+<td>świeży przy każdym uruchomieniu procesu</td>
+</tr>
+<tr>
+<td>Parametry</td>
+<td>zmieniasz, edytując kod</td>
+<td>podajesz z wiersza poleceń</td>
+</tr>
+<tr>
+<td>Różnice w Git</td>
+<td>JSON z wynikami - nieczytelne</td>
+<td>zwykły tekst - czytelne linia po linii</td>
+</tr>
+<tr>
+<td>Uruchomienie automatyczne (np. co noc)</td>
+<td>trudne i kruche</td>
+<td>naturalne</td>
+</tr>
+<tr>
+<td>Testy jednostkowe</td>
+<td>praktycznie niewykonalne</td>
+<td>standard (ćwiczenie 11)</td>
+</tr>
+</tbody>
+</table>
+<p>Zdanie, które warto zapamiętać: <strong>notatnik jest brudnopisem, skrypt jest czystopisem</strong>. Brudnopis jest potrzebny - ale nikt nie oddaje brudnopisu jako pracy końcowej.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9e3f37d2"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="2.-Ukryty-stan---zobacz-go-na-w%C5%82asne-oczy">2. Ukryty stan - zobacz go na własne oczy<a class="anchor-link" href="#2.-Ukryty-stan---zobacz-go-na-w%C5%82asne-oczy">¶</a></h2><p>Uruchom poniższą komórkę. Potem uruchom ją <strong>jeszcze raz</strong>. I jeszcze raz.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=53c9edcf">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">licznik</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'licznik'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Ta komórka była uruchomiona razy:"</span><span class="p">,</span> <span class="n">licznik</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=fbeee5b9"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Wynik zależy od tego, <strong>ile razy</strong> kliknąłeś, a nie od treści kodu. To jest ukryty stan w najczystszej postaci: identyczny notatnik u dwóch osób daje dwie różne liczby.</p>
+<p>W prawdziwym kodzie ML wygląda to groźniej. Klasyczny scenariusz:</p>
+<div class="highlight"><pre><span></span><span class="c1"># komórka A (uruchomiona rano)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'PatientID'</span><span class="p">,</span> <span class="s1">'Diabetic'</span><span class="p">])</span>
+
+<span class="c1"># komórka B (uruchomiona po południu, po eksperymentach)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'Age'</span><span class="p">])</span>     <span class="c1"># sprawdzam model bez wieku</span>
+
+<span class="c1"># komórka C (uruchomiona wieczorem - "ostateczny model")</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+<p>Po restarcie jądra komórka C nauczy model <strong>na innych danych</strong> niż wieczorem, bo komórka B już nie zadziała w tej samej kolejności. Wynik w raporcie przestaje pasować do kodu w pliku.</p>
+<h3 id="Test,-kt%C3%B3ry-to-wykrywa---i-zajmuje-10-sekund">Test, który to wykrywa - i zajmuje 10 sekund<a class="anchor-link" href="#Test,-kt%C3%B3ry-to-wykrywa---i-zajmuje-10-sekund">¶</a></h3><p>W JupyterLab: <strong>Kernel → Restart Kernel and Run All Cells...</strong></p>
+<p>To jedyny uczciwy sposób sprawdzenia, czy notatnik działa od początku do końca. Zasada na resztę życia zawodowego:</p>
+<blockquote>
+<p><strong>Notatnik, który nie przechodzi „Restart and Run All", jest zepsuty - nawet jeśli wszystkie komórki mają zielone wyniki.</strong></p>
+</blockquote>
+<p>Zrób to teraz z tym notatnikiem. Zwróć uwagę, że licznik powyżej wrócił do 1.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=200b6f9c"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="3.-Punkt-wyj%C5%9Bcia:-model-w-notatniku">3. Punkt wyjścia: model w notatniku<a class="anchor-link" href="#3.-Punkt-wyj%C5%9Bcia:-model-w-notatniku">¶</a></h2><p>Zaczynamy od kodu, który znasz z ćwiczenia 01. Nic w nim nowego - to jest właśnie ten „brudnopis", który zaraz przeniesiemy do skryptu.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=13d2803d">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># sys.executable to sciezka do TEGO interpretera Pythona, ktory</span>
+<span class="c1"># obsluguje notatnik. Uzywamy jej zamiast golego 'python', bo na</span>
+<span class="c1"># PATH moze byc inna instalacja Pythona - bez zainstalowanych</span>
+<span class="c1"># bibliotek kursu. Wtedy skrypt cicho by padal.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">recall_score</span>
+
+<span class="n">ZIARNO</span> <span class="o">=</span> <span class="mi">42</span>
+
+<span class="n">dane</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'dane/diabetes.csv'</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'PatientID'</span><span class="p">,</span> <span class="s1">'Diabetic'</span><span class="p">])</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span>
+
+<span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">ZIARNO</span>
+<span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">ZIARNO</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="n">przewidywania</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność: </span><span class="si">{</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="w"> </span><span class="n">przewidywania</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Czułość:     </span><span class="si">{</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="w"> </span><span class="n">przewidywania</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b9de543b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Kod działa. I ma trzy wady, których w notatniku nie widać:</p>
+<ol>
+<li><strong>Żeby zmienić <code>max_depth</code>, trzeba edytować kod.</strong> Po dziesięciu eksperymentach nie wiadomo, która wartość dała który wynik.</li>
+<li><strong>Wynik istnieje tylko na ekranie.</strong> Zamknij notatnik - i tyle go widzieli.</li>
+<li><strong>Model istnieje tylko w pamięci.</strong> Restart jądra kasuje godziny liczenia.</li>
+</ol>
+<p>Wszystkie trzy naprawimy jednym ruchem: przenosząc kod do skryptu.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=4ccd937c"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="4.-Skrypt---budowa">4. Skrypt - budowa<a class="anchor-link" href="#4.-Skrypt---budowa">¶</a></h2><p>Zanim napiszemy plik, ustalmy jego szkielet. Dobry skrypt ML ma cztery części:</p>
+<table>
+<thead>
+<tr>
+<th>Część</th>
+<th>Po co</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>funkcje robocze</td>
+<td>każda robi <strong>jedną rzecz</strong> i ma jasne wejście i wyjście</td>
+</tr>
+<tr>
+<td><code>parsuj_argumenty()</code></td>
+<td>wszystkie parametry z wiersza poleceń, w jednym miejscu</td>
+</tr>
+<tr>
+<td><code>main()</code></td>
+<td>scenariusz: wczytaj → podziel → trenuj → oceń → zapisz</td>
+</tr>
+<tr>
+<td><code>if __name__ == "__main__":</code></td>
+<td>uruchom <code>main()</code> tylko wtedy, gdy plik jest <strong>uruchamiany</strong>, a nie <strong>importowany</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Ostatni punkt jest ważniejszy, niż wygląda. Dzięki niemu ten sam plik można uruchomić z terminala <strong>i</strong> zaimportować z innego kodu (na przykład z testów - patrz ćwiczenie 11), bez przypadkowego trenowania modelu przy imporcie.</p>
+<h3 id="Dlaczego-argparse,-a-nie-zmienne-na-g%C3%B3rze-pliku">Dlaczego <code>argparse</code>, a nie zmienne na górze pliku<a class="anchor-link" href="#Dlaczego-argparse,-a-nie-zmienne-na-g%C3%B3rze-pliku">¶</a></h3><p>Bo parametry zapisane w kodzie mają brzydki nawyk: zmieniasz je, uruchamiasz, zmieniasz z powrotem - i po tygodniu nie wiesz, z jakimi wartościami powstał model leżący na dysku. Parametr podany w wierszu poleceń zostaje w historii terminala, w logu, w pliku wyników. <strong>Jest dowodem.</strong></p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=8df0e07c">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># %%writefile nie tworzy katalogow - musimy je zalozyc sami</span>
+<span class="n">Path</span><span class="p">(</span><span class="s1">'src'</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">Path</span><span class="p">(</span><span class="s1">'wyniki'</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Katalogi src/ i wyniki/ gotowe."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=5a3f76e1"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Teraz piszemy plik. Używamy do tego magicznego polecenia <code>%%writefile</code>, które zapisuje <strong>całą zawartość komórki</strong> do pliku (i nic nie uruchamia).</p>
+<blockquote>
+<p><strong>Uwaga dydaktyczna.</strong> <code>%%writefile</code> jest tu użyte tylko po to, żeby cały materiał zmieścił się w jednym notatniku. W prawdziwym projekcie plik <code>.py</code> po prostu <strong>leży w repozytorium</strong>, otwierasz go w edytorze i trzymasz pod kontrolą Gita. Nikt nie generuje kodu źródłowego z notatnika.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1e77f50e">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="o">%%</span><span class="n">writefile</span> <span class="n">src</span><span class="o">/</span><span class="n">trenuj</span><span class="o">.</span><span class="n">py</span>
+<span class="sd">"""Trening klasyfikatora cukrzycy - wersja skryptowa.</span>
+
+<span class="sd">Uruchomienie:</span>
+<span class="sd">    python src/trenuj.py --max-depth 5</span>
+<span class="sd">"""</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">recall_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+
+<span class="n">KOLUMNA_ID</span> <span class="o">=</span> <span class="s2">"PatientID"</span>
+<span class="n">KOLUMNA_ETYKIETY</span> <span class="o">=</span> <span class="s2">"Diabetic"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">wczytaj_dane</span><span class="p">(</span><span class="n">sciezka</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Wczytuje plik CSV i zwraca ramke danych."""</span>
+    <span class="n">ramka</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">sciezka</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wczytano </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ramka</span><span class="p">)</span><span class="si">}</span><span class="s2"> wierszy z </span><span class="si">{</span><span class="n">sciezka</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ramka</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">przygotuj_cechy</span><span class="p">(</span><span class="n">ramka</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Dzieli ramke na cechy X i etykiete y. Identyfikator NIE jest cecha."""</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">ramka</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">KOLUMNA_ID</span><span class="p">,</span> <span class="n">KOLUMNA_ETYKIETY</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">ramka</span><span class="p">[</span><span class="n">KOLUMNA_ETYKIETY</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">trenuj_model</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="n">ziarno</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Trenuje drzewo decyzyjne i zwraca wytrenowany model."""</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">ziarno</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ocen_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Zwraca slownik metryk - slownik, bo latwo go zapisac do JSON-a."""</span>
+    <span class="n">przewidywania</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"skutecznosc"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">)),</span>
+        <span class="s2">"czulosc"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">)),</span>
+        <span class="s2">"f1"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">)),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">parsuj_argumenty</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Wszystkie parametry skryptu w jednym miejscu."""</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Trening modelu cukrzycy"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--dane"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"dane/diabetes.csv"</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"sciezka do pliku CSV z danymi"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--max-depth"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"maksymalna glebokosc drzewa"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--ziarno"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"ziarno losowosci (ang. random seed)"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--wyjscie"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"wyniki"</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"katalog na model i metryki"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parsuj_argumenty</span><span class="p">()</span>
+
+    <span class="n">ramka</span> <span class="o">=</span> <span class="n">wczytaj_dane</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dane</span><span class="p">)</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">ramka</span><span class="p">)</span>
+
+    <span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ziarno</span>
+    <span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">trenuj_model</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">max_depth</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ziarno</span><span class="p">)</span>
+    <span class="n">metryki</span> <span class="o">=</span> <span class="n">ocen_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+
+    <span class="c1"># Zapisujemy razem z parametrami - inaczej metryki sa bezuzyteczne</span>
+    <span class="n">metryki</span><span class="p">[</span><span class="s2">"parametry"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">metryki</span><span class="p">[</span><span class="s2">"liczba_cech"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">metryki</span><span class="p">[</span><span class="s2">"liczba_wierszy"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ramka</span><span class="p">))</span>
+
+    <span class="n">katalog</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">wyjscie</span><span class="p">)</span>
+    <span class="n">katalog</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">sciezka_modelu</span> <span class="o">=</span> <span class="n">katalog</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"model_d</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">max_depth</span><span class="si">}</span><span class="s2">.joblib"</span>
+    <span class="n">sciezka_metryk</span> <span class="o">=</span> <span class="n">katalog</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"metryki_d</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">max_depth</span><span class="si">}</span><span class="s2">.json"</span>
+
+    <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">sciezka_modelu</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sciezka_metryk</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">plik</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">metryki</span><span class="p">,</span> <span class="n">plik</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skutecznosc: </span><span class="si">{</span><span class="n">metryki</span><span class="p">[</span><span class="s1">'skutecznosc'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Czulosc:     </span><span class="si">{</span><span class="n">metryki</span><span class="p">[</span><span class="s1">'czulosc'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Model   -&gt; </span><span class="si">{</span><span class="n">sciezka_modelu</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Metryki -&gt; </span><span class="si">{</span><span class="n">sciezka_metryk</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ac75f38b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="5.-Uruchomienie-skryptu">5. Uruchomienie skryptu<a class="anchor-link" href="#5.-Uruchomienie-skryptu">¶</a></h2><p>Wykrzyknik na początku linii w notatniku oznacza: „uruchom to w powłoce systemowej, a nie w Pythonie". <code>python src/trenuj.py</code> startuje <strong>nowy proces</strong> - z pustą pamięcią, bez żadnych zmiennych z tego notatnika. To jest dokładnie ta izolacja, o którą nam chodzi.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=6271e427">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="n">src</span><span class="o">/</span><span class="n">trenuj</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">depth</span> <span class="mi">5</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b329000b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Zwróć uwagę, że skryptowi nie przeszkadza, w jakiej kolejności uruchamiałeś komórki powyżej. On <strong>nie wie, że ten notatnik istnieje</strong>.</p>
+<p>Zmiana parametru nie wymaga teraz dotykania kodu:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=7b8f1af7">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="n">src</span><span class="o">/</span><span class="n">trenuj</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">depth</span> <span class="mi">2</span>
+<span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="n">src</span><span class="o">/</span><span class="n">trenuj</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">depth</span> <span class="mi">12</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=df58a667"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A <code>argparse</code> daje w prezencie pomoc - za darmo, z samych definicji argumentów:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=9a67b5a3">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="n">src</span><span class="o">/</span><span class="n">trenuj</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7ae9fbb4"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="6.-Odtwarzalno%C5%9B%C4%87---sprawd%C5%BAmy-j%C4%85-naprawd%C4%99">6. Odtwarzalność - sprawdźmy ją naprawdę<a class="anchor-link" href="#6.-Odtwarzalno%C5%9B%C4%87---sprawd%C5%BAmy-j%C4%85-naprawd%C4%99">¶</a></h2><p><strong>Odtwarzalność</strong> (ang. <em>reproducibility</em>) oznacza: ten sam skrypt, uruchomiony z tymi samymi argumentami na tych samych danych, daje <strong>ten sam wynik</strong>. Nie „podobny". Ten sam.</p>
+<p>Brzmi trywialnie, a jest jedną z najczęściej łamanych własności w projektach ML. Wystarczy jeden pominięty <code>random_state</code>, żeby to przestało działać.</p>
+<p>Sprawdźmy to twardo: uruchomimy skrypt dwa razy i porównamy zapisane metryki co do bitu.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=0c37c6b0">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="n">src</span><span class="o">/</span><span class="n">trenuj</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">depth</span> <span class="mi">5</span> <span class="o">--</span><span class="n">wyjscie</span> <span class="n">wyniki</span><span class="o">/</span><span class="n">bieg_A</span>
+<span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="n">src</span><span class="o">/</span><span class="n">trenuj</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">depth</span> <span class="mi">5</span> <span class="o">--</span><span class="n">wyjscie</span> <span class="n">wyniki</span><span class="o">/</span><span class="n">bieg_B</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'wyniki/bieg_A/metryki_d5.json'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">bieg_A</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'wyniki/bieg_B/metryki_d5.json'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">bieg_B</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Bieg A, skuteczność:"</span><span class="p">,</span> <span class="n">bieg_A</span><span class="p">[</span><span class="s1">'skutecznosc'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Bieg B, skuteczność:"</span><span class="p">,</span> <span class="n">bieg_B</span><span class="p">[</span><span class="s1">'skutecznosc'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Identyczne co do bitu?"</span><span class="p">,</span> <span class="n">bieg_A</span><span class="p">[</span><span class="s1">'skutecznosc'</span><span class="p">]</span> <span class="o">==</span> <span class="n">bieg_B</span><span class="p">[</span><span class="s1">'skutecznosc'</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e8b103ae"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Trzy rzeczy sprawiły, że to działa - i wszystkie trzy trzeba robić świadomie:</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Co gwarantuje</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>random_state</code> w <code>train_test_split</code></td>
+<td>ten sam podział na zbiór uczący i testowy</td>
+</tr>
+<tr>
+<td><code>random_state</code> w modelu</td>
+<td>te same decyzje algorytmu tam, gdzie ma element losowy</td>
+</tr>
+<tr>
+<td>te same dane wejściowe</td>
+<td>oczywiste, a i tak najczęstsza przyczyna rozjazdu</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Czego to jeszcze nie gwarantuje</strong>: innej wersji scikit-learn, innej wersji Pythona, innego systemu operacyjnego. Dlatego w poważnych projektach do wyników dopisuje się <strong>wersje bibliotek</strong>, a środowisko zamraża w pliku (<code>requirements.txt</code>, <code>environment.yml</code>) albo w obrazie kontenera. Zajmiesz się tym w zadaniu 5.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d8a9e3ec"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="7.-Model-na-dysku:-zapis-i-wczytanie-w-osobnym-procesie">7. Model na dysku: zapis i wczytanie w osobnym procesie<a class="anchor-link" href="#7.-Model-na-dysku:-zapis-i-wczytanie-w-osobnym-procesie">¶</a></h2><p>Wytrenowany model to obiekt Pythona żyjący w pamięci. <code>joblib.dump</code> zamienia go w plik; <code>joblib.load</code> odtwarza z pliku. Dzięki temu <strong>trening i używanie modelu to dwie różne rzeczy</strong>, wykonywane w różnym czasie, a nawet na różnych maszynach.</p>
+<p>To jest fundament wdrożenia (ang. <em>deployment</em>): trenujesz raz, a przewidujesz tysiące razy, nie powtarzając treningu.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f8b80dc0">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="o">%%</span><span class="n">writefile</span> <span class="n">src</span><span class="o">/</span><span class="n">przewiduj</span><span class="o">.</span><span class="n">py</span>
+<span class="sd">"""Wczytuje zapisany model i przewiduje dla pierwszych pacjentow z pliku.</span>
+
+<span class="sd">Uruchomienie:</span>
+<span class="sd">    python src/przewiduj.py --model wyniki/model_d5.joblib --ile 5</span>
+<span class="sd">"""</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">KOLUMNA_ID</span> <span class="o">=</span> <span class="s2">"PatientID"</span>
+<span class="n">KOLUMNA_ETYKIETY</span> <span class="o">=</span> <span class="s2">"Diabetic"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">parsuj_argumenty</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Predykcja z zapisanego modelu"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--model"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"wyniki/model_d5.joblib"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--dane"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"dane/diabetes.csv"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--ile"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"ilu pierwszych pacjentow pokazac"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parsuj_argumenty</span><span class="p">()</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wczytano model: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> z pliku </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="n">ramka</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dane</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ile</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">ramka</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">KOLUMNA_ID</span><span class="p">,</span> <span class="n">KOLUMNA_ETYKIETY</span><span class="p">])</span>
+
+    <span class="n">przewidywania</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">prawdopodobienstwa</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'PatientID'</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'przewidziano'</span><span class="si">:</span><span class="s2">&gt;13</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'p(cukrzyca)'</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'prawda'</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">identyfikator</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="n">prawda</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="n">ramka</span><span class="p">[</span><span class="n">KOLUMNA_ID</span><span class="p">],</span> <span class="n">przewidywania</span><span class="p">,</span> <span class="n">prawdopodobienstwa</span><span class="p">,</span> <span class="n">ramka</span><span class="p">[</span><span class="n">KOLUMNA_ETYKIETY</span><span class="p">]</span>
+    <span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">identyfikator</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">pred</span><span class="si">:</span><span class="s2">&gt;13</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">prob</span><span class="si">:</span><span class="s2">&gt;12.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">prawda</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=6abd8fc5">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="n">src</span><span class="o">/</span><span class="n">przewiduj</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">model</span> <span class="n">wyniki</span><span class="o">/</span><span class="n">model_d5</span><span class="o">.</span><span class="n">joblib</span> <span class="o">--</span><span class="n">ile</span> <span class="mi">8</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0bf24652"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Ten proces <strong>nigdy nie widział danych uczących</strong> i nie wykonał ani jednej operacji treningu. Dostał plik i policzył predykcje. Tak wygląda używanie modelu w produkcji.</p>
+<blockquote>
+<p><strong>Dwie pułapki <code>joblib</code>.</strong> Po pierwsze: plik <code>.joblib</code> zawiera obiekt scikit-learn, więc wczytanie go w środowisku z <strong>inną wersją biblioteki</strong> może się nie udać albo - gorzej - udać się z ostrzeżeniem i innym zachowaniem. Po drugie: wczytanie pliku <code>.joblib</code> uruchamia kod, więc <strong>nigdy nie wczytuj modeli z niezaufanego źródła</strong>, tak samo jak nie uruchamiasz przypadkowych plików <code>.exe</code>.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=02047ace"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Zadania">Zadania<a class="anchor-link" href="#Zadania">¶</a></h1><p>Wszystko, czego potrzebujesz, pojawiło się w przykładzie powyżej. Skrypty twórz przez <code>%%writefile</code> (ta linia musi być <strong>pierwszą linią komórki</strong>), a uruchamiaj przez <code>!python ...</code>.</p>
+<h2 id="Zadanie-1:-Por%C3%B3wnanie-g%C5%82%C4%99boko%C5%9Bci-bez-edytowania-kodu">Zadanie 1: Porównanie głębokości bez edytowania kodu<a class="anchor-link" href="#Zadanie-1:-Por%C3%B3wnanie-g%C5%82%C4%99boko%C5%9Bci-bez-edytowania-kodu">¶</a></h2><p>Uruchom <code>src/trenuj.py</code> dla <code>--max-depth</code> równego 2, 4, 6, 8 i 12 (każdy bieg do osobnego katalogu przez <code>--wyjscie</code>, albo skorzystaj z tego, że nazwa pliku metryk już zawiera głębokość).</p>
+<p>Następnie <strong>wczytaj zapisane pliki JSON</strong> w Pythonie, zbuduj z nich <code>pandas.DataFrame</code> i wypisz tabelę: głębokość, skuteczność, czułość, F1.</p>
+<p>Zwróć uwagę na to, co właśnie zrobiłeś: wyniki eksperymentów nie są już „na ekranie" - leżą na dysku i da się je wczytać kiedykolwiek.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=245b9c6f">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: pętla po głębokościach z !python nie zadziała wprost.</span>
+<span class="c1"># Możesz uruchomić pięć osobnych linii z ! albo użyć subprocess.run([...]).</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=65328f86"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-2:-Dow%C3%B3d-odtwarzalno%C5%9Bci">Zadanie 2: Dowód odtwarzalności<a class="anchor-link" href="#Zadanie-2:-Dow%C3%B3d-odtwarzalno%C5%9Bci">¶</a></h2><p>Uruchom <code>src/trenuj.py</code> <strong>dwa razy</strong> z identycznymi argumentami, ale do dwóch różnych katalogów wyjściowych.</p>
+<p>Wczytaj oba pliki JSON i sprawdź programowo (<code>==</code>, a nie „na oko"), czy metryki są identyczne. Wypisz czytelny komunikat: „ODTWARZALNE" albo „NIEODTWARZALNE".</p>
+<p>Dodatkowo porównaj <strong>predykcje</strong> obu zapisanych modeli na tych samych danych - czy tablice są identyczne co do elementu? (Przyda się <code>numpy.array_equal</code>.)</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=9505194c">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2977a541"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-3:-Zepsuj-odtwarzalno%C5%9B%C4%87-celowo">Zadanie 3: Zepsuj odtwarzalność celowo<a class="anchor-link" href="#Zadanie-3:-Zepsuj-odtwarzalno%C5%9B%C4%87-celowo">¶</a></h2><p>Napisz plik <code>src/trenuj_losowo.py</code> - kopię <code>src/trenuj.py</code>, w której <strong>usuwasz <code>random_state</code></strong> z modelu i z <code>train_test_split</code>.</p>
+<p>Uruchom go trzy razy z tymi samymi argumentami i porównaj skuteczność.</p>
+<p>Potem odpowiedz sobie na pytanie: gdyby ten skrypt był Twoim projektem zaliczeniowym, a prowadzący uruchomił go u siebie - czy dostałby liczbę, którą wpisałeś do sprawozdania?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f30b18eb">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: nie musisz przepisywać całego pliku ręcznie -</span>
+<span class="c1"># skopiuj zawartość komórki z %%writefile i usuń random_state w dwóch miejscach.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2f0a3c18"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-4:-Nowy-argument-wiersza-polece%C5%84">Zadanie 4: Nowy argument wiersza poleceń<a class="anchor-link" href="#Zadanie-4:-Nowy-argument-wiersza-polece%C5%84">¶</a></h2><p>Rozbuduj skrypt (zapisz jako <code>src/trenuj2.py</code>) o dwa nowe argumenty:</p>
+<ul>
+<li><code>--test-size</code> (typ <code>float</code>, domyślnie <code>0.2</code>) - jaka część danych idzie na test,</li>
+<li><code>--model</code> z <code>choices=['drzewo', 'las']</code> - <code>DecisionTreeClassifier</code> albo <code>RandomForestClassifier</code>.</li>
+</ul>
+<p>Zadbaj o to, żeby oba nowe parametry <strong>trafiły do zapisanego pliku JSON</strong> (<code>vars(args)</code> robi to samo). Uruchom skrypt dla obu modeli i porównaj wyniki.</p>
+<p>Zastanów się przy okazji: dlaczego <code>choices=[...]</code> jest lepsze niż zwykły tekst, który sprawdzasz <code>if</code>-em w środku?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=58f84456">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=6e7b50e3"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-5:-Metadane-odtwarzalno%C5%9Bci">Zadanie 5: Metadane odtwarzalności<a class="anchor-link" href="#Zadanie-5:-Metadane-odtwarzalno%C5%9Bci">¶</a></h2><p>Model bez informacji o tym, jak powstał, jest zagadką. Rozbuduj zapisywany słownik metryk (plik <code>src/trenuj3.py</code>) o sekcję <code>"srodowisko"</code> zawierającą:</p>
+<ul>
+<li>wersję Pythona (<code>sys.version</code>),</li>
+<li>wersję scikit-learn (<code>sklearn.__version__</code>) i pandas (<code>pd.__version__</code>),</li>
+<li>znacznik czasu uruchomienia (<code>datetime.now().isoformat()</code>),</li>
+<li>sumę kontrolną pliku z danymi - skrót SHA-256 (podpowiedź: <code>hashlib.sha256(Path(sciezka).read_bytes()).hexdigest()</code>).</li>
+</ul>
+<p>Wypisz powstały JSON. Zastanów się, <strong>który z tych elementów wykryłby podmianę pliku z danymi</strong>, o której nikt Cię nie poinformował.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=6c6332fd">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=dea3d0e5"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-6:-Zapis-i-wczytanie-w-dw%C3%B3ch-osobnych-procesach">Zadanie 6: Zapis i wczytanie w dwóch osobnych procesach<a class="anchor-link" href="#Zadanie-6:-Zapis-i-wczytanie-w-dw%C3%B3ch-osobnych-procesach">¶</a></h2><ol>
+<li>Uruchom trening z <code>--max-depth 8</code> i zapisem do katalogu <code>wyniki/model8</code>.</li>
+<li><strong>Zrestartuj jądro notatnika</strong> (Kernel → Restart Kernel). Wszystkie zmienne znikają.</li>
+<li>W nowej komórce wczytaj model przez <code>joblib.load</code> i policz jego skuteczność na zbiorze testowym - odtwarzając podział tym samym <code>random_state=42</code>.</li>
+</ol>
+<p>Porównaj otrzymaną skuteczność z tą zapisaną w pliku JSON. Jeśli się różnią, coś w łańcuchu odtwarzalności jest złamane - znajdź co.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=49bd3f31">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=91296459"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-7-(trudniejsze):-Skrypt,-kt%C3%B3ry-sam-wybiera-najlepszy-model">Zadanie 7 (trudniejsze): Skrypt, który sam wybiera najlepszy model<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Skrypt,-kt%C3%B3ry-sam-wybiera-najlepszy-model">¶</a></h2><p>Napisz <code>src/porownaj.py</code>, który:</p>
+<ol>
+<li>przyjmuje argument <code>--max-depth</code> z <code>nargs='+'</code>, czyli <strong>listę</strong> wartości (np. <code>--max-depth 2 4 6 8 12</code>),</li>
+<li>trenuje model dla każdej z nich,</li>
+<li>wybiera najlepszy według metryki wskazanej argumentem <code>--metryka</code> (<code>choices=['skutecznosc', 'czulosc', 'f1']</code>, domyślnie <code>f1</code>),</li>
+<li>zapisuje <strong>tylko najlepszy model</strong> do pliku, ale <strong>wszystkie wyniki</strong> do jednego JSON-a z polami <code>"ranking"</code> (lista) i <code>"najlepszy"</code> (słownik),</li>
+<li>wypisuje na ekran czytelną tabelę i informację, która głębokość wygrała.</li>
+</ol>
+<p>Punkt do przemyślenia na koniec: skrypt wybiera najlepszą głębokość, patrząc na <strong>zbiór testowy</strong>. W ćwiczeniu 06 ustaliliśmy, że to nie jest uczciwe. Dopisz w docstringu skryptu jedno zdanie o tym, co należałoby zrobić zamiast tego.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=da342b59">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a52c1653"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Pytania-do-przemy%C5%9Blenia">Pytania do przemyślenia<a class="anchor-link" href="#Pytania-do-przemy%C5%9Blenia">¶</a></h1><p>Na te pytania odpowiadasz słowami, nie kodem.</p>
+<ol>
+<li>Notatnik ma 40 komórek i wszystkie pokazują wyniki. Dlaczego to <strong>nie jest</strong> dowód, że kod działa?</li>
+<li>Dlaczego parametr podany jako <code>--max-depth 5</code> jest lepszy od zmiennej <code>MAX_DEPTH = 5</code> na górze pliku? Wymień co najmniej dwa powody.</li>
+<li>Po co komu <code>if __name__ == "__main__":</code>? Co konkretnie zepsułoby się bez tej linii, gdyby ktoś zaimportował Twój skrypt?</li>
+<li>Ustawiłeś <code>random_state</code> wszędzie, gdzie się dało, a kolega i tak dostał inny wynik. Wymień trzy możliwe przyczyny.</li>
+<li>Dlaczego metryki warto zapisywać do pliku <strong>razem z parametrami</strong>, a nie osobno?</li>
+<li>Kiedy notatnik jest lepszym wyborem niż skrypt? Podaj konkretną sytuację - bo takie istnieją.</li>
+<li>Model <code>.joblib</code> ma 300 MB. Czy powinien trafić do repozytorium Gita razem z kodem? Co przemawia za, a co przeciw?</li>
+</ol>
+<h1 id="Chcesz-wiedzie%C4%87-wi%C4%99cej">Chcesz wiedzieć więcej<a class="anchor-link" href="#Chcesz-wiedzie%C4%87-wi%C4%99cej">¶</a></h1><ul>
+<li><a href="https://docs.python.org/3/library/argparse.html">Dokumentacja <code>argparse</code></a> - zwróć uwagę na <code>nargs</code>, <code>choices</code> i <code>type</code>.</li>
+<li><a href="https://scikit-learn.org/stable/model_persistence.html">Trwałe przechowywanie modeli w scikit-learn</a> - ostrzeżenia o bezpieczeństwie i zgodności wersji warto przeczytać w całości.</li>
+<li><a href="https://joblib.readthedocs.io/">Dokumentacja <code>joblib</code></a> - dlaczego <code>joblib</code> bywa lepszy od <code>pickle</code> dla dużych tablic NumPy.</li>
+<li><a href="https://docs.python.org/3/library/subprocess.html"><code>subprocess.run</code></a> - uruchamianie skryptu z poziomu Pythona, przydatne w pętli po parametrach.</li>
+</ul>
+<p>W ostatnim ćwiczeniu (<strong>11 - Jakość kodu w ML</strong>) pójdziemy o krok dalej: skoro kod leży już w pliku <code>.py</code>, da się go <strong>przetestować</strong>. Zobaczysz, co właściwie da się testować w kodzie uczenia maszynowego - bo na pewno nie skuteczność modelu.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="09-projekt-koncowy.html"><span>Poprzednie</span>Ćwiczenie 9: Projekt końcowy</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="11-jakosc-kodu-ml.html"><span>Następne</span>Ćwiczenie 11: Jakość kodu w uczeniu maszynowym</a>
+</nav>
+</div></main>
+
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creating a Batch Inferencing Service</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Azure ML (English)</a></div><div class="tresc">
+<a class="pobierz" href="labdocs/lab07b.html">Instrukcja do tego ćwiczenia</a><a class="pobierz" href="pobierz/07B%20-%20Creating%20a%20Batch%20Inferencing%20Service.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Creating-a-Batch-Inferencing-Service">Creating a Batch Inferencing Service<a class="anchor-link" href="#Creating-a-Batch-Inferencing-Service">¶</a></h1><p>In previous labs, you deployed a model to a managed online endpoint for real-time <em>inferencing</em> (getting predictions from a model). Now you'll create a <strong>batch endpoint</strong> for <em>batch inferencing</em>. What does that mean? Well, imagine a health clinic takes patient measurements all day, saving the details for each patient in a separate file. Then overnight, the diabetes prediction model can be used to process all of the day's patient data as a batch, generating predictions that will be waiting the following morning so that the clinic can follow up with patients who are predicted to be at risk of diabetes. That's what you'll implement in this exercise.</p>
+<h2 id="Connect-to-Your-Workspace">Connect to Your Workspace<a class="anchor-link" href="#Connect-to-Your-Workspace">¶</a></h2><p>The first thing you need to do is to connect to your workspace using the Azure ML SDK.</p>
+<blockquote>
+<p><strong>Note</strong>: If the authenticated session with your Azure subscription has expired since you completed the previous exercise, you'll be prompted to reauthenticate.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+
+<span class="n">credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
+<span class="n">ml_client</span> <span class="o">=</span> <span class="n">MLClient</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">credential</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Ready to use Azure ML to work with </span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">workspace_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Train-and-Register-a-Model">Train and Register a Model<a class="anchor-link" href="#Train-and-Register-a-Model">¶</a></h2><p>The batch scoring script used later in this lab expects the registered <strong>diabetes_model</strong> to be a plain scikit-learn model saved with <code>joblib</code> (a <code>CUSTOM_MODEL</code> asset containing a <code>diabetes_model.pkl</code> file) - not the MLflow-format model registered in some of the earlier labs (Lab 3B, Lab 6A). Run the cell below to train and register a model in that expected format, so the deployment steps that follow work regardless of what other labs you've already completed.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># load the diabetes dataset</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Loading Data..."</span><span class="p">)</span>
+<span class="n">diabetes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'data/diabetes.csv'</span><span class="p">)</span>
+
+<span class="c1"># Separate features and labels</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">diabetes</span><span class="p">[[</span><span class="s1">'Pregnancies'</span><span class="p">,</span><span class="s1">'PlasmaGlucose'</span><span class="p">,</span><span class="s1">'DiastolicBloodPressure'</span><span class="p">,</span><span class="s1">'TricepsThickness'</span><span class="p">,</span><span class="s1">'SerumInsulin'</span><span class="p">,</span><span class="s1">'BMI'</span><span class="p">,</span><span class="s1">'DiabetesPedigree'</span><span class="p">,</span><span class="s1">'Age'</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">diabetes</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># Split data into training set and test set</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Train a decision tree model</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Training a decision tree model'</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># calculate accuracy</span>
+<span class="n">y_hat</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y_hat</span> <span class="o">==</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Accuracy:'</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+
+<span class="c1"># calculate AUC</span>
+<span class="n">y_scores</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">auc</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_scores</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'AUC: '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">auc</span><span class="p">))</span>
+
+<span class="c1"># Save the trained model</span>
+<span class="n">model_file</span> <span class="o">=</span> <span class="s1">'diabetes_model.pkl'</span>
+<span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">model_file</span><span class="p">)</span>
+
+<span class="c1"># Register the model</span>
+<span class="n">registered_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="n">model_file</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">CUSTOM_MODEL</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_model"</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"A decision tree model that classifies patients by their likelihood of being diabetic."</span><span class="p">,</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"Training context"</span><span class="p">:</span> <span class="s2">"Inline Training"</span><span class="p">},</span>
+    <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s2">"AUC"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">auc</span><span class="p">),</span> <span class="s2">"Accuracy"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">acc</span><span class="p">)},</span>
+<span class="p">)</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">registered_model</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Model trained and registered.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Generate-and-Upload-Batch-Data">Generate and Upload Batch Data<a class="anchor-link" href="#Generate-and-Upload-Batch-Data">¶</a></h2><p>Since we don't actually have a fully staffed clinic with patients from whom to get new data for this course, you'll generate a random sample from our second diabetes CSV file and use those to test the batch endpoint. Then you'll register that data as a <code>uri_folder</code> data asset in the Azure Machine Learning workspace.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># Load the diabetes data (new patient data to be scored)</span>
+<span class="n">diabetes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'data/diabetes2.csv'</span><span class="p">)</span>
+<span class="c1"># Get a 100-item sample of the feature columns (not the diabetic label)</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">diabetes</span><span class="p">[[</span><span class="s1">'Pregnancies'</span><span class="p">,</span><span class="s1">'PlasmaGlucose'</span><span class="p">,</span><span class="s1">'DiastolicBloodPressure'</span><span class="p">,</span><span class="s1">'TricepsThickness'</span><span class="p">,</span><span class="s1">'SerumInsulin'</span><span class="p">,</span><span class="s1">'BMI'</span><span class="p">,</span><span class="s1">'DiabetesPedigree'</span><span class="p">,</span><span class="s1">'Age'</span><span class="p">]]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># Create a local folder</span>
+<span class="n">batch_folder</span> <span class="o">=</span> <span class="s1">'./batch-data'</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">batch_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Folder created!"</span><span class="p">)</span>
+
+<span class="c1"># Save each sample as a separate file</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Saving files..."</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'.csv'</span>
+    <span class="n">sample</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">batch_folder</span><span class="p">,</span> <span class="n">fname</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s2">","</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"files saved!"</span><span class="p">)</span>
+
+<span class="c1"># Register the folder of files as a uri_folder data asset</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Uploading files and registering data asset..."</span><span class="p">)</span>
+<span class="n">batch_data_set</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="n">batch_folder</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">URI_FOLDER</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"A folder of new patient observations to be scored in batch"</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_batch_data"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">batch_data_set</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Done!"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-Compute">Create Compute<a class="anchor-link" href="#Create-Compute">¶</a></h2><p>We'll need a compute target for the batch deployment, so we'll use the Azure ML compute cluster you used in the previous exercises (it will be created if it doesn't already exist).</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">AmlCompute</span>
+
+<span class="n">cluster_name</span> <span class="o">=</span> <span class="s2">"aml-cluster"</span>
+
+<span class="c1"># Check for an existing cluster</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">inference_cluster</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cluster_name</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Found existing cluster, use it.'</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="c1"># Create an AzureML compute cluster</span>
+    <span class="n">compute_config</span> <span class="o">=</span> <span class="n">AmlCompute</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">"amlcompute"</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="s2">"Standard_D2as_v4"</span><span class="p">,</span>
+        <span class="n">min_instances</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">max_instances</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">idle_time_before_scale_down</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">inference_cluster</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">begin_create_or_update</span><span class="p">(</span><span class="n">compute_config</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">inference_cluster</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"is available."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-a-Batch-Scoring-Script">Create a Batch Scoring Script<a class="anchor-link" href="#Create-a-Batch-Scoring-Script">¶</a></h2><p>Now we're ready to define the batch deployment. Our deployment will need Python code to perform the batch scoring, so let's create a folder where we can keep the files used by the deployment:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="c1"># Create a folder for the deployment files</span>
+<span class="n">experiment_folder</span> <span class="o">=</span> <span class="s1">'batch_deploy'</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">experiment_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">experiment_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we'll create a Python script to do the actual work, and save it in the deployment folder:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">%%writefile</span> $experiment_folder/batch_diabetes.py
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">init</span><span class="p">():</span>
+    <span class="c1"># Runs once when the deployment is initialized</span>
+    <span class="k">global</span> <span class="n">model</span>
+
+    <span class="c1"># AZUREML_MODEL_DIR is set by the batch deployment and points to the</span>
+    <span class="c1"># folder containing the registered model files</span>
+    <span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"AZUREML_MODEL_DIR"</span><span class="p">),</span> <span class="s2">"diabetes_model.pkl"</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">mini_batch</span><span class="p">):</span>
+    <span class="c1"># This runs for each mini-batch of files</span>
+    <span class="n">resultList</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># process each file in the batch</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">mini_batch</span><span class="p">:</span>
+        <span class="c1"># Read the comma-delimited data into an array</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">','</span><span class="p">)</span>
+        <span class="c1"># Reshape into a 2-dimensional array for prediction (model expects multiple items)</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Append prediction to results</span>
+        <span class="n">resultList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="n">prediction</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">resultList</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Next we'll define the environment that includes the dependencies required by the script</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">%%writefile</span> $experiment_folder/batch_env.yml
+<span class="n">name</span><span class="p">:</span> <span class="n">batch</span><span class="o">-</span><span class="n">environment</span>
+<span class="n">dependencies</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.8</span>
+  <span class="o">-</span> <span class="n">numpy</span>
+  <span class="o">-</span> <span class="n">pip</span>
+  <span class="o">-</span> <span class="n">pip</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">scikit</span><span class="o">-</span><span class="n">learn</span>
+      <span class="o">-</span> <span class="n">joblib</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span>
+
+<span class="n">batch_env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"batch-environment"</span><span class="p">,</span>
+    <span class="n">conda_file</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">experiment_folder</span><span class="si">}</span><span class="s2">/batch_env.yml"</span><span class="p">,</span>
+    <span class="n">image</span><span class="o">=</span><span class="s2">"mcr.microsoft.com/azureml/openmpi5.0-ubuntu24.04"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Environment configuration ready.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You're going to deploy the batch prediction script as a <strong>batch deployment</strong> behind a <strong>batch endpoint</strong>. The batch deployment handles distributing the input files across compute nodes in mini-batches, running the scoring script against each mini-batch in parallel, and collating the results into a single output file.</p>
+<p>So you'll need to import the classes used to define batch endpoints and deployments.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>OK, now you're ready to create the batch endpoint and deployment. We'll create an endpoint named <strong>diabetes-batch-endpoint</strong> with a deployment named <strong>diabetes-batch-dpl</strong>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">BatchEndpoint</span><span class="p">,</span> <span class="n">ModelBatchDeployment</span><span class="p">,</span> <span class="n">ModelBatchDeploymentSettings</span><span class="p">,</span> <span class="n">CodeConfiguration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BatchDeploymentOutputAction</span>
+
+<span class="n">endpoint_name</span> <span class="o">=</span> <span class="s2">"diabetes-batch-endpoint"</span>
+
+<span class="c1"># Create the batch endpoint</span>
+<span class="n">endpoint</span> <span class="o">=</span> <span class="n">BatchEndpoint</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"A batch endpoint for scoring diabetes patient data"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">batch_endpoints</span><span class="o">.</span><span class="n">begin_create_or_update</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="c1"># Get the registered model to deploy</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_model"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"latest"</span><span class="p">)</span>
+
+<span class="c1"># Create the batch deployment</span>
+<span class="n">batch_deployment</span> <span class="o">=</span> <span class="n">ModelBatchDeployment</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"diabetes-batch-dpl"</span><span class="p">,</span>
+    <span class="n">endpoint_name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">environment</span><span class="o">=</span><span class="n">batch_env</span><span class="p">,</span>
+    <span class="n">code_configuration</span><span class="o">=</span><span class="n">CodeConfiguration</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">experiment_folder</span><span class="p">,</span> <span class="n">scoring_script</span><span class="o">=</span><span class="s2">"batch_diabetes.py"</span><span class="p">),</span>
+    <span class="n">compute</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">,</span>
+    <span class="n">settings</span><span class="o">=</span><span class="n">ModelBatchDeploymentSettings</span><span class="p">(</span>
+        <span class="n">instance_count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">max_concurrency_per_instance</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">mini_batch_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">output_action</span><span class="o">=</span><span class="n">BatchDeploymentOutputAction</span><span class="o">.</span><span class="n">APPEND_ROW</span><span class="p">,</span>
+        <span class="n">output_file_name</span><span class="o">=</span><span class="s2">"predictions.csv"</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">batch_deployments</span><span class="o">.</span><span class="n">begin_create_or_update</span><span class="p">(</span><span class="n">batch_deployment</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="c1"># Make this the default deployment for the endpoint</span>
+<span class="n">endpoint</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">batch_endpoints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">endpoint_name</span><span class="p">)</span>
+<span class="n">endpoint</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">deployment_name</span> <span class="o">=</span> <span class="n">batch_deployment</span><span class="o">.</span><span class="n">name</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">batch_endpoints</span><span class="o">.</span><span class="n">begin_create_or_update</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Batch endpoint and deployment created.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now it's time to invoke the batch endpoint, passing the batch data asset as input, and wait for the scoring job to finish.</p>
+<blockquote>
+<p><strong>Note</strong>: This may take some time!</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">Input</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># Get the latest version of the registered batch data asset</span>
+<span class="n">batch_data_asset</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_batch_data"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"latest"</span><span class="p">)</span>
+
+<span class="n">job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">batch_endpoints</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+    <span class="n">endpoint_name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"input_data"</span><span class="p">:</span> <span class="n">Input</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">URI_FOLDER</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">"azureml:diabetes_batch_data:</span><span class="si">{</span><span class="n">batch_data_asset</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When the job has finished running, the resulting predictions will have been saved by the child scoring job. You can retrieve them as follows:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s1">'diabetes-results'</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># The deployment runs the scoring script in a child job - get a reference to it</span>
+<span class="n">scoring_job</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">parent_job_name</span><span class="o">=</span><span class="n">job</span><span class="o">.</span><span class="n">name</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Download its output (named "score" by default for a model batch deployment)</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">scoring_job</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">download_path</span><span class="o">=</span><span class="s1">'diabetes-results'</span><span class="p">,</span> <span class="n">output_name</span><span class="o">=</span><span class="s1">'score'</span><span class="p">)</span>
+
+<span class="c1"># Find the predictions file</span>
+<span class="n">result_file</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">'diabetes-results/**/predictions.csv'</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># cleanup output format</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">result_file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">":"</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"File"</span><span class="p">,</span> <span class="s2">"Prediction"</span><span class="p">]</span>
+
+<span class="c1"># Display the first 20 results</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Use-the-Batch-Endpoint-from-an-Application">Use the Batch Endpoint from an Application<a class="anchor-link" href="#Use-the-Batch-Endpoint-from-an-Application">¶</a></h2><p>A batch endpoint is a durable, callable resource as soon as you create it. Client applications can trigger a scoring job either by using the Azure ML SDK's <code>invoke</code> method (as you did above), the Azure CLI (<code>az ml batch-endpoint invoke</code>), or by calling the endpoint's REST API directly.</p>
+<p>Batch endpoints authenticate REST calls using Microsoft Entra ID (Azure AD) tokens rather than a simple key, so a real application would typically authenticate as a service principal and present a bearer token obtained from Azure AD. For details and examples, see the <a href="https://learn.microsoft.com/azure/machine-learning/how-to-authenticate-batch-endpoint">Authorization on batch endpoints</a> documentation.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now you have a batch endpoint that can be used to batch process daily patient data.</p>
+<p><strong>More Information</strong>: For more details about using batch endpoints for batch inferencing, see the <a href="https://learn.microsoft.com/azure/machine-learning/how-to-use-batch-model-deployments">Batch endpoints</a> documentation.</p>
+<h2 id="Clean-Up">Clean Up<a class="anchor-link" href="#Clean-Up">¶</a></h2><p>Batch deployments only consume compute resources while a scoring job is running, so there's no ongoing cost from leaving the endpoint deployed. If you want to remove it anyway, run the following cell to delete it:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ml_client.batch_endpoints.begin_delete(name=endpoint_name)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="07a-creating-a-real-time-inferencing-service.html"><span>Poprzednie</span>Creating a Real-Time Inferencing Service</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="08a-tuning-hyperparameters.html"><span>Następne</span>Tuning Hyperparameters</a>
+</nav>
+</div></main>
+
+</body>
+</html>

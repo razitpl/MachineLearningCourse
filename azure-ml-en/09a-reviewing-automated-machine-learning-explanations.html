@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reviewing Automated Machine Learning Explanations</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Azure ML (English)</a></div><div class="tresc">
+<a class="pobierz" href="labdocs/lab09a.html">Instrukcja do tego ćwiczenia</a><a class="pobierz" href="pobierz/09A%20-%20Reviewing%20Automated%20Machine%20Learning%20Explanations.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Reviewing-Automated-Machine-Learning-Explanations">Reviewing Automated Machine Learning Explanations<a class="anchor-link" href="#Reviewing-Automated-Machine-Learning-Explanations">¶</a></h1><p>Machine learning models increasingly decide serious matters - banks base lending decisions on them, and in medicine they help prioritise treatment. That makes <strong>interpretability</strong> important: you need to be able to explain and justify why a model predicted what it did, and to catch unintended <strong>bias</strong> hidden in the data.</p>
+<p>With automated machine learning you set <code>enable_model_explainability=True</code> and Azure Machine Learning computes <strong>feature importance</strong> for the best model - a measure of how strongly each column influences the predictions. You review the results in Studio on the <strong>Explanations (preview)</strong> tab.</p>
+<blockquote>
+<p><strong>What about the responsible AI dashboard</strong>: the full <strong>Responsible AI dashboard</strong> - with error analysis, fairness and causal analysis - is <strong>not available for AutoML models</strong>. Studio shows the message "Responsible AI dashboard is currently not supported for AutoML models" there, with the create button disabled. For AutoML models the explanations covered in this lab are what you get. You'll build a full dashboard in <a href="labdocs/lab09b.html">Lab 9B</a>, for a model trained with an ordinary script.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+
+<span class="n">credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
+
+<span class="n">ml_client</span> <span class="o">=</span> <span class="n">MLClient</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
+    <span class="n">credential</span><span class="o">=</span><span class="n">credential</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Connected to workspace: </span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">workspace_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Run-an-Automated-Machine-Learning-Job">Run an Automated Machine Learning Job<a class="anchor-link" href="#Run-an-Automated-Machine-Learning-Job">¶</a></h2><p>To keep this lab short, you'll run the job on the <strong>aml-cluster</strong> compute cluster with a small trial budget.</p>
+<p>Note <code>enable_model_explainability</code> set to <code>True</code> - that makes Azure Machine Learning compute feature importance for the best model.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">automl</span><span class="p">,</span> <span class="n">Input</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># Get the registered training data asset - use the latest version, so this works</span>
+<span class="c1"># whichever version of the mltable-typed diabetes_mltable asset you have registered</span>
+<span class="n">diabetes_data_asset</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_mltable"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"latest"</span><span class="p">)</span>
+
+<span class="c1"># Configure the AutoML classification job</span>
+<span class="n">classification_job</span> <span class="o">=</span> <span class="n">automl</span><span class="o">.</span><span class="n">classification</span><span class="p">(</span>
+    <span class="n">compute</span><span class="o">=</span><span class="s2">"aml-cluster"</span><span class="p">,</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"diabetes-automl"</span><span class="p">,</span>
+    <span class="n">training_data</span><span class="o">=</span><span class="n">Input</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">MLTABLE</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">diabetes_data_asset</span><span class="o">.</span><span class="n">id</span><span class="p">),</span>
+    <span class="n">target_column_name</span><span class="o">=</span><span class="s2">"Diabetic"</span><span class="p">,</span>
+    <span class="n">primary_metric</span><span class="o">=</span><span class="s2">"AUC_weighted"</span><span class="p">,</span>
+    <span class="n">n_cross_validations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Set the job limits (equivalent to the old "iterations" setting)</span>
+<span class="n">classification_job</span><span class="o">.</span><span class="n">set_limits</span><span class="p">(</span>
+    <span class="n">max_trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">max_concurrent_trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">timeout_minutes</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># No featurization - the model gets the columns exactly as they are in the data.</span>
+<span class="c1"># You'll run the same job with featurization next and compare the two.</span>
+<span class="n">classification_job</span><span class="o">.</span><span class="n">set_featurization</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"off"</span><span class="p">)</span>
+
+<span class="c1"># Turn on model explainability - feature importance is computed for the best</span>
+<span class="c1"># model. Ensembles are switched off: they need at least four trials, and the</span>
+<span class="c1"># budget here is deliberately small.</span>
+<span class="n">classification_job</span><span class="o">.</span><span class="n">set_training</span><span class="p">(</span>
+    <span class="n">enable_model_explainability</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">enable_stack_ensemble</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">enable_vote_ensemble</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Submit the AutoML job</span>
+<span class="n">returned_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">classification_job</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Submitted job: </span><span class="si">{</span><span class="n">returned_job</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Stream the job logs until it completes</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">returned_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Review-Feature-Importance">Review Feature Importance<a class="anchor-link" href="#Review-Feature-Importance">¶</a></h2><p>When the job finishes, open it in <a href="https://ml.azure.com">Azure Machine Learning studio</a> - the cell below prints a direct link. Go to the <strong>Models + child jobs</strong> tab, pick the model with the best score and open the <strong>Explanations (preview)</strong> tab. It shows the relative importance of each feature.</p>
+<blockquote>
+<p><strong>If the tab is empty</strong>: select the model and choose <strong>Explain model</strong>, picking a compute cluster. That runs the explanation computation as a separate child job - it takes a few minutes, after which the tab fills in.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Get the completed job and print a link to view it in Studio</span>
+<span class="n">completed_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">returned_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Status: </span><span class="si">{</span><span class="n">completed_job</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Studio URL: </span><span class="si">{</span><span class="n">completed_job</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">'Studio'</span><span class="p">]</span><span class="o">.</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Feature-Importance-of-Engineered-Features">Feature Importance of Engineered Features<a class="anchor-link" href="#Feature-Importance-of-Engineered-Features">¶</a></h2><p>The previous run trained on the raw columns. Automated machine learning can, however, preprocess the data before training - it performs <strong>feature engineering</strong>, creating new columns derived from the existing ones. You'll turn that on with <code>set_featurization</code> and run the job again.</p>
+<blockquote>
+<p><strong>Why a second run</strong>: for comparison. In Studio you'll find a switch between raw and engineered features, and you can judge whether the automation invented something genuinely useful or merely multiplied the columns.</p>
+</blockquote>
+<blockquote>
+<p><strong>One column needs correcting</strong>: <code>Pregnancies</code> holds numbers, but the automation treats it as a category - it has few distinct values. It then expands the column into a dozen sparse text-encoded features, which distorts the feature importance - a dozen artificial columns instead of one real one. So we state the column's type explicitly. It's a good example of automation needing a correction from someone who knows what the data means.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">automl</span><span class="p">,</span> <span class="n">Input</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># Configure the AutoML classification job, this time with featurization enabled</span>
+<span class="n">classification_job</span> <span class="o">=</span> <span class="n">automl</span><span class="o">.</span><span class="n">classification</span><span class="p">(</span>
+    <span class="n">compute</span><span class="o">=</span><span class="s2">"aml-cluster"</span><span class="p">,</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"diabetes-automl"</span><span class="p">,</span>
+    <span class="n">training_data</span><span class="o">=</span><span class="n">Input</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">MLTABLE</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">diabetes_data_asset</span><span class="o">.</span><span class="n">id</span><span class="p">),</span>
+    <span class="n">target_column_name</span><span class="o">=</span><span class="s2">"Diabetic"</span><span class="p">,</span>
+    <span class="n">primary_metric</span><span class="o">=</span><span class="s2">"AUC_weighted"</span><span class="p">,</span>
+    <span class="n">n_cross_validations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">classification_job</span><span class="o">.</span><span class="n">set_limits</span><span class="p">(</span>
+    <span class="n">max_trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">max_concurrent_trials</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">timeout_minutes</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># This time with featurization. Pregnancies holds numbers, but AutoML detects it</span>
+<span class="c1"># as a category and expands it into a dozen sparse text features - which distorts</span>
+<span class="c1"># the feature importance.</span>
+<span class="n">classification_job</span><span class="o">.</span><span class="n">set_featurization</span><span class="p">(</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>
+    <span class="n">column_name_and_types</span><span class="o">=</span><span class="p">{</span><span class="s2">"Pregnancies"</span><span class="p">:</span> <span class="s2">"Numeric"</span><span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c1"># Turn on model explainability - feature importance is computed for the best</span>
+<span class="c1"># model. Ensembles are switched off: they need at least four trials, and the</span>
+<span class="c1"># budget here is deliberately small.</span>
+<span class="n">classification_job</span><span class="o">.</span><span class="n">set_training</span><span class="p">(</span>
+    <span class="n">enable_model_explainability</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">enable_stack_ensemble</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">enable_vote_ensemble</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Submit the AutoML job</span>
+<span class="n">returned_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">classification_job</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Submitted job: </span><span class="si">{</span><span class="n">returned_job</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">returned_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Feature engineering is done with <a href="https://scikit-learn.org/stable/modules/compose.html#combining-estimators">scikit-learn transformation pipelines</a> - not to be confused with Azure Machine Learning pipelines. The resulting model therefore also contains the data preparation steps, applied before every prediction.</p>
+<p>Run the code below to get a link to this job in Studio. On the <strong>Explanations (preview)</strong> tab, find the <strong>Raw features</strong> / <strong>Engineered features</strong> switch and compare the importance of the original columns with that of the automatically generated features.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Get the completed job and print a link to view it in Studio</span>
+<span class="n">completed_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">returned_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Status: </span><span class="si">{</span><span class="n">completed_job</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Studio URL: </span><span class="si">{</span><span class="n">completed_job</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">'Studio'</span><span class="p">]</span><span class="o">.</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote>
+<p><strong>More information</strong>: read about automated machine learning in the <a href="https://learn.microsoft.com/azure/machine-learning/how-to-configure-auto-train">Azure ML documentation</a>, and about model interpretability in <a href="https://learn.microsoft.com/azure/machine-learning/how-to-machine-learning-interpretability">Model interpretability</a>.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="08b-using-automated-machine-learning.html"><span>Poprzednie</span>Using Automated Machine Learning</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="09b-interpreting-models.html"><span>Następne</span>Interpreting Models</a>
+</nav>
+</div></main>
+
+</body>
+</html>

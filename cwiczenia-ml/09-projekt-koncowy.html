@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenie 9: Projekt końcowy</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="pobierz/09_projekt_koncowy.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=7e1de898"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="%C4%86wiczenie-9:-Projekt-ko%C5%84cowy">Ćwiczenie 9: Projekt końcowy<a class="anchor-link" href="#%C4%86wiczenie-9:-Projekt-ko%C5%84cowy">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>Przez osiem ćwiczeń poznawaliśmy elementy układanki osobno: podział danych, analizę eksploracyjną, przygotowanie cech (ang. <em>features</em>), regresję, klasyfikację, walidację krzyżową, drzewa, grupowanie. Za każdym razem ktoś prowadził Cię za rękę - był przykład prowadzony, a zadanie sprowadzało się do powtórzenia schematu na innym parametrze.</p>
+<p>W prawdziwej pracy nikt nie daje przykładu prowadzonego. Dostajesz plik z danymi, pytanie od zleceniodawcy i termin.</p>
+<p><strong>To ćwiczenie jest właśnie takie.</strong> Nie ma tu przykładu prowadzonego ani gotowego schematu do skopiowania. Jest <strong>opis zadania i rusztowanie z sekcjami do wypełnienia</strong>. Cały kod i wszystkie decyzje należą do Ciebie.</p>
+<p>Gdy utkniesz, wracaj do ćwiczeń 01-08 - masz tam wszystkie potrzebne elementy, tyle że pokazane osobno. Cała trudność tego projektu polega na złożeniu ich w całość we właściwej kolejności.</p>
+<p>Pracujesz też na <strong>zbiorze danych, którego wcześniej nie było w kursie</strong>. To celowe. Chodzi nie o „znajomość zbioru diabetes.csv", tylko o <strong>zdolność zastosowania metody do nowego problemu</strong>.</p>
+<h2 id="Czego-si%C4%99-nauczysz">Czego się nauczysz<a class="anchor-link" href="#Czego-si%C4%99-nauczysz">¶</a></h2><ol>
+<li>Jak samodzielnie przejść pełną ścieżkę: dane → zrozumienie → przygotowanie → modele → dobór → uczciwa ocena → wnioski.</li>
+<li>Jak zaplanować pracę tak, żeby na końcu <strong>dało się komuś wytłumaczyć</strong>, dlaczego wybór padł na ten, a nie inny model.</li>
+<li>Jak nie popełnić czterech błędów, które unieważniają wynik - nawet jeśli liczba na końcu wygląda świetnie.</li>
+<li>Jak napisać wniosek, który jest odpowiedzią na pytanie, a nie wykazem uruchomionych funkcji.</li>
+</ol>
+<blockquote>
+<p><strong>Ten notatnik jest Twoim szkieletem pracy.</strong> Wypełniaj go w miejscach oznaczonych <code># TWÓJ KOD TUTAJ</code> oraz <em>(tutaj Twój komentarz)</em>. Możesz dodawać własne komórki; sekcji lepiej nie usuwać, bo każda odpowiada za inny etap pracy.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1818bb55"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h2 id="Zbi%C3%B3r-danych:-rozpoznawanie-odmiany-wina">Zbiór danych: rozpoznawanie odmiany wina<a class="anchor-link" href="#Zbi%C3%B3r-danych:-rozpoznawanie-odmiany-wina">¶</a></h2><p>Pracujesz na zbiorze <strong>wine</strong> wbudowanym w scikit-learn. Nie wymaga pobierania z internetu - wczytuje się jedną funkcją.</p>
+<p>Dane pochodzą z analizy chemicznej win pochodzących z jednego regionu Włoch, wyprodukowanych przez <strong>trzech różnych producentów</strong>. Dla każdej butelki zmierzono 13 wielkości chemicznych (zawartość alkoholu, kwasu jabłkowego, magnezu, flawonoidów, intensywność barwy, zawartość proliny i inne).</p>
+<p><strong>Zadanie</strong>: na podstawie wyników analizy chemicznej rozpoznać, od którego z trzech producentów pochodzi wino.</p>
+<p>To jest <strong>klasyfikacja wieloklasowa</strong> (ang. <em>multiclass classification</em>) - i to pierwsza rzecz, która odróżnia ten projekt od wszystkiego, co było wcześniej w kursie. Klas nie ma dwóch, tylko trzy. Część rzeczy przenosi się wprost, część wymaga uwagi:</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Klasyfikacja binarna (ćwiczenia 01-07)</th>
+<th>Klasyfikacja wieloklasowa (ten projekt)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Macierz pomyłek</td>
+<td>2×2</td>
+<td>3×3 - błędy dzielą się na więcej rodzajów</td>
+</tr>
+<tr>
+<td>Skuteczność (ang. <em>accuracy</em>)</td>
+<td>działa tak samo</td>
+<td>działa tak samo</td>
+</tr>
+<tr>
+<td>Precyzja, czułość, F1</td>
+<td>jedna liczba</td>
+<td>osobno dla każdej klasy; do jednej liczby trzeba je <strong>uśrednić</strong> (<code>average='macro'</code> albo <code>'weighted'</code>)</td>
+</tr>
+<tr>
+<td>Model odniesienia</td>
+<td>„zawsze klasa większościowa"</td>
+<td>to samo, ale poprzeczka jest niżej - klas jest więcej</td>
+</tr>
+<tr>
+<td>Krzywa ROC</td>
+<td>naturalna</td>
+<td>wymaga podejścia „jedna klasa przeciw reszcie" - w tym projekcie możesz ją pominąć</td>
+</tr>
+</tbody>
+</table>
+<p>Druga istotna różnica: <strong>zbiór jest mały</strong>. To niecałe dwieście butelek - dwa rzędy wielkości mniej niż 10 000 kart pacjentów. Konsekwencje są poważne i trzeba będzie się z nimi zmierzyć:</p>
+<ul>
+<li>zbiór testowy liczy kilkadziesiąt próbek, więc <strong>jedna pomyłka więcej lub mniej zmienia wynik o punkty procentowe</strong>,</li>
+<li>pojedynczy podział danych jest bardzo niestabilny - <strong>walidacja krzyżowa przestaje być dobrą praktyką, a staje się koniecznością</strong>,</li>
+<li>stratyfikacja przestaje być kosmetyką (pamiętasz zadanie 7 z ćwiczenia 01? tam przy 10 000 wierszy nie robiła różnicy - tutaj zrobi).</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=bf7016c5">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_wine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span><span class="p">,</span> <span class="n">cross_val_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.dummy</span><span class="w"> </span><span class="kn">import</span> <span class="n">DummyClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfusionMatrixDisplay</span>
+
+<span class="c1"># Jedno ziarno losowosci na caly projekt. Kazde miejsce, w ktorym sklearn</span>
+<span class="c1"># losuje (podzial danych, inicjalizacja modelu), dostaje te sama wartosc -</span>
+<span class="c1"># dzieki temu wynik da sie powtorzyc co do cyfry, takze na innym komputerze.</span>
+<span class="n">ZIARNO</span> <span class="o">=</span> <span class="mi">42</span>
+
+<span class="n">wino</span> <span class="o">=</span> <span class="n">load_wine</span><span class="p">(</span><span class="n">as_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">wino</span><span class="o">.</span><span class="n">data</span>          <span class="c1"># 13 cech chemicznych</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">wino</span><span class="o">.</span><span class="n">target</span>        <span class="c1"># 0, 1, 2 - trzech producentow</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Liczba probek i cech:"</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Nazwy klas:"</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">wino</span><span class="o">.</span><span class="n">target_names</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Liczebnosc klas:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Cechy:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">nazwa</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"  -"</span><span class="p">,</span> <span class="n">nazwa</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=910dd384"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote>
+<p><strong>Chcesz trudniej?</strong> Zamiast <code>load_wine</code> możesz użyć <code>load_digits</code> - 1797 obrazków odręcznych cyfr, każdy jako 64 piksele (8×8), dziesięć klas. Wszystkie wymagania projektu pozostają te same. Zbiór jest większy i ma dziesięć klas zamiast trzech, więc macierz pomyłek robi się znacznie ciekawsza (które cyfry mylą się ze sobą?), a modele liczą się dłużej. Jeśli wybierasz ten wariant, <strong>napisz o tym wprost we wnioskach</strong>.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga o <code>PatientID</code></strong>: w tym zbiorze nie ma identyfikatora - wszystkie 13 kolumn to wyniki pomiarów. Nie znaczy to jednak, że temat znika. Nadal warto <strong>sprawdzić i zapisać</strong>, że każda użyta kolumna jest faktyczną cechą, a nie artefaktem procesu zbierania danych. Odruch „sprawdzam, czym są moje kolumny, zanim je wrzucę do modelu" jest ważniejszy niż konkretny zbiór.</p>
+</blockquote>
+<hr/>
+<h2 id="Zasady-gry">Zasady gry<a class="anchor-link" href="#Zasady-gry">¶</a></h2><p><strong>Wolno:</strong></p>
+<ul>
+<li>korzystać z <code>numpy</code>, <code>pandas</code>, <code>matplotlib</code>, <code>scikit-learn</code> - i tylko z nich,</li>
+<li>wracać do ćwiczeń 01-08 i przepisywać stamtąd kod (to wręcz wskazane),</li>
+<li>czytać dokumentację scikit-learn,</li>
+<li>dodawać własne komórki, wykresy i analizy ponad wymagane minimum.</li>
+</ul>
+<p><strong>Nie wolno:</strong></p>
+<ul>
+<li>używać <code>seaborn</code>, <code>plotly</code>, <code>graphviza</code> ani innych bibliotek spoza listy (drzewa rysujemy wyłącznie przez <code>sklearn.tree.plot_tree</code>),</li>
+<li>pobierać czegokolwiek z internetu - zbiór jest wbudowany,</li>
+<li>pominąć którejkolwiek z sekcji rusztowania,</li>
+<li>uznać za skończony notatnika, który nie wykonuje się od początku do końca po <strong>Kernel → Restart Kernel and Run All Cells</strong>.</li>
+</ul>
+<p><strong>Obowiązkowo w każdym kawałku kodu z elementem losowym</strong>: <code>random_state=42</code>.</p>
+<hr/>
+<h2 id="Rusztowanie-projektu">Rusztowanie projektu<a class="anchor-link" href="#Rusztowanie-projektu">¶</a></h2><p>Poniżej znajduje się siedem etapów. Każdy ma opis tego, co masz zrobić, oraz pustą komórkę na kod i - gdzie trzeba - na komentarz.</p>
+<p><strong>Komentarze liczą się tak samo jak kod.</strong> Projekt bez wniosków jest projektem nieukończonym, choćby kod był bezbłędny - bo nikt, łącznie z Tobą za miesiąc, nie odtworzy z samego kodu, dlaczego podjąłeś takie, a nie inne decyzje.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9c579a87"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Etap-1:-Poznaj-dane">Etap 1: Poznaj dane<a class="anchor-link" href="#Etap-1:-Poznaj-dane">¶</a></h3><p>Zanim zbudujesz cokolwiek, dowiedz się, z czym pracujesz. Minimum:</p>
+<ol>
+<li>Rozmiar zbioru, typy kolumn, <strong>braki danych</strong> (<code>isna().sum()</code>).</li>
+<li>Statystyki opisowe cech (<code>describe()</code>) - ze szczególną uwagą na <strong>zakresy</strong>. Zwróć uwagę, czy cechy są w porównywalnych skalach.</li>
+<li>Rozkład klas - czy zbiór jest zrównoważony (ang. <em>balanced</em>), czy nie.</li>
+<li>Co najmniej <strong>dwa wykresy</strong>: na przykład histogramy wybranych cech w rozbiciu na klasy oraz macierz korelacji między cechami (<code>X.corr()</code> i <code>ax.imshow</code>).</li>
+</ol>
+<p>Na koniec napisz <strong>trzy do pięciu zdań</strong> o tym, czego udało się dowiedzieć. Nie „zbiór ma 13 kolumn" - to widać w kodzie. Raczej: które cechy wyglądają na przydatne, czy coś jest podejrzane, czy konieczne będzie skalowanie i dlaczego.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a8c8b834">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ - analiza eksploracyjna</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0154b7ee"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Wnioski z etapu 1:</strong></p>
+<p><em>(tutaj wpisz swoje obserwacje - kliknij dwukrotnie, żeby edytować)</em></p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=f701cf41"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Etap-2:-Podzia%C5%82-danych">Etap 2: Podział danych<a class="anchor-link" href="#Etap-2:-Podzia%C5%82-danych">¶</a></h3><p>Odłóż <strong>zbiór testowy</strong> (ang. <em>test set</em>) i nie dotykaj go aż do etapu 6.</p>
+<ol>
+<li>Podziel dane na uczące i testowe: <code>test_size=0.25</code>, <code>stratify=y</code>, <code>random_state=42</code>.</li>
+<li>Wypisz liczebności obu części oraz rozkład klas w każdej z nich.</li>
+<li>Napisz jedno zdanie: <strong>dlaczego</strong> <code>stratify=y</code> przy tak małym zbiorze nie jest opcjonalne.</li>
+</ol>
+<blockquote>
+<p><strong>To jest najważniejsza komórka w całym projekcie.</strong> Od tego momentu <code>X_test</code> i <code>y_test</code> są dla Ciebie zamknięte. Nie patrzysz na nie, nie liczysz na nich statystyk, nie dopasowujesz na nich skalera, nie wybierasz według nich hiperparametrów. Wszystko - <strong>absolutnie wszystko</strong> - robisz na zbiorze uczącym, korzystając z walidacji krzyżowej.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=c5ab00be">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ - podział na zbiór uczący i testowy</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=61acabc3"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Etap-3:-Przygotowanie-danych-i-model-odniesienia">Etap 3: Przygotowanie danych i model odniesienia<a class="anchor-link" href="#Etap-3:-Przygotowanie-danych-i-model-odniesienia">¶</a></h3><ol>
+<li>Zbuduj <strong>model odniesienia</strong> (ang. <em>baseline</em>) - <code>DummyClassifier(strategy="most_frequent")</code>. Zmierz go walidacją krzyżową na zbiorze uczącym. To Twoja poprzeczka: model, który jej nie przeskoczy, nie ma prawa bytu.</li>
+<li>Zdecyduj, jak przygotujesz dane. Przy tym zbiorze najważniejsze pytanie brzmi: <strong>czy skalować cechy?</strong> Odpowiedź nie jest jedna dla wszystkich modeli - patrz tabela niżej.</li>
+<li>Zbuduj przygotowanie jako <strong><code>Pipeline</code></strong>, nie jako osobne wywołania.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Rodzina modeli</th>
+<th>Skalowanie</th>
+<th>Dlaczego</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>regresja logistyczna, SVM, k najbliższych sąsiadów</td>
+<td><strong>konieczne</strong></td>
+<td>liczą odległości albo sumy <code>waga × cecha</code> w poprzek cech</td>
+</tr>
+<tr>
+<td>drzewo, las losowy, boosting</td>
+<td>zbędne</td>
+<td>porównują wartość cechy z progiem wewnątrz tej samej cechy</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Dlaczego <code>Pipeline</code>, a nie „przeskaluję sobie wcześniej"?</strong> Bo skaler <strong>uczy się</strong> z danych - zapamiętuje średnią i odchylenie standardowe. Jeśli dopasujesz go na całości przed podziałem, informacja ze zbioru testowego wycieknie do procesu uczenia. <code>Pipeline</code> załatwia to automatycznie: w walidacji krzyżowej skaler jest dopasowywany osobno w każdej składce, wyłącznie na jej części uczącej. To nie jest szczegół stylistyczny - to różnica między oceną uczciwą a zawyżoną.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4a84bcf1">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ - model odniesienia i potoki przygotowania danych</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a09a0387"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Etap-4:-Co-najmniej-trzy-r%C3%B3%C5%BCne-modele">Etap 4: Co najmniej trzy różne modele<a class="anchor-link" href="#Etap-4:-Co-najmniej-trzy-r%C3%B3%C5%BCne-modele">¶</a></h3><p>Zbuduj i porównaj <strong>minimum trzy modele należące do różnych rodzin</strong>. Chodzi o różnorodność podejść, nie o trzy warianty tego samego pomysłu.</p>
+<p>Przykładowy zestaw (nie musisz trzymać się dokładnie tego):</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Rodzina</th>
+<th>Skalowanie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LogisticRegression</code></td>
+<td>liniowy</td>
+<td>tak</td>
+</tr>
+<tr>
+<td><code>KNeighborsClassifier</code></td>
+<td>oparty na odległościach</td>
+<td>tak</td>
+</tr>
+<tr>
+<td><code>DecisionTreeClassifier</code></td>
+<td>drzewo</td>
+<td>nie</td>
+</tr>
+<tr>
+<td><code>RandomForestClassifier</code></td>
+<td>zespół drzew (ang. <em>ensemble</em>)</td>
+<td>nie</td>
+</tr>
+<tr>
+<td><code>SVC</code></td>
+<td>margines / jądra</td>
+<td>tak</td>
+</tr>
+</tbody>
+</table>
+<p>Wymagania:</p>
+<ol>
+<li>Każdy model oceniasz <strong>walidacją krzyżową</strong> na zbiorze uczącym (<code>cross_val_score</code>, <code>cv=5</code>, <code>StratifiedKFold</code> z <code>shuffle=True, random_state=42</code>).</li>
+<li>Podajesz <strong>średnią i odchylenie standardowe</strong> wyników ze składek - nie samą średnią. Przy tak małym zbiorze rozrzut między składkami bywa duży i sam w sobie jest informacją.</li>
+<li>Zestawiasz wyniki w <strong>jednej tabeli</strong> (<code>pd.DataFrame</code>) razem z modelem odniesienia.</li>
+</ol>
+<blockquote>
+<p><strong>Trzy modele to minimum, nie cel.</strong> Jeśli dorzucisz czwarty i piąty, a przy tym potrafisz powiedzieć, czym się od siebie różnią - tym lepiej.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=8eb5e69b">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ - porównanie modeli walidacją krzyżową</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=38aede89"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Wnioski z etapu 4:</strong></p>
+<p><em>(który model prowadzi? czy różnice między modelami są większe niż rozrzut między składkami? co to oznacza?)</em></p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=05752e02"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Etap-5:-Dob%C3%B3r-hiperparametr%C3%B3w">Etap 5: Dobór hiperparametrów<a class="anchor-link" href="#Etap-5:-Dob%C3%B3r-hiperparametr%C3%B3w">¶</a></h3><p>Wybierz <strong>co najmniej dwa</strong> modele z etapu 4 i dobierz im <strong>hiperparametry</strong> (ang. <em>hyperparameters</em>) - czyli ustawienia, których model nie uczy się z danych, tylko dostaje od Ciebie z góry.</p>
+<ol>
+<li>Użyj <code>GridSearchCV</code> albo <code>RandomizedSearchCV</code> z tą samą strategią walidacji co w etapie 4.</li>
+<li>Przeszukiwanie prowadzisz <strong>wyłącznie na zbiorze uczącym</strong>.</li>
+<li>Wypisz najlepsze znalezione ustawienia (<code>best_params_</code>) i odpowiadający im wynik walidacyjny (<code>best_score_</code>).</li>
+<li>Napisz, <strong>co dany hiperparametr właściwie robi</strong>. „Najlepsze <code>C=10</code>" nie jest wynikiem - wynikiem jest „mniejsze <code>C</code> oznacza silniejszą regularyzację, a przy tak małym zbiorze spodziewałem(-am) się, że pomoże; okazało się, że...".</li>
+</ol>
+<p>Punkty startowe (rozszerz je według uznania):</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Hiperparametr</th>
+<th>Co kontroluje</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LogisticRegression</code></td>
+<td><code>C</code></td>
+<td>siłę regularyzacji - mniejsze <code>C</code> to mocniejsze karanie dużych współczynników</td>
+</tr>
+<tr>
+<td><code>KNeighborsClassifier</code></td>
+<td><code>n_neighbors</code>, <code>weights</code></td>
+<td>ilu sąsiadów głosuje i czy bliżsi ważą więcej</td>
+</tr>
+<tr>
+<td><code>DecisionTreeClassifier</code></td>
+<td><code>max_depth</code>, <code>min_samples_leaf</code></td>
+<td>jak bardzo drzewo może się rozrosnąć</td>
+</tr>
+<tr>
+<td><code>RandomForestClassifier</code></td>
+<td><code>n_estimators</code>, <code>max_features</code>, <code>max_depth</code></td>
+<td>liczbę drzew i ich zróżnicowanie</td>
+</tr>
+<tr>
+<td><code>SVC</code></td>
+<td><code>C</code>, <code>gamma</code>, <code>kernel</code></td>
+<td>kształt i sztywność granicy decyzyjnej</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Uwaga na <code>Pipeline</code></strong>: parametry modelu w potoku adresuje się z przedrostkiem, na przykład <code>{'logisticregression__C': [0.01, 0.1, 1, 10]}</code> przy <code>make_pipeline</code> albo <code>{'model__C': ...}</code>, jeśli krok w <code>Pipeline</code> nosi nazwę <code>model</code>. Sprawdź <code>potok.get_params().keys()</code>, jeśli nie masz pewności, jak nazywa się Twój krok.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f587c980">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ - dobór hiperparametrów</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=84cc5f7d"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Wnioski z etapu 5:</strong></p>
+<p><em>(co dał dobór hiperparametrów? czy poprawa jest realna, czy mieści się w rozrzucie między składkami?)</em></p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=3940893b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Etap-6:-Uczciwa-ocena-na-zbiorze-testowym">Etap 6: Uczciwa ocena na zbiorze testowym<a class="anchor-link" href="#Etap-6:-Uczciwa-ocena-na-zbiorze-testowym">¶</a></h3><p>Dopiero teraz sięgasz po <code>X_test</code> i <code>y_test</code>. <strong>Raz.</strong></p>
+<ol>
+<li>Wybierz <strong>jeden</strong> model - ten, który wypadł najlepiej w walidacji krzyżowej. Wybór ma być uzasadniony <strong>wynikami z etapów 4-5</strong>, a nie wynikiem testowym (którego jeszcze nie znasz).</li>
+<li>Naucz go na <strong>całym</strong> zbiorze uczącym (jeśli w grę wchodzi <code>GridSearchCV</code>, obiekt <code>best_estimator_</code> jest już nauczony na całości - sprawdź w dokumentacji, co robi <code>refit=True</code>).</li>
+<li>Zmierz na zbiorze testowym:<ul>
+<li>skuteczność,</li>
+<li><code>classification_report</code> - precyzję, czułość i F1 <strong>dla każdej klasy osobno</strong>,</li>
+<li>macierz pomyłek (<code>ConfusionMatrixDisplay</code>).</li>
+</ul>
+</li>
+<li>Porównaj wynik testowy z wynikiem walidacji krzyżowej z etapu 5. Skomentuj różnicę.</li>
+</ol>
+<blockquote>
+<p><strong>Dlaczego „raz"?</strong> Bo gdy zmierzysz wynik testowy, zobaczysz go, a potem wrócisz do modelu i coś poprawisz - zbiór testowy przestanie być zbiorem, którego model nie widział. <strong>Zacznie brać udział w wyborze modelu za Twoim pośrednictwem.</strong> To najsubtelniejsza odmiana przecieku danych (ang. <em>data leakage</em>): nie ma wycieku w kodzie, wyciek przechodzi przez Twoją głowę. Efekt jest ten sam - zawyżony, nieuczciwy wynik.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a0b6efa4">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ - ocena końcowa na odłożonym zbiorze testowym</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=931af2d9"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Wnioski z etapu 6:</strong></p>
+<p><em>(jaki wynik osiągnął model? które klasy myli ze sobą? czy wynik testowy jest zbliżony do walidacyjnego, wyższy czy niższy - i co z tego wynika?)</em></p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=f5c28963"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Etap-7:-Wnioski-i-uzasadnienie-wyboru">Etap 7: Wnioski i uzasadnienie wyboru<a class="anchor-link" href="#Etap-7:-Wnioski-i-uzasadnienie-wyboru">¶</a></h3><p>To jest część, którą przeczytałby zleceniodawca - i jedyna, która zostaje, gdy zamkniesz notatnik. Napisz <strong>kilkanaście zdań</strong> (nie kod) odpowiadające na poniższe pytania:</p>
+<ol>
+<li><strong>Który model został wybrany i dlaczego?</strong> Odwołaj się do liczb z etapów 4-5, nie do ogólnych opinii o algorytmach.</li>
+<li><strong>Czy model jest użyteczny?</strong> Porównaj z modelem odniesienia. O ile jest lepszy i czy ta różnica jest warta zachodu.</li>
+<li><strong>Jakie błędy popełnia?</strong> Które klasy myli i czy te pomyłki mają jakieś wyjaśnienie.</li>
+<li><strong>Jak bardzo ufasz temu wynikowi?</strong> Zbiór testowy liczy kilkadziesiąt próbek - ile z nich to jeden punkt procentowy? Co to mówi o precyzji Twojego pomiaru?</li>
+<li><strong>Co zrobiłbyś(-abyś) dalej</strong>, mając jeszcze tydzień? Wymień dwie, trzy konkretne rzeczy.</li>
+<li><strong>Czego ten wynik nie mówi?</strong> Jedno ograniczenie, którego z samych liczb nie widać.</li>
+</ol>
+<blockquote>
+<p><strong>Punkt 4 jest w tym projekcie ważniejszy niż gdzie indziej i nie da się go obejść.</strong> Przy <code>test_size=0.25</code> zbiór testowy liczy 45 butelek, więc jedna pomyłka to ponad dwa punkty procentowe. Różnica „model A ma 97,8%, model B ma 95,6%" oznacza <strong>jedną butelkę</strong>. Student, który na tej podstawie ogłasza zwycięzcę, nie zrozumiał, czym jest niepewność pomiaru - i to jest jedna z najważniejszych rzeczy, jakie ten projekt ma sprawdzić.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=70bed09c"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Wnioski końcowe:</strong></p>
+<p><em>(tutaj wpisz swoje podsumowanie - kliknij dwukrotnie, żeby edytować)</em></p>
+<ol>
+<li>Wybrany model i uzasadnienie:</li>
+<li>Użyteczność względem modelu odniesienia:</li>
+<li>Rodzaje popełnianych błędów:</li>
+<li>Zaufanie do wyniku i niepewność pomiaru:</li>
+<li>Co dalej:</li>
+<li>Czego wynik nie mówi:</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=289fa691"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Co-powinien-zawiera%C4%87-dobry-projekt">Co powinien zawierać dobry projekt<a class="anchor-link" href="#Co-powinien-zawiera%C4%87-dobry-projekt">¶</a></h1><p>Poniższa tabela to <strong>lista samokontrolna</strong>. Kolumna „minimum" opisuje to, bez czego projekt nie odpowiada na postawione pytanie. Kolumna „poziom, do którego warto dążyć" pokazuje, czym różni się praca porządna od pracy dobrej.</p>
+<p>Przejdź przez nią, gdy uznasz projekt za skończony. Jeśli któryś wiersz budzi wątpliwość - wróć do tego etapu.</p>
+<table>
+<thead>
+<tr>
+<th>Obszar</th>
+<th>Minimum</th>
+<th>Poziom, do którego warto dążyć</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Analiza danych</strong></td>
+<td>Rozmiar zbioru, braki danych, statystyki opisowe, rozkład klas, dwa wykresy, kilka zdań wniosków</td>
+<td>Świadoma analiza korelacji między cechami i wnioski z niej dla wyboru modelu; wykresy z opisanymi osiami, tytułem i komentarzem, co z nich wynika</td>
+</tr>
+<tr>
+<td><strong>2. Podział i przygotowanie danych</strong></td>
+<td>Poprawny podział ze stratyfikacją i <code>random_state=42</code>; skalowanie zastosowane tam, gdzie jest potrzebne; zbiór testowy nietknięty do etapu 6</td>
+<td>Całe przygotowanie zamknięte w <code>Pipeline</code>; wyjaśnione, dlaczego części modeli skalowanie jest zbędne</td>
+</tr>
+<tr>
+<td><strong>3. Modele</strong></td>
+<td>Co najmniej trzy modele z różnych rodzin, ocenione walidacją krzyżową, zestawione w tabeli razem z modelem odniesienia</td>
+<td>Więcej modeli albo świadomie dobrany zestaw; podane odchylenie standardowe ze składek i użyte w interpretacji</td>
+</tr>
+<tr>
+<td><strong>4. Dobór hiperparametrów</strong></td>
+<td><code>GridSearchCV</code> (lub odpowiednik) dla co najmniej dwóch modeli, wyłącznie na zbiorze uczącym; wypisane <code>best_params_</code></td>
+<td>Wyjaśnione, <strong>co robi</strong> każdy strojony hiperparametr i dlaczego dobrany zakres ma sens; sprawdzone, czy poprawa mieści się w rozrzucie między składkami</td>
+</tr>
+<tr>
+<td><strong>5. Ocena końcowa</strong></td>
+<td>Jednokrotny pomiar na zbiorze testowym: skuteczność, <code>classification_report</code>, macierz pomyłek</td>
+<td>Analiza macierzy pomyłek klasa po klasie z próbą wyjaśnienia pomyłek; porównanie wyniku testowego z walidacyjnym i komentarz do różnicy</td>
+</tr>
+<tr>
+<td><strong>6. Wnioski</strong></td>
+<td>Odpowiedzi na wszystkie sześć pytań z etapu 7, oparte na liczbach z projektu</td>
+<td>Wnioski, które ktoś nieznający kodu zrozumie bez pytań dodatkowych; uczciwie nazwane ograniczenia; sensowny plan dalszych kroków</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Czego na tej liście świadomie nie ma</strong>: <strong>wysokości wyniku liczbowego</strong>. Projekt z uczciwie zmierzoną skutecznością 92% jest wart więcej niż projekt z 99% uzyskanym przez podglądanie zbioru testowego. W pracy zawodowej jest dokładnie tak samo - z tą różnicą, że tam nikt nie zagląda do Twojego notatnika, a błąd wychodzi dopiero na produkcji.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=15713d8c"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Cztery-b%C5%82%C4%99dy,-kt%C3%B3re-uniewa%C5%BCniaj%C4%85-wynik">Cztery błędy, które unieważniają wynik<a class="anchor-link" href="#Cztery-b%C5%82%C4%99dy,-kt%C3%B3re-uniewa%C5%BCniaj%C4%85-wynik">¶</a></h1><p>Przejdź przez tę listę, zanim uznasz projekt za skończony. Każdy z tych czterech błędów sprawia, że <strong>liczba, którą podajesz na końcu, jest nieprawdziwa</strong> - i żadna jakość reszty pracy tego nie naprawia.</p>
+<p>To nie jest lista zakazów wymyślona na potrzeby ćwiczenia. Każdy z tych błędów zdarza się w prawdziwych projektach i każdy kończy się tak samo: model, który świetnie wypadł w notatniku, zawodzi na pierwszych prawdziwych danych.</p>
+<h3 id="1.-Ocena-na-zbiorze-ucz%C4%85cym">1. Ocena na zbiorze uczącym<a class="anchor-link" href="#1.-Ocena-na-zbiorze-ucz%C4%85cym">¶</a></h3><p><strong>Objaw</strong>: w projekcie pojawia się <code>model.score(X_ucz, y_ucz)</code> podane jako wynik modelu.</p>
+<p><strong>Dlaczego to błąd</strong>: model widział te dane podczas uczenia. Mierzysz, jak dobrze je zapamiętał, a nie jak dobrze radzi sobie z nowymi butelkami. Drzewo bez ograniczeń osiągnie tu 100% i nie będzie to znaczyło nic (ćwiczenie 01, zadanie 3).</p>
+<p><strong>Jak sprawdzić</strong>: przeszukaj notatnik pod kątem <code>score(X_ucz</code> i <code>score(X_train</code>. Wynik na zbiorze uczącym wolno pokazać <strong>wyłącznie</strong> jako ilustrację przeuczenia, wyraźnie jako taki opisaną.</p>
+<h3 id="2.-Dob%C3%B3r-hiperparametr%C3%B3w-na-zbiorze-testowym">2. Dobór hiperparametrów na zbiorze testowym<a class="anchor-link" href="#2.-Dob%C3%B3r-hiperparametr%C3%B3w-na-zbiorze-testowym">¶</a></h3><p><strong>Objaw</strong>: pętla po wartościach hiperparametru, w której za każdym razem liczony jest wynik na <code>X_test</code>, a potem wybór najlepszego.</p>
+<p><strong>Dlaczego to błąd</strong>: zbiór testowy przestaje być bezstronny, bo <strong>brał udział w wyborze modelu</strong>. Raportowany wynik jest zawyżony i nie przewiduje zachowania na prawdziwie nowych danych. To ten sam błąd, który celowo popełniliśmy w ćwiczeniu 01 (zadanie 4) i naprawiliśmy w ćwiczeniu 06.</p>
+<p><strong>Jak zrobić poprawnie</strong>: hiperparametry dobiera się <strong>walidacją krzyżową na zbiorze uczącym</strong>. Zbiór testowy dotykasz raz, na samym końcu, jednym pomiarem.</p>
+<p><strong>Odmiana subtelna, równie groźna</strong>: wynik testowy zostaje zmierzony, nie podoba się, więc wracasz i poprawiasz model. Wtedy zbiór testowy uczestniczy w doborze modelu przez Ciebie - i przestaje być testowy, nawet jeśli w kodzie nie widać niczego złego.</p>
+<h3 id="3.-Skalowanie-(albo-cokolwiek-innego)-przed-podzia%C5%82em-danych">3. Skalowanie (albo cokolwiek innego) przed podziałem danych<a class="anchor-link" href="#3.-Skalowanie-(albo-cokolwiek-innego)-przed-podzia%C5%82em-danych">¶</a></h3><p><strong>Objaw</strong>: <code>StandardScaler().fit_transform(X)</code> <strong>przed</strong> <code>train_test_split</code>.</p>
+<p><strong>Dlaczego to błąd</strong>: skaler wylicza średnią i odchylenie standardowe. Jeśli liczy je na całym zbiorze, do przekształcenia danych uczących trafia informacja ze zbioru testowego. To <strong>przeciek danych</strong> (ang. <em>data leakage</em>) - subtelny, bo nic się nie wysypie, a wynik wyjdzie odrobinę lepszy niż prawdziwy.</p>
+<p><strong>Jak zrobić poprawnie</strong>: najpierw podział, potem <code>Pipeline(StandardScaler(), model)</code>. Wewnątrz walidacji krzyżowej skaler jest dopasowywany osobno w każdej składce - <code>Pipeline</code> pilnuje tego za Ciebie i to jest jego główny powód istnienia.</p>
+<p><strong>Dotyczy nie tylko skalowania</strong>: tak samo jest z uzupełnianiem braków danych, selekcją cech, PCA i każdym innym krokiem, który <strong>uczy się czegoś z danych</strong>.</p>
+<h3 id="4.-Identyfikator-jako-cecha">4. Identyfikator jako cecha<a class="anchor-link" href="#4.-Identyfikator-jako-cecha">¶</a></h3><p><strong>Objaw</strong>: w <code>X</code> znajduje się kolumna będąca numerem porządkowym, identyfikatorem, datą rejestracji albo indeksem wiersza.</p>
+<p><strong>Dlaczego to błąd</strong>: identyfikator jest unikalny, więc model może zapamiętać po nim każdą próbkę z osobna. Na danych uczących wygląda to znakomicie, na nowych - katastrofalnie, bo ich identyfikatorów model nigdy nie widział.</p>
+<p><strong>W tym konkretnym zbiorze</strong> kolumny identyfikatora nie ma - wszystkie 13 cech to wyniki pomiarów chemicznych. <strong>Sprawdzenie i tak należy wykonać i opisać.</strong> Odruch „patrzę, czym są moje kolumny, zanim je wrzucę do modelu" jest tym, co sprawdzamy; brak identyfikatora w tym zbiorze to szczęśliwy zbieg okoliczności, a nie reguła.</p>
+<p><strong>Szerzej</strong>: usunąć trzeba wszystko, co nie będzie dostępne <strong>w momencie predykcji</strong> albo co niesie informację o odpowiedzi pochodzącą z przyszłości. W danych medycznych to na przykład kolumna „zalecone leczenie" - wypełniana po postawieniu diagnozy.</p>
+<hr/>
+<h2 id="Lista-kontrolna-na-koniec">Lista kontrolna na koniec<a class="anchor-link" href="#Lista-kontrolna-na-koniec">¶</a></h2><p>Odhacz wszystko, zanim uznasz projekt za skończony:</p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Kernel → Restart Kernel and Run All Cells</strong> wykonuje się bez błędu od początku do końca</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wszystkie komórki <code># TWÓJ KOD TUTAJ</code> są wypełnione</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wszystkie komórki z komentarzem są wypełnione (żadnego pozostawionego <em>(tutaj wpisz...)</em>)</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>random_state=42</code> wszędzie, gdzie występuje losowość</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zbiór testowy użyty <strong>dokładnie raz</strong>, w etapie 6</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Żaden wynik na zbiorze uczącym nie jest podany jako wynik modelu</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Skalowanie odbywa się wewnątrz <code>Pipeline</code>, nie przed podziałem</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Każdy wykres ma tytuł i opisane osie</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wnioski odwołują się do konkretnych liczb z projektu</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Żadnych bibliotek spoza <code>numpy</code>, <code>pandas</code>, <code>matplotlib</code>, <code>scikit-learn</code></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8d02f746"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Pytania-do-przemy%C5%9Blenia">Pytania do przemyślenia<a class="anchor-link" href="#Pytania-do-przemy%C5%9Blenia">¶</a></h1><p>Na te pytania odpowiadasz słowami, nie kodem. Warto wrócić do nich po skończeniu projektu.</p>
+<ol>
+<li>Twój model osiągnął pewien wynik na zbiorze testowym. Gdyby powtórzyć cały projekt z <code>random_state=7</code> zamiast <code>42</code>, jak bardzo zmieniłby się ten wynik? Od czego to zależy?</li>
+<li>Walidacja krzyżowa dała jeden ranking modeli, zbiór testowy potwierdził go albo nie. Jeśli nie - który z pomiarów jest bliższy prawdy i dlaczego?</li>
+<li>Dlaczego nie wolno wybrać modelu na podstawie wyniku testowego, skoro to właśnie ten wynik najbardziej nas interesuje?</li>
+<li>Zbiór wine ma 178 próbek. Które z wniosków Twojego projektu byłyby inne, gdyby miał 178 000 próbek? A które zostałyby takie same?</li>
+<li>Model odniesienia w tym zadaniu ma niższą poprzeczkę niż w zbiorze diabetes (trzy klasy zamiast dwóch). Czy to znaczy, że zadanie jest łatwiejsze, czy trudniejsze?</li>
+<li>Twój najlepszy model osiąga wynik bliski ideałowi. Czy to powód do radości, czy do podejrzliwości? Co sprawdzić, zanim ogłosisz sukces?</li>
+<li>Zleceniodawca pyta: „czy mogę na tym polegać przy nowych butelkach z tego regionu?". Co dokładnie mu odpowiesz i czego <strong>nie</strong> możesz obiecać?</li>
+</ol>
+<h1 id="Chcesz-wiedzie%C4%87-wi%C4%99cej">Chcesz wiedzieć więcej<a class="anchor-link" href="#Chcesz-wiedzie%C4%87-wi%C4%99cej">¶</a></h1><ul>
+<li><a href="https://scikit-learn.org/stable/datasets/toy_dataset.html#wine-recognition-dataset">Opis zbioru wine w dokumentacji scikit-learn</a> - pochodzenie danych i znaczenie cech.</li>
+<li><a href="https://scikit-learn.org/stable/modules/grid_search.html"><code>GridSearchCV</code> i strojenie hiperparametrów</a> - zwróć uwagę na sekcję o zagnieżdżonej walidacji krzyżowej (ang. <em>nested cross-validation</em>); to poprawne rozwiązanie problemu, który w tym projekcie obchodzimy odłożonym zbiorem testowym.</li>
+<li><a href="https://scikit-learn.org/stable/modules/model_evaluation.html#multiclass-and-multilabel-classification">Metryki klasyfikacji wieloklasowej</a> - czym różni się uśrednianie <code>macro</code> od <code>weighted</code> i kiedy które ma sens.</li>
+<li><a href="https://scikit-learn.org/stable/common_pitfalls.html">Typowe pułapki i zalecane praktyki</a> - oficjalna lista błędów scikit-learn, w tym przeciek danych i niewłaściwe użycie <code>random_state</code>. Warto przeczytać w całości.</li>
+<li><a href="https://scikit-learn.org/stable/modules/compose.html"><code>Pipeline</code> i <code>ColumnTransformer</code></a> - powrót do ćwiczenia 03, ale teraz już wiesz, po co to jest.</li>
+</ul>
+<p>W kolejnych ćwiczeniach (<strong>10 - Od notatnika do skryptu</strong> i <strong>11 - Jakość kodu w ML</strong>) zajmiemy się tym, co zrobić z modelem po projekcie: jak wyjąć go z notatnika, zapisać na dysk, uruchamiać z wiersza poleceń i przetestować. Jeśli podczas tego projektu choć raz zginął wynik przez uruchomienie komórek w złej kolejności - właśnie widać, po co te dwa ćwiczenia istnieją.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="08-uczenie-nienadzorowane.html"><span>Poprzednie</span>Ćwiczenie 8: Uczenie nienadzorowane - grupowanie i redukcja wymiarowości</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="10-od-notatnika-do-skryptu.html"><span>Następne</span>Ćwiczenie 10: Od notatnika do skryptu</a>
+</nav>
+</div></main>
+
+</body>
+</html>

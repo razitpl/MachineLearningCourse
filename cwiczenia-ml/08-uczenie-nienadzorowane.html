@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenie 8: Uczenie nienadzorowane - grupowanie i redukcja wymiarowości</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="pobierz/08_uczenie_nienadzorowane.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=22e21935"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="%C4%86wiczenie-8:-Uczenie-nienadzorowane---grupowanie-i-redukcja-wymiarowo%C5%9Bci">Ćwiczenie 8: Uczenie nienadzorowane - grupowanie i redukcja wymiarowości<a class="anchor-link" href="#%C4%86wiczenie-8:-Uczenie-nienadzorowane---grupowanie-i-redukcja-wymiarowo%C5%9Bci">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>Wszystkie dotychczasowe ćwiczenia miały wspólny fundament: obok cech (ang. <em>features</em>) mieliśmy <strong>etykietę</strong>. Model przewidywał, my porównywaliśmy przewidywanie z prawdą i liczyliśmy, ile razy trafił. Tak działa <strong>uczenie nadzorowane</strong> (ang. <em>supervised learning</em>).</p>
+<p>W praktyce dane z etykietami to luksus. Etykietę trzeba wytworzyć: ktoś musi postawić diagnozę, opisać zdjęcie, oznaczyć transakcję jako oszustwo. To kosztuje czas i pieniądze, więc w prawdziwych zbiorach zwykle mamy miliony wierszy i zero etykiet (ang. <em>labels</em>).</p>
+<p><strong>Uczenie nienadzorowane</strong> (ang. <em>unsupervised learning</em>) to praca właśnie z takimi danymi. I od razu pojawia się konsekwencja, która zmienia wszystko:</p>
+<blockquote>
+<p><strong>Nie ma etykiet, więc nie ma czego „trafić".</strong> Nie da się policzyć skuteczności, bo nie ma poprawnej odpowiedzi, z którą można by porównać wynik.</p>
+</blockquote>
+<p>Jeśli w ćwiczeniu 01 najtrudniejszą częścią była uczciwa ocena modelu, tutaj problem jest jeszcze ostrzejszy: <strong>nie istnieje jedna liczba, która mówi, czy wynik jest dobry</strong>. Zamiast tego mamy wskaźniki opisujące <em>kształt</em> wyniku oraz - przede wszystkim - interpretację człowieka.</p>
+<h2 id="Czego-si%C4%99-nauczysz">Czego się nauczysz<a class="anchor-link" href="#Czego-si%C4%99-nauczysz">¶</a></h2><ol>
+<li>Czym uczenie nienadzorowane różni się od nadzorowanego i dlaczego jego ocena jest trudniejsza.</li>
+<li>Jak działa <strong>grupowanie metodą k-średnich</strong> (ang. <em>k-means clustering</em>).</li>
+<li>Dlaczego przed k-średnimi <strong>trzeba</strong> skalować cechy - i co się dzieje, gdy tego nie zrobisz.</li>
+<li>Jak dobrać liczbę grup: metoda łokcia (ang. <em>elbow method</em>) i wskaźnik sylwetki (ang. <em>silhouette score</em>).</li>
+<li>Jak <strong>analiza głównych składowych</strong> (<code>PCA</code>, ang. <em>principal component analysis</em>) pozwala obejrzeć 8-wymiarowe dane na płaskim wykresie.</li>
+<li>Dlaczego grupy znalezione przez algorytm <strong>zwykle nie pokrywają się</strong> z tym, co akurat nas interesuje - i dlaczego to nie jest błąd algorytmu.</li>
+</ol>
+<blockquote>
+<p><strong>Zanim zaczniesz</strong>: uruchamiaj komórki po kolei (Shift+Enter). Późniejsze korzystają ze zmiennych zdefiniowanych wcześniej.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e339140e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Te-same-dane,-ale-bez-odpowiedzi">1. Te same dane, ale bez odpowiedzi<a class="anchor-link" href="#1.-Te-same-dane,-ale-bez-odpowiedzi">¶</a></h2><p>Zostajemy przy zbiorze <code>dane/diabetes.csv</code>, który znasz z poprzednich ćwiczeń. Tym razem jednak robimy coś, co może wydać się dziwne: <strong>zasłaniamy kolumnę <code>Diabetic</code></strong>.</p>
+<p>Udajemy, że jesteśmy w sytuacji, w której nikt nie postawił diagnozy. Mamy 10 000 kart pacjentów z wynikami badań i pytanie od zleceniodawcy: <em>„czy ci pacjenci dzielą się na jakieś naturalne grupy?"</em>.</p>
+<p>Kolumna <code>Diabetic</code> nie znika z pliku - <strong>odkładamy ją na bok</strong> i wrócimy do niej dopiero w sekcji 6, żeby sprawdzić, co algorytm „odkrył" bez naszej pomocy. To jest cały urok tego ćwiczenia: mamy rzadką możliwość ocenienia metody nienadzorowanej, bo akurat <em>znamy</em> odpowiedź, której jej nie pokazaliśmy.</p>
+<p><code>PatientID</code> - jak zawsze - nie jest cechą i wylatuje.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b4186929">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">dane</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'dane/diabetes.csv'</span><span class="p">)</span>
+
+<span class="c1"># X - cechy. Bez identyfikatora i BEZ etykiety: algorytm ma jej nie zobaczyć.</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'PatientID'</span><span class="p">,</span> <span class="s1">'Diabetic'</span><span class="p">])</span>
+
+<span class="c1"># Etykieta odlozona na bok - uzyjemy jej dopiero w sekcji 6, do sprawdzenia.</span>
+<span class="n">y_ukryte</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Kształt danych:"</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Cechy:"</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+<span class="n">X</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">[[</span><span class="s1">'mean'</span><span class="p">,</span> <span class="s1">'std'</span><span class="p">,</span> <span class="s1">'min'</span><span class="p">,</span> <span class="s1">'max'</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=305af039"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="2.-Dlaczego-skalowanie-jest-tu-obowi%C4%85zkowe">2. Dlaczego skalowanie jest tu obowiązkowe<a class="anchor-link" href="#2.-Dlaczego-skalowanie-jest-tu-obowi%C4%85zkowe">¶</a></h2><p>Spójrz na wypisaną tabelę statystyk. Zakresy cech są <strong>dramatycznie różne</strong>: <code>SerumInsulin</code> liczy się w setkach, <code>BMI</code> w dziesiątkach, a <code>DiabetesPedigree</code> przyjmuje wartości poniżej jedności.</p>
+<p>W ćwiczeniu 01 skalowanie było kwestią wygody - regresja logistyczna zbiegała szybciej. Tutaj sprawa jest znacznie poważniejsza, bo <strong>k-średnich w całości opiera się na odległości euklidesowej</strong> (ang. <em>Euclidean distance</em>) między pacjentami:</p>
+<p>$$d(a, b) = \sqrt{(a_1 - b_1)^2 + (a_2 - b_2)^2 + \ldots + (a_n - b_n)^2}$$</p>
+<p>Zauważ, że różnice z poszczególnych cech są tu po prostu <strong>dodawane</strong>. Jeśli jedna cecha waha się w zakresie 800 jednostek, a druga w zakresie 2 jednostek, to pierwsza wnosi do sumy kilkaset tysięcy, a druga - cztery. Druga cecha <strong>przestaje istnieć</strong> dla algorytmu.</p>
+<p>Efekt: bez skalowania nie grupujesz pacjentów według ich stanu zdrowia. Grupujesz ich według tej jednej cechy, która ma przypadkiem największe liczby. Wybór jednostek (mg/dl zamiast g/l) zmieniłby wynik - a to oczywisty sygnał, że coś jest nie tak z metodą.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Bez skalowania</th>
+<th>Ze skalowaniem (<code>StandardScaler</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Co decyduje o odległości</td>
+<td>cecha o największym zakresie liczbowym</td>
+<td>wszystkie cechy po równo</td>
+</tr>
+<tr>
+<td>Wpływ zmiany jednostek</td>
+<td>zmienia wynik grupowania</td>
+<td>żaden</td>
+</tr>
+<tr>
+<td>Sens biznesowy grup</td>
+<td>zwykle żaden</td>
+<td>do zinterpretowania</td>
+</tr>
+</tbody>
+</table>
+<p><code>StandardScaler</code> przekształca każdą cechę tak, żeby miała średnią 0 i odchylenie standardowe 1 - czyli sprowadza wszystkie do wspólnej „waluty".</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=99030aa5">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+
+<span class="n">skaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">X_skal</span> <span class="o">=</span> <span class="n">skaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="c1"># Sprawdzamy, ze faktycznie: srednia ~0, odchylenie ~1</span>
+<span class="n">podsumowanie</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">'przed - średnia'</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+    <span class="s1">'przed - odch.std'</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+    <span class="s1">'po - średnia'</span><span class="p">:</span> <span class="n">X_skal</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="s1">'po - odch.std'</span><span class="p">:</span> <span class="n">X_skal</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="p">})</span>
+<span class="n">podsumowanie</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=814ff29b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="3.-Pierwsze-grupowanie:-k-%C5%9Brednich">3. Pierwsze grupowanie: k-średnich<a class="anchor-link" href="#3.-Pierwsze-grupowanie:-k-%C5%9Brednich">¶</a></h2><p><strong>K-średnich</strong> (<code>KMeans</code>) działa według zaskakująco prostego przepisu:</p>
+<ol>
+<li>Wylosuj <code>k</code> punktów w przestrzeni cech - to będą <strong>środki grup</strong> (ang. <em>centroids</em>).</li>
+<li>Przypisz każdego pacjenta do <strong>najbliższego</strong> środka.</li>
+<li>Przesuń każdy środek na średnią (stąd nazwa) pacjentów, którzy do niego trafili.</li>
+<li>Wróć do punktu 2 i powtarzaj, aż środki przestaną się przesuwać.</li>
+</ol>
+<p>Dwie rzeczy warto zauważyć od razu:</p>
+<ul>
+<li><strong>Liczbę grup <code>k</code> podajesz Ty, z góry.</strong> Algorytm jej nie odkrywa - on lojalnie podzieli dane na tyle części, ile każesz. Każesz mu podzielić na 7 grup dane, które naturalnie tworzą 2 - podzieli na 7.</li>
+<li><strong>Wynik zależy od losowania startowego.</strong> Dlatego <code>n_init=10</code> (algorytm startuje 10 razy z różnych miejsc i wybiera najlepszy przebieg) oraz <code>random_state=42</code> (powtarzalność).</li>
+</ul>
+<p>Zaczniemy od <code>k=3</code> - bez szczególnego powodu, żeby najpierw zobaczyć, jak to w ogóle wygląda. Doborem <code>k</code> zajmiemy się w następnej sekcji.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=ce29d1bd">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">KMeans</span>
+
+<span class="n">kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">grupy</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">X_skal</span><span class="p">)</span>   <span class="c1"># zwraca numer grupy dla kazdego pacjenta</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Numery grup, jakie powstały:"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">grupy</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Liczebność grup:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">numer</span><span class="p">,</span> <span class="n">liczba</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">grupy</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  grupa </span><span class="si">{</span><span class="n">numer</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">liczba</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2"> pacjentów (</span><span class="si">{</span><span class="n">liczba</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">grupy</span><span class="p">)</span><span class="si">:</span><span class="s2">5.1%</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Inercja (suma kwadratów odległości do własnego środka):"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">kmeans</span><span class="o">.</span><span class="n">inertia_</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1ce23666"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Co-to-znaczy-%E2%80%9Egrupa-0%22?">Co to znaczy „grupa 0"?<a class="anchor-link" href="#Co-to-znaczy-%E2%80%9Egrupa-0%22?">¶</a></h3><p>Nic. Dosłownie nic.</p>
+<p>To jest pierwsza pułapka uczenia nienadzorowanego: <strong>numery grup są etykietkami bez treści</strong>. Algorytm nie wie, że grupa 1 to „pacjenci ryzyka" - on wie tylko, że są bliżej siebie niż grupy 0. Przy innym ziarnie losowości te same grupy mogłyby dostać zamienione numery, a wynik byłby identyczny.</p>
+<p>Żeby dowiedzieć się, <strong>czym właściwie są</strong> te grupy, trzeba obejrzeć ich <strong>profile</strong>: jak wyglądają średnie wartości cech w każdej grupie. Dopiero z tego człowiek buduje opis w rodzaju „grupa 1 to osoby starsze z wysokim BMI".</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=307b8918">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># Profile grup - srednie wartosci cech, liczone na danych ORYGINALNYCH</span>
+<span class="c1"># (nieskalowanych), bo tylko one maja czytelne jednostki.</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">profile</span><span class="p">[</span><span class="s1">'grupa'</span><span class="p">]</span> <span class="o">=</span> <span class="n">grupy</span>
+
+<span class="n">srednie</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'grupa'</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Średnie wartości cech w poszczególnych grupach:"</span><span class="p">)</span>
+<span class="n">srednie</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b5acf817"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote>
+<p><strong>Skalujemy do liczenia, odwracamy skalowanie do czytania.</strong> Algorytm potrzebuje danych skalowanych, bo liczy odległości. Człowiek potrzebuje danych oryginalnych, bo „BMI = 31,4" coś znaczy, a „BMI = 0,82 odchylenia standardowego" nie znaczy nic. To rozdzielenie wraca w praktyce stale.</p>
+</blockquote>
+<h2 id="4.-Ile-grup?-Dwie-metody,-%C5%BCadna-nie-daje-pewnej-odpowiedzi">4. Ile grup? Dwie metody, żadna nie daje pewnej odpowiedzi<a class="anchor-link" href="#4.-Ile-grup?-Dwie-metody,-%C5%BCadna-nie-daje-pewnej-odpowiedzi">¶</a></h2><p>Skoro <code>k</code> podajemy z góry, to skąd wiedzieć, ile grup jest „naprawdę"? Uczciwa odpowiedź brzmi: <strong>nie da się tego rozstrzygnąć samymi danymi</strong>. Można jedynie zebrać przesłanki.</p>
+<h3 id="Metoda-%C5%82okcia-(ang.-elbow-method)">Metoda łokcia (ang. <em>elbow method</em>)<a class="anchor-link" href="#Metoda-%C5%82okcia-(ang.-elbow-method)">¶</a></h3><p>Liczymy <strong>inercję</strong> (ang. <em>inertia</em>) - sumę kwadratów odległości każdego punktu od środka jego grupy. Im więcej grup, tym inercja mniejsza; przy <code>k</code> równym liczbie pacjentów spadłaby do zera (każdy pacjent własną grupą). Sama inercja nie może więc być kryterium wyboru - zawsze wskazałaby „im więcej, tym lepiej".</p>
+<p>Szukamy zamiast tego <strong>momentu, w którym spadek wyraźnie zwalnia</strong> - miejsca, gdzie wykres się „załamuje" jak zgięty łokieć. Do tego punktu każda dodatkowa grupa realnie porządkowała dane; po nim tylko rozdrabnia to, co już było spójne.</p>
+<h3 id="Wska%C5%BAnik-sylwetki-(ang.-silhouette-score)">Wskaźnik sylwetki (ang. <em>silhouette score</em>)<a class="anchor-link" href="#Wska%C5%BAnik-sylwetki-(ang.-silhouette-score)">¶</a></h3><p>Dla każdego punktu porównuje dwie rzeczy: jak blisko jest mu do własnej grupy i jak blisko do najbliższej grupy obcej. Wynik mieści się w przedziale od -1 do 1:</p>
+<table>
+<thead>
+<tr>
+<th>Wartość</th>
+<th>Interpretacja</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bliska 1</td>
+<td>punkt siedzi głęboko we własnej grupie, daleko od obcych - podział jest wyraźny</td>
+</tr>
+<tr>
+<td>bliska 0</td>
+<td>punkt leży na granicy dwóch grup - mógłby należeć do każdej z nich</td>
+</tr>
+<tr>
+<td>ujemna</td>
+<td>punkt jest bliżej grupy obcej niż własnej - prawdopodobnie źle przypisany</td>
+</tr>
+</tbody>
+</table>
+<p>Wskaźnik sylwetki dla całego zbioru to średnia z wszystkich punktów. W przeciwieństwie do inercji <strong>nie rośnie automatycznie z <code>k</code></strong>, więc można go maksymalizować.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f10b58e5">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">silhouette_score</span>
+
+<span class="n">zakres_k</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">inercje</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">sylwetki</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">zakres_k</span><span class="p">:</span>
+    <span class="n">km</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">etykiety</span> <span class="o">=</span> <span class="n">km</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">X_skal</span><span class="p">)</span>
+    <span class="n">inercje</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">km</span><span class="o">.</span><span class="n">inertia_</span><span class="p">)</span>
+    <span class="n">sylwetki</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">silhouette_score</span><span class="p">(</span><span class="n">X_skal</span><span class="p">,</span> <span class="n">etykiety</span><span class="p">))</span>
+
+<span class="n">tabela</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">'k'</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">zakres_k</span><span class="p">),</span>
+    <span class="s1">'inercja'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">inercje</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="s1">'sylwetka'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">sylwetki</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+<span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tabela</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Najwyższy wskaźnik sylwetki dla k ="</span><span class="p">,</span> <span class="n">tabela</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'sylwetka'</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">(),</span> <span class="s1">'k'</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=40124d97">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">zakres_k</span><span class="p">),</span> <span class="n">inercje</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'o'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'liczba grup k'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'inercja'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Metoda łokcia - szukamy załamania'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">zakres_k</span><span class="p">),</span> <span class="n">sylwetki</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'s'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'darkorange'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'liczba grup k'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'wskaźnik sylwetki'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Wskaźnik sylwetki - szukamy maksimum'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=392f26ac"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Uczciwa-uwaga-o-obu-wykresach">Uczciwa uwaga o obu wykresach<a class="anchor-link" href="#Uczciwa-uwaga-o-obu-wykresach">¶</a></h3><p>W podręcznikach „łokieć" jest ostry i widoczny gołym okiem. W prawdziwych danych - takich jak te - wykres inercji bywa <strong>gładką krzywą bez wyraźnego załamania</strong>, a wskaźnik sylwetki osiąga wartości niskie (rzędu 0,1-0,3), bez wyraźnego zwycięzcy.</p>
+<p>To nie jest usterka Twojego kodu. To informacja o danych: <strong>pacjenci nie tworzą tu odseparowanych skupisk</strong>. Tworzą jedną chmurę o zmiennej gęstości, którą k-średnich i tak podzieli na <code>k</code> kawałków, bo do tego został napisany.</p>
+<p>Wniosek, który warto zabrać z tego ćwiczenia: liczbę grup wybiera się na podstawie <strong>wskaźników razem z sensem merytorycznym i przeznaczeniem wyniku</strong>. Jeśli grupy mają posłużyć do zaprojektowania trzech ścieżek opieki, to <code>k=3</code> jest sensowne nawet wtedy, gdy <code>k=2</code> ma nieco wyższą sylwetkę.</p>
+<h2 id="5.-PCA---jak-obejrze%C4%87-dane-8-wymiarowe">5. PCA - jak obejrzeć dane 8-wymiarowe<a class="anchor-link" href="#5.-PCA---jak-obejrze%C4%87-dane-8-wymiarowe">¶</a></h2><p>Chcielibyśmy zobaczyć te grupy na wykresie. Problem: mamy 8 cech, czyli 8 wymiarów, a kartka ma 2.</p>
+<p>Najprostszy pomysł - narysować dwie wybrane cechy - marnuje pozostałe sześć. <strong>Analiza głównych składowych</strong> (<code>PCA</code>) robi coś mądrzejszego: tworzy <strong>nowe</strong> cechy, z których każda jest kombinacją wszystkich oryginalnych, i układa je tak, żeby:</p>
+<ul>
+<li>pierwsza składowa (<code>PC1</code>) wyjaśniała <strong>jak najwięcej zmienności</strong> w danych,</li>
+<li>druga (<code>PC2</code>) wyjaśniała jak najwięcej z tego, co zostało, i była nieskorelowana z pierwszą,</li>
+<li>i tak dalej.</li>
+</ul>
+<p>Dzięki temu, biorąc dwie pierwsze składowe, zachowujemy największą możliwą część informacji, jaką da się zmieścić na płaszczyźnie.</p>
+<p><strong>Wariancja wyjaśniona</strong> (ang. <em>explained variance ratio</em>) mówi, jaką część zmienności zachowała każda składowa. Suma dla dwóch pierwszych to nasza „jakość rzutu": jeśli wynosi 50%, oglądamy połowę informacji - i trzeba o tym pamiętać, patrząc na obrazek.</p>
+<p>PCA również <strong>wymaga skalowania</strong>, i to z tego samego powodu co k-średnich: szuka kierunków największej wariancji, a cecha o dużych liczbach ma z definicji największą wariancję.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=6aae3519">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.decomposition</span><span class="w"> </span><span class="kn">import</span> <span class="n">PCA</span>
+
+<span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">X_2d</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_skal</span><span class="p">)</span>     <span class="c1"># 10000 x 8  -&gt;  10000 x 2</span>
+
+<span class="n">wariancja</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">explained_variance_ratio_</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"PC1 wyjaśnia </span><span class="si">{</span><span class="n">wariancja</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> zmienności"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"PC2 wyjaśnia </span><span class="si">{</span><span class="n">wariancja</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> zmienności"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Razem na wykresie widać </span><span class="si">{</span><span class="n">wariancja</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> informacji zawartej w danych"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=2a62d8f2">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">numer</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">grupy</span><span class="p">):</span>
+    <span class="n">maska</span> <span class="o">=</span> <span class="n">grupy</span> <span class="o">==</span> <span class="n">numer</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_2d</span><span class="p">[</span><span class="n">maska</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X_2d</span><span class="p">[</span><span class="n">maska</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'grupa </span><span class="si">{</span><span class="n">numer</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+<span class="c1"># Srodki grup przeniesione do przestrzeni PCA - tym samym przeksztalceniem</span>
+<span class="n">srodki_2d</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">kmeans</span><span class="o">.</span><span class="n">cluster_centers_</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">srodki_2d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">srodki_2d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">260</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'X'</span><span class="p">,</span>
+           <span class="n">label</span><span class="o">=</span><span class="s1">'środki grup'</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'PC1 (</span><span class="si">{</span><span class="n">wariancja</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.1%</span><span class="si">}</span><span class="s1"> zmienności)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'PC2 (</span><span class="si">{</span><span class="n">wariancja</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.1%</span><span class="si">}</span><span class="s1"> zmienności)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Pacjenci w przestrzeni dwóch głównych składowych'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">markerscale</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e46ded0e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Jak-czyta%C4%87-ten-wykres---i-czego-z-niego-nie-odczytywa%C4%87">Jak czytać ten wykres - i czego z niego nie odczytywać<a class="anchor-link" href="#Jak-czyta%C4%87-ten-wykres---i-czego-z-niego-nie-odczytywa%C4%87">¶</a></h3><p><strong>Osie nie mają jednostek.</strong> <code>PC1</code> to nie glukoza ani wiek, tylko mieszanka wszystkich ośmiu cech. Pytanie „ile wynosi PC1 = 2?" nie ma sensownej odpowiedzi w kategoriach medycznych.</p>
+<p><strong>Grupy mogą wyglądać na nachodzące na siebie, choć w pełnej przestrzeni są rozdzielone.</strong> Rzut z 8 wymiarów na 2 to jak cień trójwymiarowej rzeźby na ścianie - dwa odległe punkty potrafią rzucić cień w to samo miejsce. Jeśli dwie pierwsze składowe wyjaśniają połowę zmienności, to drugą połowę <strong>po prostu widzisz zgniecioną</strong>.</p>
+<p>Dlatego wykres PCA służy do <strong>wyrobienia sobie intuicji</strong>, a nie do dowodzenia tez. Ocenę jakości podziału zostawiamy wskaźnikom.</p>
+<h2 id="6.-Moment-prawdy:-czy-grupy-pokrywaj%C4%85-si%C4%99-z-chorob%C4%85?">6. Moment prawdy: czy grupy pokrywają się z chorobą?<a class="anchor-link" href="#6.-Moment-prawdy:-czy-grupy-pokrywaj%C4%85-si%C4%99-z-chorob%C4%85?">¶</a></h2><p>Teraz odsłaniamy kolumnę, którą schowaliśmy na początku. Algorytm nigdy jej nie widział - podzielił pacjentów wyłącznie na podstawie wyników badań.</p>
+<p>Pytanie brzmi: <strong>czy powstałe grupy odpowiadają temu, kto faktycznie choruje?</strong></p>
+<p>Do porównania użyjemy tabeli krzyżowej oraz <strong>skorygowanego indeksu Randa</strong> (ang. <em>adjusted Rand index</em>, <code>adjusted_rand_score</code>). Mierzy on zgodność dwóch podziałów tego samego zbioru, odpornie na to, że numery grup są przypadkowe. Wartość 1 to pełna zgodność, wartość 0 to zgodność na poziomie losowego przydziału.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=586453fa">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">adjusted_rand_score</span>
+
+<span class="c1"># Grupujemy na 2 grupy - zeby liczba grup odpowiadala liczbie klas</span>
+<span class="n">kmeans2</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">grupy2</span> <span class="o">=</span> <span class="n">kmeans2</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">X_skal</span><span class="p">)</span>
+
+<span class="n">tabela_krzyzowa</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">grupy2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'grupa z k-średnich'</span><span class="p">),</span>
+    <span class="n">y_ukryte</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">'faktyczna cukrzyca'</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tabela_krzyzowa</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Udział chorych w każdej grupie:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">numer</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">grupy2</span><span class="p">)):</span>
+    <span class="n">udzial</span> <span class="o">=</span> <span class="n">y_ukryte</span><span class="p">[</span><span class="n">grupy2</span> <span class="o">==</span> <span class="n">numer</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  grupa </span><span class="si">{</span><span class="n">numer</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">udzial</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> chorych"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Udział chorych w całym zbiorze:       </span><span class="si">{</span><span class="n">y_ukryte</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skorygowany indeks Randa (k=2):       </span><span class="si">{</span><span class="n">adjusted_rand_score</span><span class="p">(</span><span class="n">y_ukryte</span><span class="p">,</span><span class="w"> </span><span class="n">grupy2</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0b4be0d9"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Dlaczego-zgodno%C5%9B%C4%87-jest-tylko-cz%C4%99%C5%9Bciowa---i-dlaczego-to-nie-pora%C5%BCka">Dlaczego zgodność jest tylko częściowa - i dlaczego to nie porażka<a class="anchor-link" href="#Dlaczego-zgodno%C5%9B%C4%87-jest-tylko-cz%C4%99%C5%9Bciowa---i-dlaczego-to-nie-pora%C5%BCka">¶</a></h3><p>Prawdopodobnie zobaczysz, że grupy <strong>nie pokrywają się</strong> z chorobą: udziały chorych w grupach różnią się od średniej w zbiorze, ale żadna grupa nie okazuje się „grupą chorych". Indeks Randa wypada nisko.</p>
+<p>Studenci odbierają to jako niepowodzenie. To nieporozumienie, i warto je wyprostować raz na zawsze:</p>
+<blockquote>
+<p><strong>K-średnich dzieli dane według najsilniejszej struktury, jaka w nich jest - a nie według tego, co akurat nas interesuje.</strong></p>
+</blockquote>
+<p>Najsilniejsza struktura w kartach pacjentów to niekoniecznie cukrzyca. To może być ogólny profil metaboliczny, wiek, masa ciała albo coś, co wynika ze sposobu zbierania danych. Algorytm nie ma pojęcia, że pytamy o cukrzycę - <strong>nie powiedzieliśmy mu tego</strong>. Brak etykiety oznacza brak celu.</p>
+<p>Stąd praktyczne wnioski:</p>
+<table>
+<thead>
+<tr>
+<th>Sytuacja</th>
+<th>Właściwe narzędzie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Znam etykietę i chcę ją przewidywać</td>
+<td>uczenie <strong>nadzorowane</strong> (ćwiczenia 01-07)</td>
+</tr>
+<tr>
+<td>Nie mam etykiet, chcę poznać strukturę danych</td>
+<td>grupowanie, PCA</td>
+</tr>
+<tr>
+<td>Mam etykiety, ale grupuję „dla pewności"</td>
+<td>prawie zawsze błąd - marnujesz najcenniejszą informację, jaką masz</td>
+</tr>
+</tbody>
+</table>
+<p>Ostatni wiersz jest najważniejszy. Jeśli masz etykiety, <strong>używanie grupowania do ich przewidywania jest krokiem wstecz</strong>: dobrowolnie rezygnujesz z jedynej informacji, która mówi algorytmowi, o co Ci chodzi.</p>
+<p>Częściowa zgodność, którą widzisz, ma jednak swoją wymowę: pokazuje, że cukrzyca <strong>jest</strong> jedną z osi zmienności w tych danych - po prostu nie tą dominującą.</p>
+<hr/>
+<h1 id="Zadania">Zadania<a class="anchor-link" href="#Zadania">¶</a></h1><p>Poniższe zadania wykonujesz samodzielnie. Wszystko, czego potrzebujesz, pojawiło się w przykładzie powyżej.</p>
+<h2 id="Zadanie-1:-Co-si%C4%99-dzieje-bez-skalowania?">Zadanie 1: Co się dzieje bez skalowania?<a class="anchor-link" href="#Zadanie-1:-Co-si%C4%99-dzieje-bez-skalowania?">¶</a></h2><p>Zrób to, czego sekcja 2 zabrania - i zobacz skutki na własne oczy.</p>
+<ol>
+<li>Uruchom <code>KMeans(n_clusters=3, n_init=10, random_state=42)</code> na danych <strong>nieskalowanych</strong> (<code>X</code>, nie <code>X_skal</code>).</li>
+<li>Wypisz profile grup (średnie cech), tak jak w sekcji 3.</li>
+<li>Porównaj je z profilami grup na danych skalowanych.</li>
+</ol>
+<p>Pytanie, na które odpowiadasz: <strong>która cecha zdecydowała o podziale?</strong> Podpowiedź: sprawdź, dla której cechy różnice średnich między grupami są największe, i porównaj to z zakresami cech z pierwszej komórki.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5cb71234">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: schemat jest identyczny jak w sekcji 3, zmienia się tylko</span>
+<span class="c1"># to, na czym uruchamiasz fit_predict.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8d83804c"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-2:-Wska%C5%BAnik-sylwetki-dla-r%C3%B3%C5%BCnych-k">Zadanie 2: Wskaźnik sylwetki dla różnych k<a class="anchor-link" href="#Zadanie-2:-Wska%C5%BAnik-sylwetki-dla-r%C3%B3%C5%BCnych-k">¶</a></h2><p>W sekcji 4 policzyliśmy sylwetkę dla <code>k</code> od 2 do 8 i zrobiliśmy to samo dla inercji.</p>
+<ol>
+<li>Napisz własną pętlę liczącą wskaźnik sylwetki dla <code>k</code> od 2 do 10.</li>
+<li>Wypisz wyniki w formie tabeli.</li>
+<li>Wskaż <code>k</code> o najwyższej sylwetce.</li>
+<li>Odpowiedz sobie: czy różnica między najlepszym a drugim najlepszym <code>k</code> jest na tyle duża, żeby uznać wybór za rozstrzygnięty?</li>
+</ol>
+<blockquote>
+<p><strong>Uwaga na czas</strong>: <code>silhouette_score</code> liczy odległości między parami punktów, więc przy 10 000 wierszy potrafi działać kilkanaście sekund dla każdego <code>k</code>. Jeśli czekasz zbyt długo, przekaż argument <code>sample_size=2000, random_state=42</code> - policzy wskaźnik na losowej próbce.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=ee3f9111">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=11536db5"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-3:-Ile-sk%C5%82adowych-PCA-naprawd%C4%99-potrzeba?">Zadanie 3: Ile składowych PCA naprawdę potrzeba?<a class="anchor-link" href="#Zadanie-3:-Ile-sk%C5%82adowych-PCA-naprawd%C4%99-potrzeba?">¶</a></h2><p>W sekcji 5 wzięliśmy dwie składowe, bo tyle mieści się na wykresie. To decyzja podyktowana rysunkiem, a nie danymi.</p>
+<ol>
+<li>Dopasuj <code>PCA()</code> <strong>bez</strong> podawania <code>n_components</code> - wyliczy wszystkie składowe.</li>
+<li>Wypisz wariancję wyjaśnioną przez każdą składową oraz jej <strong>sumę skumulowaną</strong> (<code>np.cumsum</code>).</li>
+<li>Narysuj wykres sumy skumulowanej: na osi X numer składowej, na osi Y skumulowana wariancja.</li>
+<li>Odczytaj, <strong>ile składowych wystarczy, żeby zachować 90% zmienności</strong>.</li>
+<li>Zastanów się: skoro cech jest 8, a do 90% wystarcza mniej - co to mówi o powiązaniach między cechami?</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=192f176b">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: przyda się ax.axhline(0.9, ...) jako linia odniesienia na wykresie.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1cfd9a94"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-4:-Opisz-grupy-s%C5%82owami">Zadanie 4: Opisz grupy słowami<a class="anchor-link" href="#Zadanie-4:-Opisz-grupy-s%C5%82owami">¶</a></h2><p>Liczby w tabeli profili to jeszcze nie wynik. Wynikiem jest <strong>opis zrozumiały dla zleceniodawcy</strong>.</p>
+<ol>
+<li>Wykonaj grupowanie na <code>k</code> wybrane przez Ciebie w zadaniu 2.</li>
+<li>Wypisz profile grup (średnie cech na danych oryginalnych) oraz liczebność każdej grupy.</li>
+<li>Nadaj każdej grupie <strong>własną nazwę</strong> w dwóch, trzech słowach - na przykład „młodzi o niskim BMI".</li>
+<li>Zapisz te nazwy w komórce tekstowej pod spodem wraz z krótkim uzasadnieniem: która cecha najbardziej wyróżnia tę grupę.</li>
+</ol>
+<p>To zadanie nie ma jednej poprawnej odpowiedzi i o to chodzi. W uczeniu nienadzorowanym <strong>interpretacja jest częścią wyniku</strong>, a nie dodatkiem do niego.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=cfd62c6b">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=3ae3b731"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><em>Tutaj wpisz nazwy i opisy swoich grup (kliknij dwukrotnie, żeby edytować tę komórkę).</em></p>
+<ul>
+<li><strong>Grupa 0</strong>: ...</li>
+<li><strong>Grupa 1</strong>: ...</li>
+<li><strong>Grupa 2</strong>: ...</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=231a4dbf"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-5:-Grupowanie-po-redukcji-wymiarowo%C5%9Bci">Zadanie 5: Grupowanie po redukcji wymiarowości<a class="anchor-link" href="#Zadanie-5:-Grupowanie-po-redukcji-wymiarowo%C5%9Bci">¶</a></h2><p>PCA bywa używane nie tylko do rysowania, ale i jako <strong>krok przygotowujący dane</strong> przed innym algorytmem.</p>
+<ol>
+<li>Zredukuj dane do 2 składowych (<code>PCA(n_components=2)</code>) i uruchom na nich <code>KMeans</code> z <code>k=3</code>.</li>
+<li>Uruchom <code>KMeans</code> z <code>k=3</code> na pełnych ośmiu skalowanych cechach (to już masz z sekcji 3).</li>
+<li>Porównaj oba podziały: użyj <code>adjusted_rand_score(grupy_pelne, grupy_pca)</code>.</li>
+<li>Porównaj też wskaźniki sylwetki obu podziałów - ale <strong>każdy w swojej przestrzeni</strong> (podział na PCA oceniaj na danych PCA).</li>
+</ol>
+<p>Pytanie: czy redukcja do 2 wymiarów zmieniła podział zasadniczo, czy kosmetycznie? I czy wyższa sylwetka po PCA oznacza, że podział jest <em>lepszy</em>?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b1ed40aa">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8f8588ae"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-6:-Czy-przy-innym-k-grupy-lepiej-pasuj%C4%85-do-choroby?">Zadanie 6: Czy przy innym k grupy lepiej pasują do choroby?<a class="anchor-link" href="#Zadanie-6:-Czy-przy-innym-k-grupy-lepiej-pasuj%C4%85-do-choroby?">¶</a></h2><p>W sekcji 6 sprawdziliśmy zgodność dla <code>k=2</code>. Może przy innej liczbie grup byłoby lepiej?</p>
+<ol>
+<li>Dla <code>k</code> od 2 do 6 wykonaj grupowanie i policz <code>adjusted_rand_score</code> względem <code>y_ukryte</code>.</li>
+<li>Dla najlepszego <code>k</code> wypisz tabelę krzyżową oraz udział chorych w każdej grupie.</li>
+<li>Sprawdź, czy któraś grupa ma udział chorych <strong>wyraźnie</strong> wyższy niż średnia w zbiorze.</li>
+</ol>
+<p>Pytanie do przemyślenia: gdyby któraś grupa miała 80% chorych, czy oznaczałoby to, że powstał dobry klasyfikator cukrzycy? Co jeszcze trzeba by sprawdzić?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5f83d9a6">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1e03d6cd"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-7-(trudniejsze):-Z-czego-zbudowane-s%C4%85-g%C5%82%C3%B3wne-sk%C5%82adowe?">Zadanie 7 (trudniejsze): Z czego zbudowane są główne składowe?<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Z-czego-zbudowane-s%C4%85-g%C5%82%C3%B3wne-sk%C5%82adowe?">¶</a></h2><p><code>PC1</code> to kombinacja wszystkich ośmiu cech - ale z jakimi wagami? Te wagi nazywa się <strong>ładunkami</strong> (ang. <em>loadings</em>) i są dostępne jako <code>pca.components_</code>.</p>
+<ol>
+<li>Dopasuj <code>PCA(n_components=2)</code> na skalowanych danych.</li>
+<li>Zbuduj ramkę danych: wiersze to cechy (<code>X.columns</code>), kolumny to <code>PC1</code> i <code>PC2</code>, wartości to <code>pca.components_.T</code>.</li>
+<li>Narysuj wykres słupkowy ładunków dla <code>PC1</code> (przyda się <code>ax.barh</code>).</li>
+<li>Odpowiedz: <strong>które cechy</strong> budują pierwszą składową? Czy mają wspólny mianownik merytoryczny?</li>
+<li>Sprawdź znaki ładunków. Co oznacza, że dwie cechy mają ładunki o przeciwnych znakach?</li>
+</ol>
+<blockquote>
+<p><strong>Uwaga</strong>: znak całej składowej jest umowny - <code>PCA</code> mógłby zwrócić <code>PC1</code> odwrócone i byłoby to równie poprawne. Znaczenie ma <strong>względny</strong> znak ładunków w obrębie jednej składowej, nie znak bezwzględny.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4d4ea52e">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2ed03d43"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Pytania-do-przemy%C5%9Blenia">Pytania do przemyślenia<a class="anchor-link" href="#Pytania-do-przemy%C5%9Blenia">¶</a></h1><p>Na te pytania odpowiadasz słowami, nie kodem. Jeśli potrafisz odpowiedzieć na wszystkie, ćwiczenie spełniło swoje zadanie.</p>
+<ol>
+<li>Dlaczego w uczeniu nienadzorowanym nie ma podziału na zbiór uczący i testowy w takiej roli, jaką pełnił w ćwiczeniu 01? Czy przeuczenie w ogóle ma tu sens?</li>
+<li>Inercja zawsze maleje wraz ze wzrostem <code>k</code>. Dlaczego więc nie wybieramy po prostu największego możliwego <code>k</code>?</li>
+<li>Dlaczego drzewo decyzyjne nie potrzebuje skalowania, a k-średnich bez niego w ogóle nie działa sensownie? Co takiego robi drzewo, czego nie robi k-średnich?</li>
+<li>Grupy z k-średnich tylko częściowo pokryły się z cukrzycą. Wymień dwa różne wyjaśnienia tego faktu - jedno mówiące o algorytmie, drugie o danych.</li>
+<li>Dwie pierwsze składowe PCA wyjaśniają na przykład 45% zmienności. Co dokładnie oznacza pozostałe 55% i gdzie „podziało się" na wykresie?</li>
+<li>Kierownik prosi Cię o „pogrupowanie klientów, żeby wiedzieć, którzy odejdą". Co jest nie tak z tym poleceniem i jak je przeformułować?</li>
+<li>K-średnich zawsze znajdzie grupy, nawet w danych całkowicie losowych. Jak sprawdzić, czy znalezione grupy są czymś więcej niż artefaktem metody?</li>
+</ol>
+<h1 id="Chcesz-wiedzie%C4%87-wi%C4%99cej">Chcesz wiedzieć więcej<a class="anchor-link" href="#Chcesz-wiedzie%C4%87-wi%C4%99cej">¶</a></h1><ul>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html">Dokumentacja <code>KMeans</code></a> - zwróć uwagę na argumenty <code>init</code> i <code>n_init</code>.</li>
+<li><a href="https://scikit-learn.org/stable/modules/clustering.html">Przewodnik po grupowaniu</a> - porównanie metod; warto obejrzeć sam obrazek na górze strony, pokazuje, na jakich kształtach danych k-średnich zawodzi.</li>
+<li><a href="https://scikit-learn.org/stable/modules/clustering.html#clustering-performance-evaluation">Ocena jakości grupowania</a> - wskaźniki z etykietami i bez nich.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html">Dokumentacja <code>PCA</code></a> oraz <a href="https://scikit-learn.org/stable/modules/decomposition.html">rozdział o rozkładzie sygnału</a>.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html"><code>DBSCAN</code></a> - inne podejście do grupowania: sam dobiera liczbę grup i potrafi uznać część punktów za szum. Dobry temat na samodzielne rozszerzenie.</li>
+</ul>
+<p>W kolejnym ćwiczeniu (<strong>09 - Projekt końcowy</strong>) nie będzie już przykładu prowadzonego. Dostaniesz nowy zbiór danych, opis zadania i kryteria oceny - resztę robisz samodzielnie, łącząc wszystko z ćwiczeń 01-08.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="07-drzewa-i-lasy.html"><span>Poprzednie</span>Ćwiczenie 7: Drzewa i lasy</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="09-projekt-koncowy.html"><span>Następne</span>Ćwiczenie 9: Projekt końcowy</a>
+</nav>
+</div></main>
+
+</body>
+</html>

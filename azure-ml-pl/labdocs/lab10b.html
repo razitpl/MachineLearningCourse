@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 10B: Monitorowanie dryfu danych</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (polski)</a></div><div class="tresc">
+<a class="pobierz" href="../10b-monitoring-data-drift.html">Notatnik do tego ćwiczenia</a><h1>Lab 10B: Monitorowanie dryfu danych</h1>
+<h2>Po co jest to ćwiczenie?</h2>
+<p>Model uczy się na zdjęciu świata z konkretnego momentu. Świat nie stoi w miejscu: zmienia się średnia wieku pacjentów, zmieniają się normy laboratoryjne, w połowie roku przychodnia podłącza nowy analizator i wyniki insuliny zaczynają przychodzić w innej skali. Model tego nie zauważy. Będzie dalej zwracał przewidywania - równie szybko i równie pewnie - tyle że coraz gorsze.</p>
+<p>To zjawisko nazywa się <strong>dryfem danych (ang. <em>data drift</em>)</strong>: dane napływające do wdrożonego modelu stopniowo przestają przypominać dane, na których był trenowany. Dryf jest podstępny, bo nie daje żadnego sygnału awarii. Nic się nie psuje, nic nie zwraca błędu - po prostu skuteczność cicho spada, a zauważa się to zwykle wtedy, gdy ktoś z zewnątrz zgłosi, że wyniki przestały się zgadzać.</p>
+<p><strong>Monitorowanie modelu</strong> w Azure Machine Learning automatyzuje wykrywanie tego zjawiska: cyklicznie porównuje prawdziwy ruch produkcyjny z danymi odniesienia i wylicza miarę rozjazdu - osobno dla każdej cechy i zbiorczo dla całego modelu. Gdy miara przekroczy ustalony próg, wysyła powiadomienie.</p>
+<blockquote>
+<p><strong>Czego to wymaga</strong>: monitorowania dryfu nie da się zrobić na dwóch plikach CSV porównanych w notatniku. Mechanizm opiera się na <strong>danych produkcyjnych</strong> zbieranych automatycznie przez <em>data collector</em> działający na wdrożonym punkcie końcowym (endpoint), więc potrzebne są trzy rzeczy naraz: model wdrożony do zarządzanego punktu końcowego z włączonym zbieraniem danych, jakiś ruch produkcyjny, który ten kolektor zdąży zebrać, oraz <strong>harmonogram monitorowania</strong>, czyli cykliczne zadanie (job) wykonujące porównanie. To ćwiczenie składa wszystkie trzy elementy.</p>
+</blockquote>
+<h2>Czego się nauczysz</h2>
+<ol>
+<li>Czym jest dryf danych i dlaczego nie objawia się jako awaria usługi.</li>
+<li>Skąd biorą się dane produkcyjne do porównania i dlaczego muszą pochodzić z wdrożonego punktu końcowego.</li>
+<li>Czym są <strong>dane odniesienia (ang. <em>reference data</em>)</strong> i dlaczego zwykle jest nimi zbiór treningowy.</li>
+<li>Jak zdefiniować <strong>sygnał dryfu danych</strong> wraz z progami dla cech liczbowych i kategorialnych.</li>
+<li>Jak utworzyć harmonogram monitorowania i przypiąć do niego powiadomienia e-mail.</li>
+<li>Jak odczytać wyniki monitora w Studio i wyłączyć harmonogram, gdy przestaje być potrzebny.</li>
+</ol>
+<h2>Zanim zaczniesz</h2>
+<p>Upewnij się, że masz ukończone ćwiczenia <a href="lab01a.html">Lab 1A</a> i <a href="lab01b.html">Lab 1B</a> - powstaje w nich obszar roboczy Azure Machine Learning oraz zasób danych <code>diabetes_mltable</code> używany tu jako dane odniesienia.</p>
+<p>Konieczne są też dwa wcześniejsze ćwiczenia:</p>
+<ul>
+<li><a href="lab07a.html">Lab 7A</a> - wdraża model <code>diabetes_model</code> do zarządzanego punktu końcowego <code>diabetes-endpoint</code> (wdrożenie <code>blue</code>).</li>
+<li><a href="lab10a.html">Lab 10A</a> - włącza dla tego samego wdrożenia <code>blue</code> diagnostykę Application Insights oraz <strong>zbieranie danych produkcyjnych</strong>.</li>
+</ul>
+<blockquote>
+<p><strong>Dlaczego <a href="lab10a.html">Lab 10A</a> jest tu obowiązkowy</strong>: to właśnie zbieranie danych włączone w tamtym ćwiczeniu dostarcza dane produkcyjne, które analizuje monitor. Bez niego harmonogram powstanie i będzie się uruchamiał, ale każde uruchomienie zakończy się bez wyniku, bo nie znajdzie żadnego ruchu do porównania. To najczęstsza przyczyna pustego pulpitu monitorowania.</p>
+</blockquote>
+<p>Jeśli używasz innych nazw punktu końcowego, wdrożenia lub zasobu danych, podmień je w kodzie notatnika.</p>
+<h2>Krok 1: Konfiguracja monitorowania dryfu danych</h2>
+<ol>
+<li><p>W <a href="https://ml.azure.com">Azure Machine Learning studio</a> przejdź do strony <strong>Compute</strong> swojego obszaru roboczego, a na karcie <strong>Compute instances</strong> upewnij się, że instancja obliczeniowa (<code>mymachine</code>) jest uruchomiona. Jeśli nie, uruchom ją.</p>
+</li>
+<li><p>Gdy instancja obliczeniowa jest uruchomiona, kliknij przy niej link <strong>JupyterLab</strong>, aby otworzyć JupyterLab w nowej karcie przeglądarki.</p>
+</li>
+<li><p>W przeglądarce plików JupyterLab otwórz folder <code>MachineLearningCourse/materialy/azure-ml/pl</code> sklonowany w <a href="lab01b.html">Lab 1B</a>, a w nim notatnik <strong>10B - Monitoring Data Drift.ipynb</strong>. Upewnij się, że korzysta on z kernela <strong>Python 3.10 - SDK v2</strong>, a następnie czytaj komentarze w notatniku, uruchamiając kolejno każdą komórkę kodu.</p>
+<blockquote>
+<p><strong>Dlaczego kernel jest ważny</strong>: kernel decyduje, które środowisko Pythona wykonuje kod. Tylko kernel z SDK v2 ma zainstalowany pakiet <code>azure-ai-ml</code>.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Krok 2: Na co zwrócić uwagę w notatniku</h2>
+<h3>Symulacja ruchu produkcyjnego</h3>
+<p>Notatnik wczytuje plik <code>data/diabetes2.csv</code>, celowo przesuwa wartości kilku cech i wysyła powstałe dane jako zapytania do punktu końcowego <code>diabetes-endpoint</code>.</p>
+<blockquote>
+<p><strong>Dlaczego dane trzeba wysłać przez punkt końcowy, a nie wczytać z pliku</strong>: monitor nie potrafi czytać plików z dysku instancji obliczeniowej. Analizuje wyłącznie to, co kolektor zapisał podczas obsługi prawdziwych zapytań. Jedyna droga, żeby dane stały się danymi produkcyjnymi, prowadzi przez wywołanie wdrożonej usługi - i właśnie to robi ta komórka.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego wartości są przesunięte</strong>: świeżo wdrożona usługa dostaje ruch bardzo podobny do zbioru treningowego, więc dryf byłby zerowy i nie byłoby czego oglądać. Sztuczne przesunięcie kilku cech odtwarza w kilka minut sytuację, która w rzeczywistości narastałaby miesiącami.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga o czasie i ilości danych</strong>: zebrane dane pojawiają się w magazynie obszaru roboczego z kilkuminutowym opóźnieniem, a monitorowanie potrzebuje sensownej ilości ruchu - zwykle gromadzonego przez co najmniej kilka uruchomień harmonogramu - zanim wynik zacznie coś znaczyć. Ta komórka ma zapewnić, że w rurze w ogóle są jakieś dane, a nie wytworzyć statystycznie wiarygodny obraz dryfu.</p>
+</blockquote>
+<h3>Dane odniesienia</h3>
+<p>Jako dane odniesienia monitor dostaje zarejestrowany zasób <code>diabetes_mltable</code>.</p>
+<blockquote>
+<p><strong>Dlaczego akurat zbiór treningowy</strong>: pytanie brzmi „czy dzisiejsze dane przypominają jeszcze te, na których model się uczył&quot;. Punktem odniesienia musi więc być dokładnie to, co model widział podczas trenowania. Można też porównywać z ruchem z wybranego okresu w przeszłości - wtedy odpowiadasz na inne pytanie: „czy coś zmieniło się od zeszłego miesiąca&quot;.</p>
+</blockquote>
+<h3>Sygnał dryfu i progi</h3>
+<p>Kod definiuje <code>DataDriftSignal</code> z progami osobno dla cech liczbowych i kategorialnych, po czym opakowuje go w <code>MonitorDefinition</code>.</p>
+<blockquote>
+<p><strong>Co robi próg</strong>: dla każdej cechy liczona jest miara odległości między rozkładem produkcyjnym a rozkładem odniesienia. Sama liczba niczego nie rozstrzyga - dopiero próg zamienia ją w decyzję „to jeszcze normalne wahanie&quot; albo „to już dryf wymagający reakcji&quot;. Próg dobiera się do konkretnego zastosowania: przy modelu medycznym opłaca się być przewrażliwionym, przy modelu rekomendującym filmy - raczej nie.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego liczbowe i kategorialne osobno</strong>: dla kolumny liczbowej porównuje się kształt rozkładu wartości, dla kolumny z kategoriami - udziały poszczególnych kategorii. To różne miary o różnych skalach, więc mają osobne progi.</p>
+</blockquote>
+<h3>Harmonogram i powiadomienia</h3>
+<p><code>MonitorSchedule</code> uruchamia monitor cyklicznie na obliczeniach typu serverless Spark, a <code>AlertNotification</code> wskazuje adresy e-mail, na które trafią ostrzeżenia.</p>
+<blockquote>
+<p><strong>Dlaczego harmonogram, a nie jednorazowe uruchomienie</strong>: dryf jest z definicji zjawiskiem rozłożonym w czasie. Pojedynczy pomiar mówi tylko tyle, ile pojedynczy pomiar temperatury - dopiero seria pokazuje trend i pozwala stwierdzić, kiedy przekroczono granicę. Harmonogram jest więc częścią mechanizmu, a nie wygodą.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego obliczenia są bezserwerowe</strong>: monitor uruchamia się rzadko i na krótko. Utrzymywanie dla niego własnego klastra oznaczałoby płacenie za maszynę, która przez większość doby nic nie robi. Serverless Spark powstaje na czas przebiegu i znika po nim.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga o adresie e-mail</strong>: w notatniku adres powiadomień jest ustawiony na właściciela obszaru roboczego - zmień go, jeśli ostrzeżenia mają trafiać gdzie indziej. W materiałach przykładowych używaj placeholdera w rodzaju <code>you@example.com</code>, a nie prawdziwego adresu.</p>
+</blockquote>
+<h2>Krok 3: Obejrzenie wyników monitorowania</h2>
+<ol>
+<li><p>W <a href="https://ml.azure.com">Azure Machine Learning studio</a> wybierz <strong>Manage</strong> &gt; <strong>Monitoring</strong>.</p>
+</li>
+<li><p>Wybierz harmonogram <code>diabetes-model-monitor</code> utworzony w notatniku.</p>
+</li>
+<li><p>Gdy harmonogram wykona się co najmniej raz, przejrzyj sygnał <strong>data drift</strong> - zbiorczą miarę dryfu oraz wkład poszczególnych cech.</p>
+<blockquote>
+<p><strong>Dlaczego wkład cech jest ważniejszy niż wynik zbiorczy</strong>: liczba zbiorcza mówi tylko, że coś się zmieniło. Rozbicie na cechy mówi, co się zmieniło - a to często wskazuje wprost na przyczynę. Dryf w jednej kolumnie z wynikiem laboratoryjnym sugeruje zmianę aparatury albo jednostek. Dryf w wieku i wadze naraz sugeruje, że zmienił się sam zbiór pacjentów. Reakcja na każdy z tych przypadków jest inna.</p>
+</blockquote>
+<blockquote>
+<p><strong>Co zrobić po wykryciu dryfu</strong>: samo wykrycie nie naprawia modelu. Typowa odpowiedź to wytrenowanie go ponownie na świeższych danych - w praktyce oznacza to uruchomienie potoku z <a href="lab06a.html">Lab 6A</a> na nowym zbiorze i wdrożenie nowej wersji jak w <a href="lab07a.html">Lab 7A</a>. Czasem jednak właściwą reakcją jest naprawa danych u źródła, bo dryf okazuje się usterką w procesie ich zbierania.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga o czekaniu</strong>: monitor działa według harmonogramu zdefiniowanego w notatniku, więc wyniki nie pojawią się od razu. Nie trzeba czekać na kolejny cykl - przebieg da się uruchomić na żądanie ze strony harmonogramu w Studio.</p>
+</blockquote>
+</li>
+<li><p>Jeśli któraś miara przekroczy swój próg, wszystkie osoby z listy powiadomień dostaną wiadomość e-mail, a przebieg zostanie oznaczony w historii monitora.</p>
+</li>
+</ol>
+<h2>Krok 4: Wyłączenie harmonogramu</h2>
+<p>Ostatnia komórka notatnika wyłącza harmonogram <code>diabetes-model-monitor</code>.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: harmonogram, o którym się zapomni, uruchamia się dalej i codziennie zużywa obliczenia, za które płacisz. Wyłączenie zatrzymuje kolejne przebiegi, ale zachowuje definicję monitora i jego historię - można go włączyć ponownie. Jeśli monitor nie będzie już potrzebny, w notatniku jest też zakomentowana linia usuwająca go całkowicie.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga na koniec kursu</strong>: jeśli kończysz pracę z ćwiczeniami, warto zamknąć wszystkie karty JupyterLab i zatrzymać instancję obliczeniową przyciskiem <strong>Stop</strong>, aby uniknąć niepotrzebnych kosztów. Jeśli obszar roboczy nie będzie już potrzebny, usuń w subskrypcji Azure całą grupę zasobów, w której go utworzono - w niej leżą również konto magazynu, rejestr kontenerów i Application Insights, które kosztują niezależnie od tego, czy z nich korzystasz.</p>
+</blockquote>
+<h2>Podsumowanie całej ścieżki</h2>
+<p>To ostatnie ćwiczenie kursu. Warto spojrzeć na drogę, którą przeszedł model cukrzycowy, bo jest to pełny cykl życia rozwiązania uczenia maszynowego:</p>
+<table>
+<thead>
+<tr>
+  <th>Etap</th>
+  <th>Ćwiczenia</th>
+  <th>Co się dokonało</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Środowisko pracy</td>
+  <td><a href="lab01a.html">1A</a>, <a href="lab01b.html">1B</a>, <a href="lab02a.html">2A</a>, <a href="lab02b.html">2B</a></td>
+  <td>obszar roboczy, instancja obliczeniowa, pierwsze modele bez pisania kodu</td>
+</tr>
+<tr>
+  <td>Eksperymenty i trenowanie</td>
+  <td><a href="lab03a.html">3A</a>, <a href="lab03b.html">3B</a></td>
+  <td>kod uruchamiany jako śledzone zadanie, metryki w MLflow, rejestracja modelu</td>
+</tr>
+<tr>
+  <td>Dane i środowiska</td>
+  <td><a href="lab04a.html">4A</a>, <a href="lab04b.html">4B</a>, <a href="lab05a.html">5A</a>, <a href="lab05b.html">5B</a></td>
+  <td>magazyny danych, zasoby danych, powtarzalne środowiska, klastry obliczeniowe</td>
+</tr>
+<tr>
+  <td>Automatyzacja</td>
+  <td><a href="lab06a.html">6A</a>, <a href="lab06b.html">6B</a></td>
+  <td>potoki składane z komponentów, publikowane i wyzwalane na żądanie</td>
+</tr>
+<tr>
+  <td>Udostępnianie modelu</td>
+  <td><a href="lab07a.html">7A</a>, <a href="lab07b.html">7B</a></td>
+  <td>wnioskowanie w czasie rzeczywistym i wsadowe</td>
+</tr>
+<tr>
+  <td>Poprawa jakości</td>
+  <td><a href="lab08a.html">8A</a>, <a href="lab08b.html">8B</a></td>
+  <td>strojenie hiperparametrów, automatyczne uczenie maszynowe</td>
+</tr>
+<tr>
+  <td>Zrozumienie modelu</td>
+  <td><a href="lab09a.html">9A</a>, <a href="lab09b.html">9B</a></td>
+  <td>ważność cech, pulpit Responsible AI</td>
+</tr>
+<tr>
+  <td>Utrzymanie w produkcji</td>
+  <td><a href="lab10a.html">10A</a>, 10B (to ćwiczenie)</td>
+  <td>telemetria, dane produkcyjne, wykrywanie dryfu danych</td>
+</tr>
+</tbody>
+</table>
+<p>Najważniejsza rzecz do zabrania z tego kursu jest taka: wytrenowanie modelu jest najmniejszą częścią pracy. Wszystko wokół - dane, powtarzalność, wdrożenie, wyjaśnialność, monitorowanie - decyduje o tym, czy model przyniesie komukolwiek pożytek. I cykl się zamyka: dryf wykryty w tym ćwiczeniu prowadzi wprost do ponownego trenowania, czyli z powrotem na początek ścieżki - tyle że tym razem wszystko jest już zautomatyzowane.</p>
+<nav class="przejscia">
+<a class="wstecz" href="lab10a.html"><span>Poprzednie</span>Lab 10A: Monitorowanie modelu</a>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<span></span>
+</nav>
+</div></main>
+
+</body>
+</html>

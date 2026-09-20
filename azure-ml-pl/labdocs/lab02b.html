@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 2B: Wdrażanie punktu końcowego czasu rzeczywistego za pomocą Azure ML Designer</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (polski)</a></div><div class="tresc">
+<a class="pobierz" href="../02b-using-the-visual-designer.html">Notatnik do tego ćwiczenia</a><h1>Lab 2B: Wdrażanie punktu końcowego czasu rzeczywistego za pomocą Azure ML Designer</h1>
+<p>Skoro masz już wytrenowany model, możesz wykorzystać potok treningowy do utworzenia potoku wnioskowania służącego do oceny nowych danych.</p>
+<h2>Zanim zaczniesz</h2>
+<p>Upewnij się, że masz ukończone ćwiczenia <a href="lab01a.html">Lab 1A</a> i <a href="lab01b.html">Lab 1B</a> - powstaje w nich obszar roboczy Azure Machine Learning oraz pozostałe zasoby używane tutaj. Potrzebny jest również <a href="lab02a.html">Lab 2A</a>, w którym powstaje potok treningowy w Designerze.</p>
+<h2>Krok 1: Przegląd zasobów obliczeniowych</h2>
+<blockquote>
+<p><strong>Ważne - czym wdrożenie z Designera różni się od reszty kursu</strong>: potok zbudowany w Lab 2A korzysta z <em>klasycznych, gotowych modułów</em> Designera (Normalize Data, Train Model, Score Model itd.). Potoki z tych modułów można wdrożyć <strong>wyłącznie</strong> do <strong>Azure Container Instance (ACI)</strong> albo do klastra <strong>Azure Kubernetes Service (AKS)</strong> - lista <strong>Compute type</strong> w oknie wdrożenia zawiera dokładnie te dwie pozycje i nic więcej.</p>
+<p>Zarządzane punkty końcowe online (<em>managed online endpoints</em>) - nowocześniejszy mechanizm z SDK v2, którego użyjesz w <a href="lab07a.html">Lab 7A</a> - <strong>nie są dostępne</strong> dla klasycznych potoków Designera. Stosuje się je przy wdrażaniu zarejestrowanego modelu z poziomu SDK/CLI v2 albo dla potoków zbudowanych z własnych komponentów (v2).</p>
+<p>W tym ćwiczeniu wdrożysz model do <strong>Azure Container Instance</strong>, bo nie wymaga tworzenia żadnych zasobów z wyprzedzeniem. ACI jest przeznaczone do scenariuszy deweloperskich i testowych - takich jak ten - a nie do produkcji.</p>
+</blockquote>
+<ol>
+<li><p>W <a href="https://ml.azure.com">Azure Machine Learning studio</a>, na stronie <strong>Compute</strong> swojego obszaru roboczego, przejrzyj istniejące zasoby obliczeniowe na poszczególnych kartach. Powinny się wśród nich znaleźć:</p>
+<ul>
+<li><strong>Compute Instances</strong>: instancja obliczeniowa utworzona w poprzednim ćwiczeniu.</li>
+<li><strong>Compute Clusters</strong>: zasób obliczeniowy <strong>aml-cluster</strong> utworzony w poprzednim ćwiczeniu.</li>
+<li><strong>Kubernetes clusters</strong>: brak - i nie jest potrzebny, bo wdrażasz do ACI, a nie do AKS.</li>
+<li><strong>Attached Compute</strong>: brak (tutaj można by dołączyć maszynę wirtualną lub klaster Databricks istniejący poza obszarem roboczym).</li>
+</ul>
+</li>
+<li><p>Na karcie <strong>Compute Instances</strong>, jeśli Twoja instancja obliczeniowa jeszcze nie działa, uruchom ją - będzie potrzebna w dalszej części tego ćwiczenia.</p>
+</li>
+</ol>
+<h2>Krok 2: Tworzenie potoku wnioskowania</h2>
+<p>Gdy potok treningowy skończy działać, możesz przygotować na jego podstawie potok wnioskowania do wdrożenia.</p>
+<ol>
+<li><p>Na stronie <strong>Designer</strong> otwórz potok <strong>Visual Diabetes Training</strong> utworzony w poprzednim ćwiczeniu.</p>
+</li>
+<li><p>Z listy rozwijanej <strong>Create inference pipeline</strong> wybierz <strong>Real-time inference pipeline</strong>. Po kilku sekundach zostanie otwarta nowa wersja potoku o nazwie <strong>Visual Diabetes Training-real time inference</strong>.</p>
+</li>
+<li><p>Zmień nazwę nowego potoku na <strong>Predict Diabetes</strong>, a następnie przejrzyj nowy potok. Zwróć uwagę, że transformacje i kroki trenowania zostały w nim zwinięte w gotowe moduły: statystyki policzone na danych treningowych posłużą teraz do normalizacji nowych danych, a wytrenowany model - do ich oceny.</p>
+</li>
+<li><p>Potok wnioskowania zakłada, że nowe dane będą zgodne ze schematem oryginalnych danych treningowych, dlatego w potoku znajduje się moduł <strong>diabetes_dataset</strong> z potoku treningowego. Te dane zawierają jednak etykietę <strong>Diabetic</strong>, czyli to, co model ma dopiero przewidzieć - a w danych nowego pacjenta takiej kolumny z założenia nie ma. Usuń ten moduł i zastąp go modułem <strong>Enter Data Manually</strong> z sekcji <strong>Data Input and Output</strong>, podłączonym do tego samego wejścia <strong>dataset</strong> modułu <strong>Apply Transformation</strong>, do którego podłączone jest <strong>Web Service Input</strong>. Następnie zmodyfikuj ustawienia modułu <strong>Enter Data Manually</strong>, aby użyć następujących danych wejściowych CSV, które zawierają wartości cech bez etykiet dla trzech nowych obserwacji pacjentów:</p>
+<pre><code class="language-CSV">PatientID,Pregnancies,PlasmaGlucose,DiastolicBloodPressure,TricepsThickness,SerumInsulin,BMI,DiabetesPedigree,Age
+1882185,9,104,51,7,24,27.36983156,1.350472047,43
+1662484,6,73,61,35,24,18.74367404,1.074147566,75
+1228510,4,115,50,29,243,34.69215364,0.741159926,59
+</code></pre>
+</li>
+<li><p>Potok wnioskowania zawiera moduł <strong>Evaluate Model</strong>, który nie jest przydatny podczas przewidywania na podstawie nowych danych, więc usuń ten moduł.</p>
+</li>
+<li><p>Wyjście z modułu <strong>Score Model</strong> zawiera wszystkie cechy wejściowe, a także przewidywaną etykietę i wynik prawdopodobieństwa. Aby ograniczyć wyjście tylko do predykcji i prawdopodobieństwa, usuń połączenie między modułem <strong>Score Model</strong> a <strong>Web Service Output</strong>, dodaj moduł <strong>Apply SQL Transformation</strong> z sekcji <strong>Data Transformations</strong>, połącz wyjście modułu <strong>Score Model</strong> z lewym wejściem <strong>t1</strong> modułu <strong>Apply SQL Transformation</strong>, a wyjście modułu <strong>Apply SQL Transformation</strong> połącz z <strong>Web Service Output</strong>. Następnie zmodyfikuj ustawienia modułu <strong>Apply SQL Transformation</strong>, aby użyć następującego zapytania SQL:</p>
+<pre><code class="language-SQL">SELECT PatientID,
+       [Scored Labels] AS DiabetesPrediction,
+       [Scored Probabilities] AS Probability
+FROM t1
+</code></pre>
+</li>
+<li><p>Sprawdź, czy Twój potok wygląda podobnie do poniższego:</p>
+<p><img src="images/visual-inference.jpg" alt="Wizualny potok wnioskowania" /></p>
+</li>
+<li><p>Uruchom potok jako nowy eksperyment o nazwie <strong>predict-diabetes</strong> na klastrze <strong>aml-cluster</strong> - tym samym, na którym trenowany był model. Może to chwilę potrwać.</p>
+</li>
+</ol>
+<h2>Krok 3: Wdrażanie punktu końcowego czasu rzeczywistego</h2>
+<p>Masz już potok wnioskowania czasu rzeczywistego, który możesz wdrożyć jako punkt końcowy dla aplikacji klienckich.</p>
+<ol>
+<li><p>Wróć do karty <strong>Designer</strong> i ponownie otwórz swój potok wnioskowania <strong>Predict Diabetes</strong>. Jeśli jego uruchomienie jeszcze się nie zakończyło, poczekaj na jego zakończenie. Następnie zwizualizuj wyjście modułu <strong>Apply SQL Transformation</strong>, aby zobaczyć przewidziane etykiety i prawdopodobieństwa dla trzech obserwacji pacjentów w danych wejściowych.</p>
+</li>
+<li><p>W prawym górnym rogu kliknij <strong>Deploy</strong>. W oknie <strong>Set up real-time endpoint</strong> ustaw:</p>
+<ul>
+<li>zaznacz <strong>Deploy new real-time endpoint</strong>,</li>
+<li><strong>Name</strong>: predict-diabetes</li>
+<li><strong>Compute type</strong>: <strong>Azure Container Instance</strong></li>
+</ul>
+<blockquote>
+<p><strong>Dlaczego akurat to</strong>: lista <strong>Compute type</strong> zawiera tylko dwie pozycje - <strong>AksCompute</strong> i <strong>Azure Container Instance</strong>. To jedyne środowiska, jakie obsługują klasyczne potoki Designera. Wybierz <strong>Azure Container Instance</strong>: kontener powstaje na żądanie, więc nie musisz wcześniej niczego tworzyć. Wybór <strong>AksCompute</strong> wymagałby najpierw założenia (i opłacania) klastra Kubernetes.</p>
+<p>Sekcję <strong>Advanced</strong> możesz rozwinąć, aby zmienić przydział procesora i pamięci dla kontenera albo ustawienia uwierzytelniania. Na potrzeby tego ćwiczenia ustawienia domyślne są w porządku.</p>
+</blockquote>
+</li>
+<li><p>Poczekaj na wdrożenie punktu końcowego - może to potrwać kilka minut. Status wdrożenia jest wyświetlany w lewym górnym rogu interfejsu Designera.</p>
+<blockquote>
+<p><strong>Wskazówka</strong>: W czasie oczekiwania warto przejrzeć dokumentację Azure Machine Learning Designer pod adresem <a href="https://learn.microsoft.com/azure/machine-learning/concept-designer">https://learn.microsoft.com/azure/machine-learning/concept-designer</a>.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Krok 4: Testowanie punktu końcowego</h2>
+<p>Teraz możesz przetestować wdrożony punkt końcowy z poziomu aplikacji klienckiej - tutaj będzie nią notatnik na Twojej instancji obliczeniowej.</p>
+<ol>
+<li>Na stronie <strong>Endpoints</strong> otwórz punkt końcowy czasu rzeczywistego <strong>predict-diabetes</strong>.</li>
+<li>Gdy otworzy się punkt końcowy <strong>predict-diabetes</strong>, na stronie <strong>Test</strong> zwróć uwagę na domyślne parametry wejściowe testu, a następnie kliknij <strong>Test</strong>, aby przesłać je do wdrożonego punktu końcowego i wygenerować predykcję.</li>
+<li>Na karcie <strong>Consume</strong> zwróć uwagę na <strong>REST endpoint</strong> (URI do oceny) punktu końcowego oraz klucz uwierzytelniania, a także obejrzyj przykładowy kod dostarczony dla języka <strong>Python</strong>. Skopiuj cały przykładowy skrypt Python do schowka.</li>
+<li>Na stronie <strong>Compute</strong>, jeśli Twoja instancja obliczeniowa jeszcze nie działa, poczekaj na jej uruchomienie. Następnie kliknij jej link <strong>JupyterLab</strong>.</li>
+<li>W JupyterLab, w folderze <code>~/cloudfiles/code/Users/&lt;nazwa-użytkownika&gt;/MachineLearningCourse/materialy/azure-ml/pl</code>, otwórz <strong>02B - Using the Visual Designer.ipynb</strong>.</li>
+<li>W notatniku wklej skopiowany kod do pustej komórki kodu. Przykładowy kod wysyła żądanie do URI oceny punktu końcowego, uwierzytelniając się kluczem punktu końcowego.</li>
+<li>Uruchom komórkę kodu i przejrzyj dane wyjściowe zwrócone przez Twój punkt końcowy.</li>
+</ol>
+<h2>Krok 5: Usuwanie punktu końcowego</h2>
+<p>Wdrożenie w Azure Container Instance działa - i nalicza koszty - dopóki punkt końcowy istnieje, więc usuń go po zakończeniu pracy. Ponieważ wdrażaliśmy do ACI, a nie do AKS, nie zostaje po tym żaden osobny klaster: usunięcie punktu końcowego kasuje utworzony dla niego kontener.</p>
+<ol>
+<li>W Azure Machine Learning studio, na stronie <strong>Endpoints</strong> swojego obszaru roboczego, wybierz punkt końcowy <strong>predict-diabetes</strong>. Następnie kliknij przycisk <strong>Delete</strong> (🗑) i potwierdź, że chcesz usunąć punkt końcowy.</li>
+</ol>
+<blockquote>
+<p><strong>Uwaga</strong>: Jeśli zamierzasz przejść od razu do <a href="lab03a.html">kolejnego ćwiczenia</a>, pozostaw instancję obliczeniową uruchomioną. Jeśli robisz przerwę, warto zamknąć karty Jupyter i <strong>zatrzymać</strong> (Stop) instancję obliczeniową, aby uniknąć niepotrzebnych kosztów.</p>
+</blockquote>
+<nav class="przejscia">
+<a class="wstecz" href="lab02a.html"><span>Poprzednie</span>Lab 2A: Tworzenie potoku treningowego za pomocą Azure ML Designer</a>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<a class="dalej" href="lab03a.html"><span>Następne</span>Lab 3A: Uruchamianie eksperymentów</a>
+</nav>
+</div></main>
+
+</body>
+</html>

@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenie 7: Drzewa i lasy</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="pobierz/07_drzewa_i_lasy.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=be5909ae"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="%C4%86wiczenie-7:-Drzewa-i-lasy">Ćwiczenie 7: Drzewa i lasy<a class="anchor-link" href="#%C4%86wiczenie-7:-Drzewa-i-lasy">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 01 narysowaliśmy drzewo decyzyjne i przeczytaliśmy jego reguły jak zdania po polsku: <em>„jeśli glukoza ≤ 122,5 oraz BMI ≤ 29,4, to pacjent jest zdrowy"</em>. To rzadka i bardzo cenna właściwość - większość modeli uczenia maszynowego jest dla człowieka nieprzejrzysta, a drzewo można pokazać lekarzowi i zapytać, czy to ma sens medyczny.</p>
+<p>Zostawiliśmy wtedy otwarte zdanie: <em>„las losowy bywa wyraźnie skuteczniejszy od pojedynczego drzewa, ale nie da się go już narysować na jednej kartce"</em>. To ćwiczenie jest o tym zdaniu.</p>
+<p>Zobaczysz, jak z czegoś, co da się zrozumieć wzrokiem, powstaje coś, co da się ocenić wyłącznie liczbami - i <strong>dlaczego ta zamiana się opłaca</strong>. A potem zobaczysz, ile za nią płacisz, gdy ktoś zażąda uzasadnienia decyzji.</p>
+<p>Wątek przewodni całego notatnika:</p>
+<blockquote>
+<p><strong>Dokładność i wyjaśnialność (ang. <em>explainability</em>) ciągną w przeciwne strony. Zawsze trzeba wybrać, i ten wybór nie jest techniczny - jest biznesowy albo prawny.</strong></p>
+</blockquote>
+<h2 id="Czego-si%C4%99-nauczysz">Czego się nauczysz<a class="anchor-link" href="#Czego-si%C4%99-nauczysz">¶</a></h2><ol>
+<li>Jak drzewo dzieli przestrzeń cech i według jakiego kryterium wybiera podziały (<strong>wskaźnik Giniego</strong>).</li>
+<li>Jak obejrzeć wytrenowane drzewo - funkcją <code>plot_tree</code> i przez rysunek granicy decyzyjnej.</li>
+<li>Jak przycinać drzewo: <code>max_depth</code>, <code>min_samples_leaf</code> oraz przycinanie kosztowo-złożonościowe (<code>ccp_alpha</code>).</li>
+<li><strong>Dlaczego</strong> las losowy - setki słabszych drzew - bije pojedyncze dobre drzewo.</li>
+<li>Czym boosting różni się od lasu i kiedy który wybrać.</li>
+<li>Jak czytać ważność cech (ang. <em>feature importance</em>) - i dlaczego ta domyślna potrafi wprowadzać w błąd.</li>
+</ol>
+<blockquote>
+<p><strong>Zanim zaczniesz</strong>: to ćwiczenie zakłada, że masz za sobą ćwiczenie 06. Modele będziemy porównywać walidacją krzyżową (ang. <em>cross-validation</em>), a nie wynikiem na zbiorze testowym.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=4015e53d"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Jak-drzewo-podejmuje-decyzje">1. Jak drzewo podejmuje decyzje<a class="anchor-link" href="#1.-Jak-drzewo-podejmuje-decyzje">¶</a></h2><p>Wczytujemy dane dokładnie tak jak poprzednio.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f6108645">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span><span class="p">,</span> <span class="n">cross_val_score</span><span class="p">,</span> <span class="n">StratifiedKFold</span>
+
+<span class="n">dane</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'dane/diabetes.csv'</span><span class="p">)</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'PatientID'</span><span class="p">,</span> <span class="s1">'Diabetic'</span><span class="p">])</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span>
+
+<span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>
+
+<span class="n">kfold</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"uczący: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">)</span><span class="si">}</span><span class="s2">, testowy: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span><span class="si">}</span><span class="s2">, cech: </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ec4fccb0"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Wska%C5%BAnik-Giniego---jak-drzewo-wybiera-pytanie">Wskaźnik Giniego - jak drzewo wybiera pytanie<a class="anchor-link" href="#Wska%C5%BAnik-Giniego---jak-drzewo-wybiera-pytanie">¶</a></h3><p>Drzewo buduje się zachłannie: w każdym węźle algorytm sprawdza <strong>każdą cechę i każdy sensowny próg</strong> i wybiera ten podział, który najbardziej „porządkuje" dane. Potrzebna jest więc miara nieporządku.</p>
+<p>Domyślnie jest nią <strong>wskaźnik Giniego</strong> (ang. <em>Gini impurity</em>). Dla węzła, w którym udział klasy <em>i</em> wynosi <em>p<sub>i</sub></em>:</p>
+<pre><code>Gini = 1 - Σ p_i²
+</code></pre>
+<p>Przy dwóch klasach:</p>
+<table>
+<thead>
+<tr>
+<th>Skład węzła</th>
+<th>Gini</th>
+<th>Interpretacja</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100% zdrowych</td>
+<td>0,0</td>
+<td>węzeł czysty - nie ma czego dzielić</td>
+</tr>
+<tr>
+<td>90% / 10%</td>
+<td>0,18</td>
+<td>prawie czysty</td>
+</tr>
+<tr>
+<td>66,6% / 33,4%</td>
+<td>0,445</td>
+<td>tyle ma korzeń naszego drzewa</td>
+</tr>
+<tr>
+<td>50% / 50%</td>
+<td>0,5</td>
+<td>maksymalny nieporządek</td>
+</tr>
+</tbody>
+</table>
+<p>Algorytm wybiera podział, który maksymalizuje <strong>spadek nieczystości</strong>:</p>
+<pre><code>zysk = Gini(rodzic) - [ udział_lewego × Gini(lewy) + udział_prawego × Gini(prawy) ]
+</code></pre>
+<p>Kluczowe jest to ważenie udziałami: podział odcinający trzech pacjentów do idealnie czystego liścia daje minimalny zysk, bo dotyczy znikomej części danych.</p>
+<p>Policzmy to ręcznie dla korzenia - żeby liczba z rysunku <code>plot_tree</code> przestała być magiczna.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a8356cc3">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">gini</span><span class="p">(</span><span class="n">etykiety</span><span class="p">):</span>
+    <span class="n">etykiety</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">etykiety</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">etykiety</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="n">udzialy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">etykiety</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">etykiety</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">udzialy</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Gini całego zbioru uczącego: </span><span class="si">{</span><span class="n">gini</span><span class="p">(</span><span class="n">y_ucz</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Recznie sprawdzamy kilka progow dla jednej cechy</span>
+<span class="n">cecha</span> <span class="o">=</span> <span class="s1">'PlasmaGlucose'</span>
+<span class="n">wartosci</span> <span class="o">=</span> <span class="n">X_ucz</span><span class="p">[</span><span class="n">cecha</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">etykiety</span> <span class="o">=</span> <span class="n">y_ucz</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">gini_rodzica</span> <span class="o">=</span> <span class="n">gini</span><span class="p">(</span><span class="n">etykiety</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zysk z podziału po cesze </span><span class="si">{</span><span class="n">cecha</span><span class="si">}</span><span class="s2">:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">prog</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">150</span><span class="p">]:</span>
+    <span class="n">lewo</span> <span class="o">=</span> <span class="n">etykiety</span><span class="p">[</span><span class="n">wartosci</span> <span class="o">&lt;=</span> <span class="n">prog</span><span class="p">]</span>
+    <span class="n">prawo</span> <span class="o">=</span> <span class="n">etykiety</span><span class="p">[</span><span class="n">wartosci</span> <span class="o">&gt;</span> <span class="n">prog</span><span class="p">]</span>
+    <span class="n">wazone</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lewo</span><span class="p">)</span> <span class="o">*</span> <span class="n">gini</span><span class="p">(</span><span class="n">lewo</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">prawo</span><span class="p">)</span> <span class="o">*</span> <span class="n">gini</span><span class="p">(</span><span class="n">prawo</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">etykiety</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  próg </span><span class="si">{</span><span class="n">prog</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">: Gini po podziale </span><span class="si">{</span><span class="n">wazone</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | zysk </span><span class="si">{</span><span class="n">gini_rodzica</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">wazone</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ec3a7e0b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Zwróć uwagę na kształt tej listy: zysk rośnie, osiąga szczyt przy pewnym progu i znów maleje. Drzewo robi dokładnie to samo, tylko dla <strong>wszystkich cech naraz i wszystkich progów występujących w danych</strong>, po czym wybiera najlepszą parę (cecha, próg). Potem powtarza to w każdym z powstałych węzłów.</p>
+<p>To wyjaśnia dwie rzeczy, o które studenci zwykle pytają:</p>
+<ul>
+<li><strong>Dlaczego drzewo nie potrzebuje skalowania?</strong> Bo porównuje wartości cechy z progiem <em>wewnątrz tej samej cechy</em>. Zamiana jednostek zmienia tylko liczbę w warunku, nie kolejność wierszy - a podział zależy wyłącznie od kolejności.</li>
+<li><strong>Dlaczego drzewo nie znajduje rozwiązania optymalnego?</strong> Bo jest zachłanne: wybiera najlepszy podział <em>tu i teraz</em>, nie sprawdzając, czy gorszy podział na górze nie otworzyłby lepszych możliwości niżej. Znalezienie optymalnego drzewa jest problemem obliczeniowo nieprzystępnym.</li>
+</ul>
+<blockquote>
+<p><strong><code>criterion='entropy'</code></strong> to alternatywna miara nieporządku (entropia). Prowadzi do bardzo podobnych drzew - różnica jest zwykle pomijalna i nie warto się nad nią zatrzymywać.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=80ec1680"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="2.-Jak-drzewo-widzi-przestrze%C5%84-cech">2. Jak drzewo widzi przestrzeń cech<a class="anchor-link" href="#2.-Jak-drzewo-widzi-przestrze%C5%84-cech">¶</a></h2><p>Drzewo zadaje pytania postaci „cecha ≤ próg", więc każda granica, którą rysuje, jest <strong>prostopadła do osi</strong>. Efekt: przestrzeń cech zostaje pocięta na prostokąty, a wewnątrz każdego prostokąta model odpowiada zawsze tak samo.</p>
+<p>Żeby to zobaczyć, ograniczymy się do dwóch cech (<code>PlasmaGlucose</code> i <code>BMI</code>) - tylko wtedy da się narysować płaszczyznę. Porównamy dwa drzewa: płytkie i bez ograniczeń.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=9fb9c03e">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span><span class="p">,</span> <span class="n">plot_tree</span>
+
+<span class="n">dwie_cechy</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'PlasmaGlucose'</span><span class="p">,</span> <span class="s1">'BMI'</span><span class="p">]</span>
+<span class="n">X2</span> <span class="o">=</span> <span class="n">X_ucz</span><span class="p">[</span><span class="n">dwie_cechy</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">y2</span> <span class="o">=</span> <span class="n">y_ucz</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+<span class="c1"># Siatka punktow pokrywajaca plaszczyzne</span>
+<span class="n">os_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">X2</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">X2</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">300</span><span class="p">)</span>
+<span class="n">os_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">X2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">X2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">300</span><span class="p">)</span>
+<span class="n">siatka_x</span><span class="p">,</span> <span class="n">siatka_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">os_x</span><span class="p">,</span> <span class="n">os_y</span><span class="p">)</span>
+<span class="n">punkty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">siatka_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">siatka_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">osie</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">glebokosc</span><span class="p">,</span> <span class="n">tytul</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'max_depth=3'</span><span class="p">),</span>
+                             <span class="p">(</span><span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">'bez ograniczeń'</span><span class="p">)]:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">glebokosc</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X2</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">punkty</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">siatka_x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">siatka_x</span><span class="p">,</span> <span class="n">siatka_y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'coolwarm'</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">probka</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X2</span><span class="p">),</span> <span class="mi">800</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X2</span><span class="p">[</span><span class="n">probka</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X2</span><span class="p">[</span><span class="n">probka</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y2</span><span class="p">[</span><span class="n">probka</span><span class="p">],</span>
+               <span class="n">cmap</span><span class="o">=</span><span class="s1">'coolwarm'</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s1">'none'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">dwie_cechy</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">dwie_cechy</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tytul</span><span class="si">}</span><span class="s2"> (liczba liści: </span><span class="si">{</span><span class="n">d</span><span class="o">.</span><span class="n">get_n_leaves</span><span class="p">()</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b35288f6"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Po lewej widać kilka dużych prostokątów - prostą, czytelną regułę. Po prawej ta sama przestrzeń jest poszatkowana na setki drobnych plamek, z których wiele obejmuje po kilku pacjentów. <strong>Te plamki to przeuczenie</strong> (ang. <em>overfitting</em>) narysowane wprost: model nie opisuje zjawiska, tylko obrysowuje pojedyncze punkty ze zbioru uczącego.</p>
+<p>Zwróć też uwagę na schodkowy kształt granic. Gdyby prawdziwa granica biegła ukośnie (np. „glukoza + 3 × BMI &gt; 200"), drzewo musiałoby przybliżać ją schodkami - i potrzebowałoby na to wielu podziałów. Regresja logistyczna narysowałaby ją jedną prostą. To jest realna słabość drzew i warto ją pamiętać.</p>
+<h3 id="Ten-sam-model-na-rysunku-drzewa">Ten sam model na rysunku drzewa<a class="anchor-link" href="#Ten-sam-model-na-rysunku-drzewa">¶</a></h3><p><code>plot_tree</code> pokazuje tę samą informację w drugiej postaci. Rysujemy <strong>tylko płytkie drzewo</strong> - głębsze byłoby nieczytelne (przekonasz się w zadaniu 2).</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=2fe4190c">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">drzewo</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">drzewo</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">plot_tree</span><span class="p">(</span>
+    <span class="n">drzewo</span><span class="p">,</span>
+    <span class="n">feature_names</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+    <span class="n">class_names</span><span class="o">=</span><span class="p">[</span><span class="s1">'brak cukrzycy'</span><span class="p">,</span> <span class="s1">'cukrzyca'</span><span class="p">],</span>
+    <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rounded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Liczba liści:"</span><span class="p">,</span> <span class="n">drzewo</span><span class="o">.</span><span class="n">get_n_leaves</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Głębokość:   "</span><span class="p">,</span> <span class="n">drzewo</span><span class="o">.</span><span class="n">get_depth</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b7d577bd"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="3.-Przycinanie-drzewa">3. Przycinanie drzewa<a class="anchor-link" href="#3.-Przycinanie-drzewa">¶</a></h2><p>Drzewo bez ograniczeń rośnie, aż każdy liść będzie czysty - w skrajnym przypadku po jednym pacjencie na liść. Trzeba mu w tym przeszkodzić. Scikit-learn daje trzy główne sposoby:</p>
+<table>
+<thead>
+<tr>
+<th>Parametr</th>
+<th>Co ogranicza</th>
+<th>Kiedy szczególnie przydatny</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_depth</code></td>
+<td>liczbę poziomów</td>
+<td>najprostszy do zrozumienia i do wytłumaczenia komuś</td>
+</tr>
+<tr>
+<td><code>min_samples_leaf</code></td>
+<td>minimalną liczbę pacjentów w liściu</td>
+<td>chroni przed liśćmi opartymi na 2-3 przypadkach; zwykle skuteczniejszy niż <code>max_depth</code></td>
+</tr>
+<tr>
+<td><code>ccp_alpha</code></td>
+<td>„opłacalność" każdego liścia</td>
+<td>przycinanie <strong>po</strong> zbudowaniu drzewa; najbardziej zasadne teoretycznie</td>
+</tr>
+</tbody>
+</table>
+<p>Pierwsze dwa to <strong>przycinanie wstępne</strong> (ang. <em>pre-pruning</em>) - zatrzymujemy wzrost. <code>ccp_alpha</code> to <strong>przycinanie następcze</strong> (ang. <em>post-pruning</em>): najpierw pozwalamy drzewu urosnąć, potem obcinamy gałęzie, które nie zarabiają na siebie.</p>
+<p>Idea <code>ccp_alpha</code> (przycinanie kosztowo-złożonościowe, ang. <em>cost-complexity pruning</em>): każdemu drzewu przypisujemy koszt</p>
+<pre><code>koszt = błąd na danych uczących + alpha × liczba liści
+</code></pre>
+<p>Przy <code>alpha = 0</code> wygrywa drzewo pełne. Im większa <code>alpha</code>, tym droższy każdy liść - i tym mocniej drzewo się kurczy. Przy dostatecznie dużej <code>alpha</code> zostaje sam korzeń.</p>
+<p>Różnica wobec <code>max_depth</code> jest istotna: <code>max_depth</code> tnie <strong>równo na całej szerokości</strong>, nawet tam, gdzie gałąź była wartościowa. <code>ccp_alpha</code> tnie <strong>wybiórczo</strong> - zostawia głębokie gałęzie tam, gdzie się opłacają.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=2cca3a75">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># Sciezka przycinania: sklearn wylicza wszystkie wartosci alpha, przy ktorych</span>
+<span class="c1"># drzewo zmienia ksztalt. Liczy sie kilka sekund.</span>
+<span class="n">pelne</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">sciezka</span> <span class="o">=</span> <span class="n">pelne</span><span class="o">.</span><span class="n">cost_complexity_pruning_path</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+<span class="n">alfy</span> <span class="o">=</span> <span class="n">sciezka</span><span class="o">.</span><span class="n">ccp_alphas</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Liczba różnych wartości alpha: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">alfy</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zakres: od </span><span class="si">{</span><span class="n">alfy</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> do </span><span class="si">{</span><span class="n">alfy</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Wybieramy kilkanascie wartosci rozlozonych logarytmicznie - sprawdzenie</span>
+<span class="c1"># wszystkich trwaloby zdecydowanie za dlugo.</span>
+<span class="n">kandydaci</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">alfy</span><span class="p">[</span><span class="n">alfy</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">12</span><span class="p">)))</span>
+
+<span class="n">wiersze</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">kandydaci</span><span class="p">:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">ccp_alpha</span><span class="o">=</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+    <span class="n">wiersze</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">'ccp_alpha'</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="s1">'liczba_lisci'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">get_n_leaves</span><span class="p">(),</span>
+                    <span class="s1">'glebokosc'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">get_depth</span><span class="p">(),</span>
+                    <span class="s1">'uczacy'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)})</span>
+
+<span class="n">tabela</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wiersze</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tabela</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c9ff52c0"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Widać tu wprost, o co chodzi w przycinaniu: przy rosnącej <code>alpha</code> liczba liści spada gwałtownie - z tysięcy do kilkunastu - a skuteczność na danych uczących obniża się nieporównanie wolniej. Tysiące liści prawie nic nie wnosiły; istniały tylko po to, żeby obsłużyć pojedyncze przypadki.</p>
+<p>Którą <code>alpha</code> wybrać? Tę, która daje najlepszy wynik <strong>walidacji krzyżowej</strong> - i dokładnie to zrobisz w zadaniu 3.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=669e2aa2"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="4.-Las-losowy---dlaczego-wiele-s%C5%82abszych-drzew-bije-jedno-dobre">4. Las losowy - dlaczego wiele słabszych drzew bije jedno dobre<a class="anchor-link" href="#4.-Las-losowy---dlaczego-wiele-s%C5%82abszych-drzew-bije-jedno-dobre">¶</a></h2><p>Pojedyncze drzewo ma jedną fundamentalną wadę: jest <strong>niestabilne</strong>. Zmień kilkadziesiąt wierszy w danych uczących, a drzewo potrafi wybrać w korzeniu inną cechę i wyjść zupełnie inne. Mówimy, że ma <strong>dużą wariancję</strong> (ang. <em>variance</em>).</p>
+<p>Las losowy (ang. <em>random forest</em>) atakuje dokładnie ten problem. Pomysł opiera się na spostrzeżeniu, które łatwo sprawdzić: <strong>średnia z wielu zaszumionych pomiarów jest mniej zaszumiona niż pojedynczy pomiar</strong>. Jeśli zbudujemy setki drzew, z których każde myli się trochę inaczej, i pozwolimy im głosować, to ich przypadkowe błędy częściowo się zniosą.</p>
+<p>Warunek jest jednak twardy: <strong>drzewa muszą się od siebie różnić</strong>. Sto identycznych drzew to wciąż jedno drzewo. Dlatego las wprowadza losowość dwa razy:</p>
+<p><strong>1. Losowanie przykładów (ang. <em>bagging</em>, od <em>bootstrap aggregating</em>)</strong>
+Każde drzewo uczy się na własnej próbce losowanej <strong>ze zwracaniem</strong> z danych uczących, tej samej wielkości co oryginał. Skutek: niektóre wiersze trafiają do niej wielokrotnie, inne wcale (średnio ok. 37% zbioru nie trafia do danego drzewa). Każde drzewo widzi więc trochę inny świat.</p>
+<p><strong>2. Losowanie cech w każdym węźle (<code>max_features</code>)</strong>
+To jest różnica między lasem losowym a zwykłym baggingiem i jest ona kluczowa. Przy każdym podziale drzewo dostaje do wyboru tylko <strong>losowy podzbiór cech</strong> (domyślnie √p, u nas √8 ≈ 3 z 8).</p>
+<p>Po co? Bez tego wszystkie drzewa wybierałyby w korzeniu tę samą, najsilniejszą cechę (u nas prawie na pewno <code>PlasmaGlucose</code>) i byłyby do siebie bardzo podobne - a wtedy uśrednianie niewiele daje, bo popełniałyby <strong>te same</strong> błędy. Losowanie cech zmusza część drzew do korzystania ze słabszych cech i <strong>rozprasza korelację między drzewami</strong>. Las płaci za to tym, że pojedyncze drzewo jest gorsze - i zarabia na tym, że całość jest lepsza.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Pojedyncze drzewo</th>
+<th>Las losowy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Obciążenie (ang. <em>bias</em>)</td>
+<td>małe</td>
+<td>podobne, lekko większe</td>
+</tr>
+<tr>
+<td>Wariancja</td>
+<td><strong>duża</strong></td>
+<td><strong>znacznie mniejsza</strong></td>
+</tr>
+<tr>
+<td>Przeuczenie przy wzroście złożoności</td>
+<td>rośnie</td>
+<td>prawie nie rośnie z liczbą drzew</td>
+</tr>
+<tr>
+<td>Da się obejrzeć</td>
+<td>tak</td>
+<td>nie</td>
+</tr>
+</tbody>
+</table>
+<p>Ostatni wiersz to cena, którą płacimy - i wątek przewodni tego ćwiczenia.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d032d445">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+
+<span class="c1"># Porownanie przez walidacje krzyzowa. Las z 200 drzewami na 8000 wierszy:</span>
+<span class="c1"># okolo 20-40 sekund przy n_jobs=-1.</span>
+<span class="n">drzewo_dobre</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">min_samples_leaf</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">las</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">w_drzewo</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">drzewo_dobre</span><span class="p">,</span> <span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">kfold</span><span class="p">)</span>
+<span class="n">w_las</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">las</span><span class="p">,</span> <span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">kfold</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Pojedyncze drzewo: </span><span class="si">{</span><span class="n">w_drzewo</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><span class="n">w_drzewo</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Las losowy (200):  </span><span class="si">{</span><span class="n">w_las</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><span class="n">w_las</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Różnica: </span><span class="si">{</span><span class="n">w_las</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">w_drzewo</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c61b9111"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Zobaczmy-%E2%80%9Erozpraszanie-b%C5%82%C4%99d%C3%B3w%22-na-w%C5%82asne-oczy">Zobaczmy „rozpraszanie błędów" na własne oczy<a class="anchor-link" href="#Zobaczmy-%E2%80%9Erozpraszanie-b%C5%82%C4%99d%C3%B3w%22-na-w%C5%82asne-oczy">¶</a></h3><p>Poniższy kod trenuje 50 pojedynczych drzew, każde na innej losowej próbce danych, i sprawdza dwie rzeczy: jak dobre jest <strong>przeciętne drzewo</strong> i jak dobre jest ich <strong>wspólne głosowanie</strong>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=798dce7a">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">X_ucz_np</span><span class="p">,</span> <span class="n">y_ucz_np</span> <span class="o">=</span> <span class="n">X_ucz</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">y_ucz</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+<span class="c1"># Wydzielamy maly zbior sprawdzajacy (to nie jest zbior testowy!)</span>
+<span class="n">X_a</span><span class="p">,</span> <span class="n">X_b</span><span class="p">,</span> <span class="n">y_a</span><span class="p">,</span> <span class="n">y_b</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X_ucz_np</span><span class="p">,</span> <span class="n">y_ucz_np</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+                                      <span class="n">stratify</span><span class="o">=</span><span class="n">y_ucz_np</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">glosy</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">wyniki_pojedyncze</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
+    <span class="n">indeksy</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_a</span><span class="p">))</span>       <span class="c1"># losowanie ZE ZWRACANIEM</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_a</span><span class="p">[</span><span class="n">indeksy</span><span class="p">],</span> <span class="n">y_a</span><span class="p">[</span><span class="n">indeksy</span><span class="p">])</span>
+    <span class="n">glosy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_b</span><span class="p">))</span>
+    <span class="n">wyniki_pojedyncze</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_b</span><span class="p">,</span> <span class="n">y_b</span><span class="p">))</span>
+
+<span class="n">glosy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">glosy</span><span class="p">)</span>
+<span class="n">wieksz</span> <span class="o">=</span> <span class="p">(</span><span class="n">glosy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>        <span class="c1"># glosowanie wiekszosciowe</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Najgorsze z 50 drzew:          </span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">wyniki_pojedyncze</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Przeciętne drzewo:             </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">wyniki_pojedyncze</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Najlepsze z 50 drzew:          </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">wyniki_pojedyncze</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"GŁOSOWANIE wszystkich 50:      </span><span class="si">{</span><span class="p">(</span><span class="n">wieksz</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y_b</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Zwróć uwagę: głosowanie bije nawet najlepsze pojedyncze drzewo -"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"a przecież każde z osobna jest przeuczone i niczym nieograniczone."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1743b237"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To jest sedno metod zespołowych (ang. <em>ensemble methods</em>). Nie potrzebujemy dobrych składników - potrzebujemy składników, które <strong>mylą się niezależnie od siebie</strong>.</p>
+<p>Uwaga na często spotykane nieporozumienie: liczba drzew (<code>n_estimators</code>) <strong>nie jest hiperparametrem, który się stroi w poszukiwaniu optimum</strong>. Więcej drzew nigdy nie pogarsza wyniku, tylko przestaje go poprawiać (i kosztuje czas). Zwykle 100-500 wystarcza; sprawdzisz to w zadaniu 4.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=4a8d9afc"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="5.-Boosting---drzewa,-kt%C3%B3re-ucz%C4%85-si%C4%99-na-cudzych-b%C5%82%C4%99dach">5. Boosting - drzewa, które uczą się na cudzych błędach<a class="anchor-link" href="#5.-Boosting---drzewa,-kt%C3%B3re-ucz%C4%85-si%C4%99-na-cudzych-b%C5%82%C4%99dach">¶</a></h2><p>Las buduje wszystkie drzewa <strong>równolegle i niezależnie</strong>, a potem je uśrednia. Boosting robi coś przeciwnego: buduje drzewa <strong>po kolei</strong>, a każde kolejne zajmuje się tym, czego poprzednie nie potrafiły.</p>
+<p>W gradient boostingu wygląda to tak:</p>
+<ol>
+<li>Zbuduj bardzo proste drzewo (kilka poziomów). Będzie słabe.</li>
+<li>Policz, gdzie i jak bardzo model się myli.</li>
+<li>Zbuduj kolejne drzewo, które przewiduje <strong>te właśnie błędy</strong>.</li>
+<li>Dodaj je do modelu z małą wagą (<code>learning_rate</code>).</li>
+<li>Wróć do punktu 2 - setki razy.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Las losowy</th>
+<th>Gradient boosting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jak powstają drzewa</td>
+<td>równolegle, niezależnie</td>
+<td>sekwencyjnie, każde poprawia poprzednie</td>
+</tr>
+<tr>
+<td>Rola pojedynczego drzewa</td>
+<td>pełnoprawny model (głęboki)</td>
+<td>drobna poprawka (płytkie, np. 3 poziomy)</td>
+</tr>
+<tr>
+<td>Co redukuje</td>
+<td><strong>wariancję</strong></td>
+<td>głównie <strong>obciążenie</strong></td>
+</tr>
+<tr>
+<td>Więcej drzew</td>
+<td>nie szkodzi</td>
+<td><strong>może przeuczyć</strong></td>
+</tr>
+<tr>
+<td>Wrażliwość na hiperparametry</td>
+<td>mała - działa „z pudełka"</td>
+<td>duża, zwłaszcza <code>learning_rate</code></td>
+</tr>
+<tr>
+<td>Zwykle wygrywa na danych tabelarycznych</td>
+<td>rzadziej</td>
+<td>częściej</td>
+</tr>
+</tbody>
+</table>
+<p>Kluczowy jest <code>learning_rate</code> (ang. <em>tempo uczenia</em>): mówi, jaką część poprawki dopisujemy w każdym kroku. Mała wartość plus dużo drzew zwykle daje lepszy wynik niż duża wartość plus mało drzew - ale liczy się dłużej. <code>learning_rate</code> i <code>n_estimators</code> zawsze strojymy <strong>razem</strong>, bo działają przeciwstawnie.</p>
+<p>Użyjemy <code>HistGradientBoostingClassifier</code> - wariantu, który grupuje wartości cech w kubełki (histogramy) i przez to jest wielokrotnie szybszy od klasycznego <code>GradientBoostingClassifier</code>. Przy 10 000 wierszy różnica czasu jest już wyraźna.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5c3ccf55">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">HistGradientBoostingClassifier</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="n">boosting</span> <span class="o">=</span> <span class="n">HistGradientBoostingClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+<span class="n">w_boost</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">boosting</span><span class="p">,</span> <span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">kfold</span><span class="p">)</span>
+<span class="n">czas</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Pojedyncze drzewo:       </span><span class="si">{</span><span class="n">w_drzewo</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><span class="n">w_drzewo</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Las losowy (200 drzew):  </span><span class="si">{</span><span class="n">w_las</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><span class="n">w_las</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"HistGradientBoosting:    </span><span class="si">{</span><span class="n">w_boost</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><span class="n">w_boost</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">   (</span><span class="si">{</span><span class="n">czas</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> s)"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=91da878e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote>
+<p><strong>Skąd tyle nazw</strong>: <code>GradientBoostingClassifier</code> to klasyczna, wolna implementacja; <code>HistGradientBoostingClassifier</code> to szybki wariant wbudowany w scikit-learn. Poza scikit-learn królują XGBoost, LightGBM i CatBoost - wszystkie realizują ten sam pomysł, różnią się szczegółami i szybkością. To one wygrywają większość konkursów na danych tabelarycznych.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=50e854a9"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="6.-Wa%C5%BCno%C5%9B%C4%87-cech---i-dlaczego-domy%C5%9Blna-potrafi-k%C5%82ama%C4%87">6. Ważność cech - i dlaczego domyślna potrafi kłamać<a class="anchor-link" href="#6.-Wa%C5%BCno%C5%9B%C4%87-cech---i-dlaczego-domy%C5%9Blna-potrafi-k%C5%82ama%C4%87">¶</a></h2><p>Skoro lasu nie da się narysować, chcemy chociaż wiedzieć, <strong>na czym opiera decyzje</strong>. Służy do tego ważność cech (ang. <em>feature importance</em>).</p>
+<p><code>feature_importances_</code> w drzewach i lasach to <strong>ważność liczona z czystości węzłów</strong> (ang. <em>impurity-based</em> albo <em>Gini importance</em>): dla każdej cechy sumuje się spadek nieczystości we wszystkich węzłach, w których ta cecha została użyta, ważony liczbą pacjentów w węźle.</p>
+<p>Liczy się błyskawicznie (to uboczny produkt trenowania) - i ma dwie poważne wady:</p>
+<ol>
+<li><strong>Faworyzuje cechy o wielu różnych wartościach.</strong> Cecha ciągła albo identyfikator dają algorytmowi tysiące progów do wyboru, więc statystycznie któryś z nich zawsze coś „poprawi". Cecha binarna ma jeden próg. W ćwiczeniu 01, w zadaniu 6, <code>PatientID</code> - kolumna bez żadnego sensu - potrafiła wylądować wysoko w tym rankingu. To nie był przypadek, tylko właśnie ten mechanizm.</li>
+<li><strong>Liczona jest na danych uczących.</strong> Cecha, dzięki której model świetnie zapamiętał zbiór uczący, dostaje wysoką ważność, nawet jeśli na nowych pacjentach nie wnosi nic.</li>
+</ol>
+<p>Uczciwsza alternatywa to <strong>ważność permutacyjna</strong> (ang. <em>permutation importance</em>): bierzemy wytrenowany model i <strong>dane, których nie widział</strong>, po czym losowo mieszamy wartości w jednej kolumnie i sprawdzamy, o ile spadł wynik. Jeśli spadł mocno - cecha jest ważna. Jeśli wcale - model jej nie potrzebuje.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>feature_importances_</code></th>
+<th><code>permutation_importance</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Na jakich danych</td>
+<td>uczących</td>
+<td>dowolnych, najlepiej nieużywanych do uczenia</td>
+</tr>
+<tr>
+<td>Koszt</td>
+<td>zerowy</td>
+<td>trzeba wielokrotnie przeliczyć predykcje</td>
+</tr>
+<tr>
+<td>Faworyzuje cechy o wielu wartościach</td>
+<td><strong>tak</strong></td>
+<td>nie</td>
+</tr>
+<tr>
+<td>Mierzy</td>
+<td>ile cecha pomogła zbudować drzewo</td>
+<td>ile cecha wnosi do jakości predykcji</td>
+</tr>
+<tr>
+<td>Problem ze skorelowanymi cechami</td>
+<td>tak (dzieli ważność)</td>
+<td>tak (obie wyjdą nieważne)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=64277d51">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.inspection</span><span class="w"> </span><span class="kn">import</span> <span class="n">permutation_importance</span>
+
+<span class="n">las_ucz</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">las_ucz</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="n">waznosc_gini</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">las_ucz</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+<span class="c1"># Permutacyjna - liczona na danych, ktorych model nie widzial.</span>
+<span class="c1"># Uwaga: uzywamy tu zbioru testowego wylacznie do INTERPRETACJI modelu,</span>
+<span class="c1"># a nie do jego wyboru. Kilkanascie sekund.</span>
+<span class="n">wynik_perm</span> <span class="o">=</span> <span class="n">permutation_importance</span><span class="p">(</span>
+    <span class="n">las_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">waznosc_perm</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">wynik_perm</span><span class="o">.</span><span class="n">importances_mean</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+<span class="n">porownanie</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">'gini (uczące)'</span><span class="p">:</span> <span class="n">waznosc_gini</span><span class="p">,</span>
+    <span class="s1">'permutacyjna (testowe)'</span><span class="p">:</span> <span class="n">waznosc_perm</span><span class="p">,</span>
+<span class="p">})</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'permutacyjna (testowe)'</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">porownanie</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">porownanie</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'ważność'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Dwie miary ważności cech - ta sama kolejność?'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ade275a0"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Porównaj obie kolumny. Jeśli kolejność się zgadza - dobrze, wnioski są wiarygodne. Jeśli któraś cecha jest wysoko według Giniego, a nisko według permutacji - to sygnał ostrzegawczy: model jej używa przy budowie drzew, ale nie przekłada się to na jakość predykcji.</p>
+<p><strong>Najważniejsze zastrzeżenie do obu miar</strong>: ważność cechy <strong>nie jest miarą przyczynowości</strong>. Że model mocno opiera się na glukozie, nie znaczy, że obniżenie glukozy wyleczy pacjenta. Model widzi wyłącznie współwystępowanie. Mylenie tych dwóch rzeczy to najczęstszy błąd w prezentacjach wyników - i najkosztowniejszy, bo decyzje podejmuje się właśnie na podstawie takich slajdów.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=87a13afd"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="7.-Dok%C5%82adno%C5%9B%C4%87-kontra-wyja%C5%9Bnialno%C5%9B%C4%87">7. Dokładność kontra wyjaśnialność<a class="anchor-link" href="#7.-Dok%C5%82adno%C5%9B%C4%87-kontra-wyja%C5%9Bnialno%C5%9B%C4%87">¶</a></h2><p>Zbierzmy wątek przewodni w jedną tabelę.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Skuteczność</th>
+<th>Czy da się obejrzeć</th>
+<th>Co można powiedzieć lekarzowi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pień decyzyjny (<code>max_depth=1</code>)</td>
+<td>najniższa</td>
+<td>jedno zdanie</td>
+<td>„decyduje poziom glukozy powyżej X"</td>
+</tr>
+<tr>
+<td>Drzewo <code>max_depth=3-5</code></td>
+<td>dobra</td>
+<td>rysunek na jednej kartce</td>
+<td>pełna ścieżka decyzji dla konkretnego pacjenta</td>
+</tr>
+<tr>
+<td>Las losowy (200 drzew)</td>
+<td>wysoka</td>
+<td><strong>nie</strong></td>
+<td>ranking ważności cech - i nic więcej</td>
+</tr>
+<tr>
+<td>Gradient boosting</td>
+<td>najwyższa</td>
+<td><strong>nie</strong></td>
+<td>jw.</td>
+</tr>
+</tbody>
+</table>
+<p>To nie jest tabela, z której wybiera się ostatni wiersz. Wybór zależy od tego, do czego model służy:</p>
+<ul>
+<li><strong>System podpowiadający lekarzowi diagnozę</strong> musi umieć uzasadnić każdą rekomendację - lekarz bierze na siebie odpowiedzialność i nie podpisze się pod „bo model tak powiedział". Drzewo albo regresja logistyczna.</li>
+<li><strong>Decyzja kredytowa</strong> podlega w Unii Europejskiej prawu do wyjaśnienia decyzji zautomatyzowanej (RODO). Model niewytłumaczalny bywa <strong>nie do wdrożenia z przyczyn prawnych</strong>, niezależnie od dokładności.</li>
+<li><strong>Ranking pacjentów do zaproszenia na badanie przesiewowe</strong> nikogo nie krzywdzi i nie wymaga uzasadnienia wobec pojedynczej osoby. Tu bierzemy najdokładniejszy model, jaki mamy.</li>
+</ul>
+<p>Istnieją metody wyjaśniania modeli nieprzejrzystych po fakcie (SHAP, LIME) - ale dają przybliżenie działania modelu, a nie jego rzeczywistą regułę. To osobny, obszerny temat.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=00d9a489"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Zadania">Zadania<a class="anchor-link" href="#Zadania">¶</a></h1><p>Modele porównuj <strong>walidacją krzyżową</strong> na <code>X_ucz</code> / <code>y_ucz</code> (obiekt <code>kfold</code>), a nie wynikiem na zbiorze testowym - tak jak w ćwiczeniu 06.</p>
+<h2 id="Zadanie-1:-Policz-Gini-sam">Zadanie 1: Policz Gini sam<a class="anchor-link" href="#Zadanie-1:-Policz-Gini-sam">¶</a></h2><ol>
+<li>Wytrenuj <code>DecisionTreeClassifier(max_depth=1, random_state=42)</code> na <code>X_ucz</code>, <code>y_ucz</code>.</li>
+<li>Odczytaj z modelu cechę i próg wybrane w korzeniu: <code>drzewo.tree_.feature[0]</code> oraz <code>drzewo.tree_.threshold[0]</code> (indeks cechy odnosi się do kolejności kolumn w <code>X.columns</code>).</li>
+<li>Korzystając z funkcji <code>gini</code> z sekcji 1, policz <strong>ręcznie</strong>: Gini korzenia, Gini obu liści oraz ważony zysk z tego podziału.</li>
+<li>Porównaj swoje liczby z wartościami widocznymi na rysunku <code>plot_tree</code> tego samego drzewa.</li>
+</ol>
+<p>Jeśli liczby się zgadzają, rozumiesz, co drzewo faktycznie robi.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a87a07f7">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ce64aac2"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-2:-Czytelno%C5%9B%C4%87-drzewa-a-jego-g%C5%82%C4%99boko%C5%9B%C4%87">Zadanie 2: Czytelność drzewa a jego głębokość<a class="anchor-link" href="#Zadanie-2:-Czytelno%C5%9B%C4%87-drzewa-a-jego-g%C5%82%C4%99boko%C5%9B%C4%87">¶</a></h2><ol>
+<li>Narysuj <code>plot_tree</code> dla drzew o <code>max_depth</code> = 2, 4 i 6 (trzy osobne rysunki, <code>figsize</code> co najmniej (18, 9)).</li>
+<li>Dla każdego wypisz: liczbę liści, głębokość oraz wynik walidacji krzyżowej.</li>
+<li>Spróbuj narysować drzewo bez ograniczenia głębokości.</li>
+</ol>
+<p>Odpowiedz sobie: <strong>przy której głębokości rysunek przestaje być czytelny?</strong> Porównaj tę wartość z głębokością, przy której wynik walidacji krzyżowej przestaje rosnąć. Czy to ta sama wartość?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=fb3413df">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=694c38fd"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-3:-Przycinanie-przez-ccp_alpha">Zadanie 3: Przycinanie przez <code>ccp_alpha</code><a class="anchor-link" href="#Zadanie-3:-Przycinanie-przez-ccp_alpha">¶</a></h2><p>Wybierz <code>ccp_alpha</code> uczciwie - walidacją krzyżową.</p>
+<ol>
+<li>Weź kandydatów wyliczonych w sekcji 3 (zmienna <code>kandydaci</code>).</li>
+<li>Dla każdego policz <code>cross_val_score</code> dla <code>DecisionTreeClassifier(random_state=42, ccp_alpha=a)</code>.</li>
+<li>Zbierz wyniki w <code>DataFrame</code>: <code>ccp_alpha</code>, średnia CV, odchylenie, liczba liści drzewa wytrenowanego na całym <code>X_ucz</code>.</li>
+<li>Narysuj wykres: średnia CV w funkcji <code>ccp_alpha</code> (oś X w skali logarytmicznej: <code>ax.set_xscale('log')</code>).</li>
+<li>Wskaż najlepszą <code>alpha</code> i porównaj wynik z drzewem <code>max_depth=5, min_samples_leaf=10</code>.</li>
+</ol>
+<p>Powinno to zająć około minuty. Pytanie dodatkowe: czy najlepsza <code>alpha</code> daje drzewo, które <strong>da się jeszcze narysować</strong>?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1f1c1a47">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=583fc49e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-4:-Ile-drzew-potrzebuje-las?">Zadanie 4: Ile drzew potrzebuje las?<a class="anchor-link" href="#Zadanie-4:-Ile-drzew-potrzebuje-las?">¶</a></h2><p>Sprawdź, jak wynik lasu zależy od <code>n_estimators</code>.</p>
+<ol>
+<li>Dla <code>n_estimators</code> ∈ {1, 5, 10, 25, 50, 100, 200} policz <code>cross_val_score</code> dla <code>RandomForestClassifier(random_state=42, n_jobs=-1)</code> i zmierz czas.</li>
+<li>Narysuj wykres: średnia CV w funkcji liczby drzew (z zaznaczonym odchyleniem, np. <code>ax.errorbar</code>).</li>
+<li>Wskaż, od której wartości krzywa przestaje rosnąć w sposób odczuwalny.</li>
+</ol>
+<p>Uwaga na czas: całość to około 400 dopasowań drzew, czyli <strong>mniej więcej minuta</strong>. Nie zwiększaj listy powyżej 200.</p>
+<p>Zastanów się: dlaczego przy <code>n_estimators=1</code> las wypada <strong>gorzej</strong> od przyciętego drzewa z sekcji 4, mimo że to „ten sam algorytm"?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=bc0a09da">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1ae72422"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-5:-Czy-losowanie-cech-naprawd%C4%99-pomaga?">Zadanie 5: Czy losowanie cech naprawdę pomaga?<a class="anchor-link" href="#Zadanie-5:-Czy-losowanie-cech-naprawd%C4%99-pomaga?">¶</a></h2><p>To zadanie sprawdza twierdzenie z sekcji 4 - że losowanie cech w węzłach jest tym, co odróżnia las losowy od zwykłego uśredniania drzew.</p>
+<p>Dla <code>max_features</code> ∈ {1, 2, 'sqrt', 4, 6, None} policz <code>cross_val_score</code> dla <code>RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)</code> i wypisz wyniki w tabeli.</p>
+<p>Przypomnienie: <code>max_features=None</code> oznacza „rozważaj wszystkie cechy w każdym węźle" - czyli las <strong>bez</strong> drugiego źródła losowości, sam bagging.</p>
+<p>Pytanie: czy <code>None</code> wypadło najlepiej? Jeśli nie - dlaczego ograniczanie modelowi wyboru poprawia wynik?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=6b60ac5d">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ab668d3f"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-6:-Boosting---learning_rate-i-liczba-drzew">Zadanie 6: Boosting - <code>learning_rate</code> i liczba drzew<a class="anchor-link" href="#Zadanie-6:-Boosting---learning_rate-i-liczba-drzew">¶</a></h2><ol>
+<li>Dla <code>HistGradientBoostingClassifier(random_state=42)</code> sprawdź kombinacje: <code>learning_rate</code> ∈ {0,01, 0,1, 0,5} × <code>max_iter</code> ∈ {50, 200}. To 6 kombinacji, każda przez <code>cross_val_score</code> - <strong>około minuty</strong>.</li>
+<li>Zbierz wyniki w tabeli i wypisz posortowane malejąco.</li>
+<li>Porównaj najlepszy wynik z lasem z sekcji 4.</li>
+</ol>
+<p>Odpowiedz: przy którym <code>learning_rate</code> zwiększenie <code>max_iter</code> z 50 do 200 pomogło najbardziej, a przy którym nie zmieniło nic (albo zaszkodziło)? Jak to się ma do opisu boostingu z sekcji 5?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=3b0416bc">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9a7e4c64"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-7-(trudniejsze):-Zdemaskuj-wa%C5%BCno%C5%9B%C4%87-cech">Zadanie 7 (trudniejsze): Zdemaskuj ważność cech<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Zdemaskuj-wa%C5%BCno%C5%9B%C4%87-cech">¶</a></h2><p>Sprawdzisz teraz empirycznie zarzut postawiony w sekcji 6: że <code>feature_importances_</code> faworyzuje cechy o wielu różnych wartościach.</p>
+<ol>
+<li><p>Zbuduj <code>X_plus</code> = <code>X_ucz</code> z <strong>dwiema dodatkowymi kolumnami czystego szumu</strong> (<code>rng = np.random.default_rng(42)</code>):</p>
+<ul>
+<li><code>szum_ciagly</code> - wartości z rozkładu normalnego (<code>rng.normal(size=len(X_ucz))</code>), praktycznie same unikalne,</li>
+<li><code>szum_binarny</code> - wartości 0/1 (<code>rng.integers(0, 2, size=len(X_ucz))</code>).</li>
+</ul>
+<p>Obie są <strong>całkowicie niezależne od etykiety (ang. <em>label</em>)</strong> - żadna nie niesie informacji.</p>
+</li>
+<li><p>Wytrenuj na <code>X_plus</code> las (<code>n_estimators=100, random_state=42</code>).</p>
+</li>
+<li><p>Wypisz <code>feature_importances_</code> posortowane malejąco. <strong>Na którym miejscu wylądował <code>szum_ciagly</code>, a na którym <code>szum_binarny</code>?</strong></p>
+</li>
+<li><p>Policz <code>permutation_importance</code> na odpowiednio rozszerzonym zbiorze testowym i porównaj obie miary dla obu kolumn szumu.</p>
+</li>
+<li><p>Sprawdź, czy dodanie kolumn szumu zmieniło wynik walidacji krzyżowej lasu.</p>
+</li>
+</ol>
+<p>Punkt 3 jest sednem zadania. Zanim uruchomisz kod - czy spodziewasz się, że obie kolumny szumu dostaną podobną ważność Giniego?</p>
+<p>Podpowiedź do punktu 1:</p>
+<div class="highlight"><pre><span></span><span class="n">X_plus</span> <span class="o">=</span> <span class="n">X_ucz</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">X_plus</span><span class="p">[</span><span class="s1">'szum_ciagly'</span><span class="p">]</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">))</span>
+<span class="n">X_plus</span><span class="p">[</span><span class="s1">'szum_binarny'</span><span class="p">]</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=3b0e2898">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a146f117"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Pytania-do-przemy%C5%9Blenia">Pytania do przemyślenia<a class="anchor-link" href="#Pytania-do-przemy%C5%9Blenia">¶</a></h1><p>Odpowiadasz słowami, nie kodem.</p>
+<ol>
+<li>Las losowy składa się z drzew, z których każde jest przeuczone (rosną bez ograniczeń). Dlaczego cały las <strong>nie jest</strong> przeuczony w tym samym stopniu?</li>
+<li>Dlaczego zwiększanie <code>n_estimators</code> w lesie praktycznie nie grozi przeuczeniem, a zwiększanie <code>n_estimators</code> w boostingu - tak? Skąd bierze się ta różnica?</li>
+<li>Granica decyzyjna drzewa składa się z odcinków prostopadłych do osi. Jak wyglądałaby granica narysowana przez las stu drzew? Czy nadal byłaby „schodkowa"?</li>
+<li>Cecha A i cecha B są ze sobą silnie skorelowane i obie dobrze przewidują chorobę. Co pokaże <code>feature_importances_</code> lasu, a co <code>permutation_importance</code>? Która z tych odpowiedzi jest bardziej myląca dla odbiorcy raportu?</li>
+<li>Szpital chce wdrożyć model przesiewowy. Wersja A: drzewo o głębokości 4, skuteczność 76%. Wersja B: gradient boosting, skuteczność 79%. Jakie <strong>trzy pytania</strong> musisz zadać zamawiającemu, zanim doradzisz wybór?</li>
+<li>W ćwiczeniu 01 <code>PatientID</code> wylądował wysoko w rankingu ważności cech pojedynczego drzewa. Czy w lesie losowym byłby równie wysoko, niżej, czy wyżej? Uzasadnij, odwołując się do losowania cech w węzłach.</li>
+</ol>
+<h1 id="Chcesz-wiedzie%C4%87-wi%C4%99cej">Chcesz wiedzieć więcej<a class="anchor-link" href="#Chcesz-wiedzie%C4%87-wi%C4%99cej">¶</a></h1><ul>
+<li><a href="https://scikit-learn.org/stable/modules/tree.html">Drzewa decyzyjne w scikit-learn</a> - w tym sekcja o przycinaniu kosztowo-złożonościowym i o złożoności obliczeniowej.</li>
+<li><a href="https://scikit-learn.org/stable/modules/ensemble.html">Metody zespołowe</a> - lasy, bagging, boosting i głosowanie w jednym miejscu.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.tree.plot_tree.html"><code>plot_tree</code></a> - zobacz też <code>export_text</code>, które wypisuje drzewo jako tekst (przydatne, gdy rysunek jest za duży).</li>
+<li><a href="https://scikit-learn.org/stable/modules/permutation_importance.html">Ważność permutacyjna</a> - z przykładem pokazującym problem cech o wielu wartościach.</li>
+<li><a href="https://scikit-learn.org/stable/auto_examples/inspection/plot_permutation_importance.html">Pułapki interpretacji ważności cech</a> - gotowy przykład ze skorelowanymi cechami.</li>
+</ul>
+<p>W kolejnym ćwiczeniu (<strong>08 - Uczenie nienadzorowane</strong>) zniknie etykieta. Zamiast pytać „czy ten pacjent choruje", zapytamy „czy w tych danych da się w ogóle znaleźć jakieś grupy pacjentów" - i okaże się, że bez etykiety zmienia się nie tylko algorytm, ale i sposób oceniania wyników.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="06-walidacja-dobor-modelu.html"><span>Poprzednie</span>Ćwiczenie 6: Walidacja i dobór modelu</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="08-uczenie-nienadzorowane.html"><span>Następne</span>Ćwiczenie 8: Uczenie nienadzorowane - grupowanie i redukcja wymiarowości</a>
+</nav>
+</div></main>
+
+</body>
+</html>

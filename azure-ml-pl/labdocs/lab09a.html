@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 9A: Przeglądanie wyjaśnień modeli z automatycznego uczenia maszynowego</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (polski)</a></div><div class="tresc">
+<a class="pobierz" href="../09a-reviewing-automated-machine-learning-explanations.html">Notatnik do tego ćwiczenia</a><h1>Lab 9A: Przeglądanie wyjaśnień modeli z automatycznego uczenia maszynowego</h1>
+<h2>Po co jest to ćwiczenie?</h2>
+<p>Model, który dobrze przewiduje, to jeszcze nie model, któremu można zaufać. Przy przewidywaniu cukrzycy pytanie „dlaczego akurat ten pacjent?&quot; pada natychmiast - i nie jest to ciekawość, tylko warunek dopuszczenia modelu do użycia. Podobnie dzieje się wszędzie tam, gdzie decyzja dotyczy człowieka: przy ocenie wniosku kredytowego, przy kolejności przyjęć do lekarza, przy rekrutacji.</p>
+<p>Stąd pojęcie <strong>wyjaśnialności modelu (ang. <em>model explainability</em>)</strong>: zestaw metod, które pokazują, na czym model opiera swoje decyzje, zamiast traktować go jak czarną skrzynkę. Najczęściej używanym narzędziem jest <strong>ważność cech (ang. <em>feature importance</em>)</strong> - liczba mówiąca, jak mocno każda kolumna danych wpływa na przewidywanie.</p>
+<p>W <a href="lab08b.html">Lab 8B</a> automatyczne uczenie maszynowe wybrało najlepszy model za Ciebie. Tutaj zobaczysz, że przy okazji potrafi też wyjaśnić, co ten model uznał za istotne - wystarczy jedno ustawienie w konfiguracji zadania (job).</p>
+<blockquote>
+<p><strong>Gdzie ogląda się wyjaśnienia</strong>: wyniki trafiają na kartę <strong>Explanations (preview)</strong> w Azure Machine Learning studio. SDK nie daje sposobu, żeby wciągnąć te dane z powrotem do notatnika - dlatego w tym ćwiczeniu wyjaśnienia przegląda się w interfejsie, a nie wypisuje w Pythonie. Notatnik służy do uruchomienia zadania i wypisania linku.</p>
+<p>Pełny <strong>Responsible AI dashboard</strong> - z analizą błędów, sprawiedliwością i analizą przyczynową - <strong>nie jest dostępny dla modeli AutoML</strong>; studio pokazuje tam komunikat „Responsible AI dashboard is currently not supported for AutoML models&quot;. Taki pulpit zbudujesz w <a href="lab09b.html">Lab 9B</a>, dla modelu wytrenowanego zwykłym skryptem.</p>
+</blockquote>
+<h2>Czego się nauczysz</h2>
+<ol>
+<li>Co znaczy ważność cech i czym różni się od zwykłej korelacji.</li>
+<li>Jak włączyć generowanie wyjaśnień w zadaniu automatycznego uczenia maszynowego (<code>enable_model_explainability=True</code>).</li>
+<li>Jak otworzyć kartę <strong>Explanations (preview)</strong> najlepszego modelu i odczytać wykres ważności cech.</li>
+<li>Czym jest <strong>inżynieria cech (ang. <em>feature engineering</em>)</strong> wykonywana automatycznie przez AutoML i jak wpływa na to, co widać w wyjaśnieniach.</li>
+<li>Jak porównać ważność cech surowych (<strong>Raw features</strong>) z cechami wytworzonymi automatycznie (<strong>Engineered features</strong>).</li>
+</ol>
+<h2>Zanim zaczniesz</h2>
+<p>Upewnij się, że masz ukończone ćwiczenia <a href="lab01a.html">Lab 1A</a> i <a href="lab01b.html">Lab 1B</a> - powstaje w nich obszar roboczy Azure Machine Learning oraz pozostałe zasoby używane w tym ćwiczeniu. Przydatne będzie też <a href="lab08b.html">Lab 8B</a>, w którym omówione jest samo automatyczne uczenie maszynowe.</p>
+<p>Zadanie korzysta z zasobu danych <code>diabetes_mltable</code> (typ <code>mltable</code>) oraz z klastra obliczeniowego <code>aml-cluster</code>.</p>
+<h2>Krok 1: Uruchomienie zadania z włączonymi wyjaśnieniami</h2>
+<ol>
+<li><p>W <a href="https://ml.azure.com">Azure Machine Learning studio</a> przejdź do strony <strong>Compute</strong> swojego obszaru roboczego, a na karcie <strong>Compute instances</strong> upewnij się, że instancja obliczeniowa (<code>mymachine</code>) jest uruchomiona. Jeśli nie, uruchom ją.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: instancja obliczeniowa jest maszyną, na której działa notatnik i z której zlecasz zadanie. Samo trenowanie wykona się na klastrze <code>aml-cluster</code>, więc instancja tylko wydaje polecenia.</p>
+</blockquote>
+</li>
+<li><p>Gdy instancja obliczeniowa jest uruchomiona, kliknij przy niej link <strong>JupyterLab</strong>, aby otworzyć JupyterLab w nowej karcie przeglądarki.</p>
+</li>
+<li><p>W przeglądarce plików JupyterLab otwórz folder <code>MachineLearningCourse/materialy/azure-ml/pl</code> sklonowany w <a href="lab01b.html">Lab 1B</a>, a w nim notatnik <strong>09A - Reviewing Automated Machine Learning Explanations.ipynb</strong>. Upewnij się, że korzysta on z kernela <strong>Python 3.10 - SDK v2</strong>, a następnie czytaj komentarze w notatniku, uruchamiając kolejno każdą komórkę kodu.</p>
+<blockquote>
+<p><strong>Dlaczego kernel jest ważny</strong>: kernel decyduje, które środowisko Pythona wykonuje kod. Tylko kernel z SDK v2 ma zainstalowany pakiet <code>azure-ai-ml</code>.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Krok 2: Na co zwrócić uwagę w notatniku</h2>
+<h3>Jedno ustawienie, które robi całą robotę</h3>
+<p>W ustawieniach trenowania zadania AutoML pojawia się <code>enable_model_explainability=True</code>.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: bez tego ustawienia dostajesz sam model i jego metryki. Z nim Azure Machine Learning po wyłonieniu zwycięzcy uruchamia dodatkowe obliczenia, które mierzą wkład każdej cechy w przewidywanie, i zapisuje wynik na karcie <strong>Explanations (preview)</strong> tego modelu. Liczenie wyjaśnień kosztuje czas maszyn, dlatego jest opcjonalne - ale przy modelu, który ma trafić do użycia, warto je włączyć od razu, żeby nie wracać do tego później.</p>
+</blockquote>
+<h3>Mały budżet prób</h3>
+<p>Zadanie ma ograniczoną liczbę prób i limit czasu.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: celem tego ćwiczenia nie jest wygranie rankingu jakości, tylko obejrzenie wyjaśnień. Mały budżet skraca czekanie i rachunek, a wyjaśnienia wyglądają tak samo niezależnie od tego, czy model wybierano spośród pięciu, czy spośród pięćdziesięciu kandydatów.</p>
+</blockquote>
+<h3>Link do Studio</h3>
+<p>Ostatnia komórka każdego etapu pobiera ukończone zadanie i wypisuje adres <code>Studio URL</code>.</p>
+<blockquote>
+<p><strong>Dlaczego akurat link</strong>: to jedyna droga do wyjaśnień. Nie istnieje metoda SDK, która zwróciłaby ważność cech do zmiennej w Pythonie - dane wyjaśnień żyją w pulpicie w Studio. Jeśli spodziewasz się w notatniku tabelki z liczbami, to jej tam nie będzie i nie jest to usterka.</p>
+</blockquote>
+<h2>Krok 3: Odczytanie ważności cech w Studio</h2>
+<ol>
+<li><p>Otwórz link wypisany przez notatnik, aby przejść do zadania w Azure Machine Learning studio.</p>
+</li>
+<li><p>Na karcie <strong>Models + child jobs</strong> wybierz najlepszy model, a następnie otwórz jego kartę <strong>Explanations (preview)</strong>. Jeśli karta jest pusta, zaznacz model i kliknij <strong>Explain model</strong>, wskazując klaster obliczeniowy - wyliczenie wyjaśnień potrwa kilka minut.</p>
+</li>
+<li><p>Obejrzyj wykres ważności cech: cechy są uszeregowane od najmocniej do najsłabiej wpływającej na przewidywanie.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: ten wykres odpowiada na pytanie, którego nie odpowie żadna metryka jakości - na czym model faktycznie opiera decyzje. Dwa modele z takim samym AUC mogą patrzeć na zupełnie różne kolumny, a to, na którą patrzą, przesądza o tym, czy będą działać poprawnie na nowych pacjentach.</p>
+</blockquote>
+<blockquote>
+<p><strong>Jak to czytać ostrożnie</strong>: ważność cech mówi, z czego model korzysta, a nie co jest przyczyną choroby. Cecha może być ważna, bo faktycznie niesie informację, ale też dlatego, że przypadkiem towarzyszy wynikowi w danych treningowych. Kolumna <code>PatientID</code> jest tu wzorcowym przykładem: jest identyfikatorem, nigdy nie powinna trafić do modelu jako cecha, a gdyby trafiła i wyszła na wysokiej pozycji, byłby to sygnał przecieku danych, a nie odkrycie medyczne.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Krok 4: Cechy surowe a cechy wytworzone automatycznie</h2>
+<p>Notatnik uruchamia zadanie drugi raz, tym razem z włączonym przetwarzaniem wstępnym danych (<code>set_featurization</code>).</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: <strong>inżynieria cech</strong> to tworzenie nowych kolumn z już istniejących - skalowanie wartości, kodowanie kategorii, łączenie kolumn. AutoML potrafi zrobić to za Ciebie, co zwykle poprawia wynik, ale zmienia obraz w wyjaśnieniach: model uczy się już nie na oryginalnych kolumnach, tylko na tym, co z nich powstało.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga o nazewnictwie</strong>: przekształcenia wykonują potoki transformacji scikit-learn. To zupełnie co innego niż potoki (pipelines) Azure Machine Learning z ćwiczeń <a href="lab06a.html">Lab 6A</a> i <a href="lab06b.html">Lab 6B</a> - zbieżność nazw jest przypadkowa.</p>
+</blockquote>
+<ol>
+<li><p>Otwórz drugie zadanie przez link wypisany przez notatnik i przejdź do karty <strong>Explanations</strong>.</p>
+</li>
+<li><p>Odszukaj przełącznik <strong>Raw features</strong> / <strong>Engineered features</strong> i porównaj oba widoki.</p>
+<blockquote>
+<p><strong>Dlaczego warto zobaczyć oba</strong>: widok <strong>Engineered features</strong> mówi, na czym model liczy naprawdę - to jest odpowiedź techniczna. Widok <strong>Raw features</strong> przelicza ten wkład z powrotem na oryginalne kolumny danych i jest jedynym, który da się pokazać komuś spoza zespołu. Lekarzowi nic nie powie nazwa <code>BMI_MeanImputer</code>; zainteresuje go, ile znaczy sam wskaźnik BMI.</p>
+</blockquote>
+</li>
+</ol>
+<blockquote>
+<p><strong>Uwaga</strong>: Jeśli zamierzasz od razu przejść do <a href="lab09b.html">kolejnego ćwiczenia</a>, zostaw instancję obliczeniową uruchomioną. Jeśli robisz przerwę, warto zamknąć wszystkie karty JupyterLab i zatrzymać instancję obliczeniową przyciskiem <strong>Stop</strong>, aby uniknąć niepotrzebnych kosztów.</p>
+</blockquote>
+<h2>Co dalej</h2>
+<p>Tutaj wyjaśnienia powstały same, bo tak działa AutoML z jednym włączonym ustawieniem. Model napisany własnoręcznie takiej wygody nie ma - trzeba mu wyjaśnienia dorobić. W <a href="lab09b.html">Lab 9B</a> zrobisz to na dwa sposoby: lokalnie, biblioteką uruchamianą wprost w notatniku, oraz jako <strong>Responsible AI dashboard</strong> zbudowany dla modelu zarejestrowanego w obszarze roboczym.</p>
+<nav class="przejscia">
+<a class="wstecz" href="lab08b.html"><span>Poprzednie</span>Lab 8B: Automatyczne uczenie maszynowe</a>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<a class="dalej" href="lab09b.html"><span>Następne</span>Lab 9B: Interpretowanie modeli</a>
+</nav>
+</div></main>
+
+</body>
+</html>

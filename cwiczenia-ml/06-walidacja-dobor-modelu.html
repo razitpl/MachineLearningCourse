@@ -1,0 +1,1135 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenie 6: Walidacja i dobór modelu</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="pobierz/06_walidacja_dobor_modelu.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=3afaa843"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="%C4%86wiczenie-6:-Walidacja-i-dob%C3%B3r-modelu">Ćwiczenie 6: Walidacja i dobór modelu<a class="anchor-link" href="#%C4%86wiczenie-6:-Walidacja-i-dob%C3%B3r-modelu">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 01, w zadaniu 4, zrobiliśmy coś, co wyglądało całkowicie rozsądnie: sprawdziliśmy <code>max_depth</code> od 1 do 15, dla każdej wartości zmierzyliśmy skuteczność <strong>na zbiorze testowym</strong> i wybraliśmy tę, która wypadła najlepiej.</p>
+<p>To był błąd. I to nie drobiazg - to jest jeden z dwóch, trzech najczęstszych powodów, dla których model świetny w notatniku okazuje się przeciętny w produkcji.</p>
+<p>Zasada ze ćwiczenia 01 brzmiała: <em>modelu nie wolno oceniać na danych, na których się uczył</em>. Teraz musimy ją zaostrzyć:</p>
+<blockquote>
+<p><strong>Zbiór testowy wolno wykorzystać raz - na samym końcu. Każda decyzja podjęta na jego podstawie zużywa go.</strong></p>
+</blockquote>
+<p>Bo skoro spośród 15 głębokości wybraliśmy tę o najlepszym wyniku testowym, to informacja ze zbioru testowego <strong>przeciekła</strong> do naszego modelu - nie przez kod, tylko przez naszą własną decyzję. Wynik, który potem raportujemy, jest już optymistycznie obciążony. Oszukujemy samych siebie, i to w sposób, którego nie widać w kodzie.</p>
+<p>To ćwiczenie naprawia ten błąd i daje narzędzia, dzięki którym nie trzeba go już nigdy popełniać.</p>
+<h2 id="Czego-si%C4%99-nauczysz">Czego się nauczysz<a class="anchor-link" href="#Czego-si%C4%99-nauczysz">¶</a></h2><ol>
+<li>Dlaczego dobieranie hiperparametrów (ang. <em>hyperparameters</em>) na zbiorze testowym jest oszukiwaniem samego siebie.</li>
+<li>Jak podzielić dane na trzy części: uczącą, walidacyjną i testową - i kiedy to wystarcza.</li>
+<li>Czym jest walidacja krzyżowa (ang. <em>cross-validation</em>) i dlaczego daje stabilniejszą ocenę niż jeden podział.</li>
+<li>Jak przeszukać przestrzeń hiperparametrów za pomocą <code>GridSearchCV</code> i <code>RandomizedSearchCV</code>.</li>
+<li>Jak z krzywej uczenia (ang. <em>learning curve</em>) odczytać, czy pomoże więcej danych, czy raczej trzeba zmienić model.</li>
+<li>Dlaczego skalowanie wykonane <strong>przed</strong> walidacją krzyżową to przeciek danych (ang. <em>data leakage</em>) - i dlaczego <code>Pipeline</code> jest jedynym poprawnym rozwiązaniem.</li>
+</ol>
+<blockquote>
+<p><strong>Zanim zaczniesz</strong>: uruchamiaj komórki po kolei (Shift+Enter). Kilka komórek w tym notatniku liczy się dłużej niż poprzednio - przy każdej takiej napisane jest, ile mniej więcej to potrwa.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ac56e348"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Dane-i-przypomnienie-b%C5%82%C4%99du">1. Dane i przypomnienie błędu<a class="anchor-link" href="#1.-Dane-i-przypomnienie-b%C5%82%C4%99du">¶</a></h2><p>Pracujemy na znanym już zbiorze <code>dane/diabetes.csv</code> - 10 000 kart pacjentów, etykieta <code>Diabetic</code> (0/1). Przygotowanie jest identyczne jak w ćwiczeniu 01: usuwamy <code>PatientID</code>, dzielimy na <code>X</code> (cechy, ang. <em>features</em>) i <code>y</code> (etykietę, ang. <em>label</em>).</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=92ecee40">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.dummy</span><span class="w"> </span><span class="kn">import</span> <span class="n">DummyClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">SelectKBest</span><span class="p">,</span> <span class="n">f_classif</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">cross_val_score</span>
+
+<span class="n">dane</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'dane/diabetes.csv'</span><span class="p">)</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'PatientID'</span><span class="p">,</span> <span class="s1">'Diabetic'</span><span class="p">])</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span>
+
+<span class="n">X_ucz_pelny</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zbiór uczący (pełny): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_ucz_pelny</span><span class="p">)</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zbiór testowy:        </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Liczba cech:          </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a45677d1"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Odtw%C3%B3rzmy-b%C5%82%C4%85d-z-%C4%87wiczenia-01">Odtwórzmy błąd z ćwiczenia 01<a class="anchor-link" href="#Odtw%C3%B3rzmy-b%C5%82%C4%85d-z-%C4%87wiczenia-01">¶</a></h3><p>Poniższy kod robi dokładnie to, co robiliśmy poprzednio: dla każdej głębokości mierzy wynik na zbiorze testowym i wybiera najlepszą. Uruchom go i <strong>zwróć uwagę na ostatnią linię wydruku</strong>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b12cc14e">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+
+<span class="n">wyniki_testowe</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">glebokosc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">glebokosc</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz_pelny</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">)</span>
+    <span class="n">wyniki_testowe</span><span class="p">[</span><span class="n">glebokosc</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>   <span class="c1"># &lt;-- tu jest błąd</span>
+
+<span class="n">najlepsza</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">wyniki_testowe</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">wyniki_testowe</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Skuteczność na zbiorze TESTOWYM dla kolejnych głębokości:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">g</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">wyniki_testowe</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  max_depth=</span><span class="si">{</span><span class="n">g</span><span class="si">:</span><span class="s2">2d</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">w</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wybrana głębokość: </span><span class="si">{</span><span class="n">najlepsza</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Raportowany wynik: </span><span class="si">{</span><span class="n">wyniki_testowe</span><span class="p">[</span><span class="n">najlepsza</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">  &lt;-- ta liczba jest zawyżona"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1af6d22a"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Na-czym-dok%C5%82adnie-polega-oszustwo">Na czym dokładnie polega oszustwo<a class="anchor-link" href="#Na-czym-dok%C5%82adnie-polega-oszustwo">¶</a></h3><p>Zbiór testowy ma odpowiadać na jedno pytanie: <em>jak ten model poradzi sobie na danych, których nigdy nie widział</em>. Odpowiedź jest wiarygodna tylko wtedy, gdy testu użyliśmy <strong>raz</strong>.</p>
+<p>My użyliśmy go piętnaście razy i wybraliśmy maksimum. A maksimum z piętnastu pomiarów, z których każdy obarczony jest losowym błędem, jest <strong>systematycznie wyższe</strong> od prawdziwej wartości - wybieramy przecież nie tylko najlepszy model, ale i najszczęśliwszy zbieg okoliczności w tym konkretnym podziale danych.</p>
+<p>Analogia: student, który zna zestaw pytań egzaminacyjnych i wybiera ten wariant odpowiedzi, który daje najwyższą ocenę. Ocena przestaje mierzyć wiedzę, zaczyna mierzyć dopasowanie do konkretnego arkusza.</p>
+<table>
+<thead>
+<tr>
+<th>Co robimy</th>
+<th>Czy wolno</th>
+<th>Dlaczego</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uczymy model na zbiorze uczącym</td>
+<td>tak</td>
+<td>po to jest</td>
+</tr>
+<tr>
+<td>Porównujemy 15 wariantów na zbiorze testowym</td>
+<td><strong>nie</strong></td>
+<td>wybór jest podjęty na podstawie testu, więc test przestaje być bezstronny</td>
+</tr>
+<tr>
+<td>Porównujemy 15 wariantów na zbiorze walidacyjnym</td>
+<td>tak</td>
+<td>walidacyjny jest właśnie „na zużycie"</td>
+</tr>
+<tr>
+<td>Mierzymy raz, na końcu, na zbiorze testowym</td>
+<td>tak</td>
+<td>to jest jedyne poprawne użycie testu</td>
+</tr>
+</tbody>
+</table>
+<p>Rozwiązania są dwa i zajmiemy się oboma: <strong>trzeci zbiór</strong> (walidacyjny) oraz <strong>walidacja krzyżowa</strong>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=bf2fce77"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="2.-Trzy-zbiory:-ucz%C4%85cy,-walidacyjny,-testowy">2. Trzy zbiory: uczący, walidacyjny, testowy<a class="anchor-link" href="#2.-Trzy-zbiory:-ucz%C4%85cy,-walidacyjny,-testowy">¶</a></h2><p>Najprostsza naprawa: zamiast dwóch części, robimy trzy.</p>
+<table>
+<thead>
+<tr>
+<th>Zbiór</th>
+<th>Nazwa angielska</th>
+<th>Do czego służy</th>
+<th>Ile razy wolno go użyć</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>uczący</td>
+<td><em>training set</em></td>
+<td>model dopasowuje na nim swoje parametry</td>
+<td>dowolnie</td>
+</tr>
+<tr>
+<td>walidacyjny</td>
+<td><em>validation set</em></td>
+<td><strong>my</strong> wybieramy na nim hiperparametry i model</td>
+<td>dowolnie</td>
+</tr>
+<tr>
+<td>testowy</td>
+<td><em>test set</em></td>
+<td>końcowa, bezstronna ocena wybranego modelu</td>
+<td><strong>raz</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Warto zobaczyć różnicę między parametrem a hiperparametrem:</p>
+<ul>
+<li><strong>parametr</strong> (ang. <em>parameter</em>) - to, czego model uczy się sam z danych: progi w węzłach drzewa, wagi regresji logistycznej;</li>
+<li><strong>hiperparametr</strong> (ang. <em>hyperparameter</em>) - to, co ustawiamy my <strong>przed</strong> uczeniem: <code>max_depth</code>, <code>min_samples_leaf</code>, <code>C</code>, liczba drzew.</li>
+</ul>
+<p>Zbiór walidacyjny wycinamy <strong>ze zbioru uczącego</strong>, nie z testowego - testowy ma pozostać nietknięty.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5e4dfb87">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_wal</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_wal</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X_ucz_pelny</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">,</span>
+    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>        <span class="c1"># 25% z 80% całości = 20% całości</span>
+    <span class="n">stratify</span><span class="o">=</span><span class="n">y_ucz_pelny</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"uczący:      </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">)</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2">  (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2"> całości)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"walidacyjny: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_wal</span><span class="p">)</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2">  (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_wal</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2"> całości)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"testowy:     </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2">  (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2"> całości)"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d28f057e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Teraz to samo poszukiwanie głębokości, ale <strong>uczciwie</strong>: wybieramy na walidacyjnym, a zbioru testowego dotykamy dopiero na samym końcu, jeden raz.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=ba3f1ef9">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">wyniki</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">glebokosc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">glebokosc</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+    <span class="n">wyniki</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">'max_depth'</span><span class="p">:</span> <span class="n">glebokosc</span><span class="p">,</span>
+        <span class="s1">'uczacy'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">),</span>
+        <span class="s1">'walidacyjny'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_wal</span><span class="p">,</span> <span class="n">y_wal</span><span class="p">),</span>
+    <span class="p">})</span>
+
+<span class="n">tabela</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wyniki</span><span class="p">)</span>
+<span class="n">najlepsza_wal</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tabela</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'walidacyjny'</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">(),</span> <span class="s1">'max_depth'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tabela</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Najlepsza głębokość WEDŁUG ZBIORU WALIDACYJNEGO: </span><span class="si">{</span><span class="n">najlepsza_wal</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=15b23d18">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># Dopiero teraz - raz - sięgamy po zbiór testowy.</span>
+<span class="c1"># Model uczymy ponownie na CAŁYM zbiorze uczącym (uczący + walidacyjny),</span>
+<span class="c1"># bo skoro hiperparametr jest już wybrany, szkoda marnować dane.</span>
+<span class="n">model_koncowy</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">najlepsza_wal</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">model_koncowy</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz_pelny</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wynik na walidacyjnym (na jego podstawie wybraliśmy): "</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'walidacyjny'</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wynik na TESTOWYM (uczciwa ocena końcowa):            "</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model_koncowy</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Porównaj z liczbą z sekcji 1 - tam wynik był wybrany jako maksimum z testu."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a8ec880c"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Zwróć uwagę na kolejność: <strong>najpierw wybór, potem pomiar</strong>. Gdy raz zmierzysz wynik testowy i on Ci się nie spodoba, nie wolno wrócić i poprawić hiperparametru - w tym momencie zbiór testowy jest już zużyty i przestaje być bezstronny.</p>
+<p>Podział na trzy części ma jednak dwie wady:</p>
+<ol>
+<li><strong>Marnuje dane</strong> - model uczy się tylko na 60% zbioru zamiast na 80%.</li>
+<li><strong>Jeden podział to jeden pomiar</strong> - trafi się „łatwy" zbiór walidacyjny i wybierzemy zły hiperparametr, nie wiedząc o tym.</li>
+</ol>
+<p>Obie wady usuwa walidacja krzyżowa.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=014aad92"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="3.-Walidacja-krzy%C5%BCowa">3. Walidacja krzyżowa<a class="anchor-link" href="#3.-Walidacja-krzy%C5%BCowa">¶</a></h2><p>Pomysł jest prosty: zamiast wycinać jeden zbiór walidacyjny, dzielimy zbiór uczący na <strong>k równych części</strong> (ang. <em>folds</em>, „foldy"). Potem k razy uczymy model: za każdym razem jedna część pełni rolę walidacyjnej, a pozostałe k-1 rolę uczącej. Na koniec uśredniamy k wyników.</p>
+<p>Dla k = 5 wygląda to tak:</p>
+<pre><code>przebieg 1:  [WAL][ucz][ucz][ucz][ucz]
+przebieg 2:  [ucz][WAL][ucz][ucz][ucz]
+przebieg 3:  [ucz][ucz][WAL][ucz][ucz]
+przebieg 4:  [ucz][ucz][ucz][WAL][ucz]
+przebieg 5:  [ucz][ucz][ucz][ucz][WAL]
+</code></pre>
+<p>Co na tym zyskujemy:</p>
+<ul>
+<li><strong>każdy wiersz</strong> jest raz sprawdzany i k-1 razy używany do uczenia - nic się nie marnuje,</li>
+<li>dostajemy <strong>k wyników zamiast jednego</strong>, więc widzimy nie tylko średnią, ale i rozrzut,</li>
+<li>rozrzut jest cenną informacją sam w sobie: jeśli wyniki foldów rozjeżdżają się o kilka punktów procentowych, to różnica 0,3 punktu między dwoma modelami nic nie znaczy.</li>
+</ul>
+<p>Cena: model uczymy k razy zamiast raz, więc trwa to k razy dłużej.</p>
+<p>Używamy <code>StratifiedKFold</code> - odpowiednika <code>stratify=y</code> z <code>train_test_split</code>. Zapewnia, że w każdym foldzie proporcja chorych do zdrowych jest taka jak w całości. Przy klasyfikacji to powinien być domyślny wybór.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=51e04773">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">cross_val_score</span><span class="p">,</span> <span class="n">StratifiedKFold</span>
+
+<span class="n">kfold</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">drzewo</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">wyniki_cv</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">drzewo</span><span class="p">,</span> <span class="n">X_ucz_pelny</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">kfold</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">'accuracy'</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Wyniki poszczególnych foldów:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">wyniki_cv</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  fold </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">w</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Średnia:             </span><span class="si">{</span><span class="n">wyniki_cv</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Odchylenie std:      </span><span class="si">{</span><span class="n">wyniki_cv</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Przedział ± 1 odch.: </span><span class="si">{</span><span class="n">wyniki_cv</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">wyniki_cv</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> - "</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">wyniki_cv</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">wyniki_cv</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=048bc857"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Trzy argumenty <code>StratifiedKFold</code>, które warto rozumieć:</p>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Co robi</th>
+<th>Dlaczego tak</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>n_splits=5</code></td>
+<td>liczba foldów</td>
+<td>5 lub 10 to standard; więcej foldów = dokładniejsza ocena, ale dłużej</td>
+</tr>
+<tr>
+<td><code>shuffle=True</code></td>
+<td>miesza wiersze przed podziałem</td>
+<td>bez tego foldy są wycinane po kolei - katastrofa, jeśli dane są posortowane np. po etykiecie</td>
+</tr>
+<tr>
+<td><code>random_state=42</code></td>
+<td>ustala losowość mieszania</td>
+<td>powtarzalność; działa tylko przy <code>shuffle=True</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Uwaga</strong>: <code>random_state</code> bez <code>shuffle=True</code> scikit-learn odrzuci błędem - i słusznie, bo bez mieszania nie ma czego losować.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=6352d18c"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="4.-GridSearchCV---systematyczne-przeszukiwanie-siatki">4. <code>GridSearchCV</code> - systematyczne przeszukiwanie siatki<a class="anchor-link" href="#4.-GridSearchCV---systematyczne-przeszukiwanie-siatki">¶</a></h2><p>Skoro potrafimy uczciwie ocenić jeden zestaw hiperparametrów, możemy zautomatyzować sprawdzanie wielu. <code>GridSearchCV</code> robi dokładnie to: przyjmuje <strong>siatkę</strong> (ang. <em>grid</em>) wartości, sprawdza <strong>każdą kombinację</strong> walidacją krzyżową i zapamiętuje najlepszą.</p>
+<p>Uwaga na liczbę dopasowań - rośnie ona mnożnikowo:</p>
+<pre><code>liczba dopasowań = (liczba kombinacji) × (liczba foldów)
+</code></pre>
+<p>Nasza siatka poniżej ma 5 × 3 × 2 = 30 kombinacji, a przy 5 foldach daje 150 dopasowań drzewa na 6400 wierszach. Z <code>n_jobs=-1</code> (wszystkie rdzenie) <strong>powinno to zająć kilkanaście sekund</strong>. Gdyby dołożyć do siatki jeszcze jeden parametr o 5 wartościach, byłoby to już 750 dopasowań - i kilka minut czekania. Siatki trzeba projektować z głową.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=bf2be7d0">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridSearchCV</span>
+
+<span class="n">siatka</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'max_depth'</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="s1">'min_samples_leaf'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span>
+    <span class="s1">'criterion'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'gini'</span><span class="p">,</span> <span class="s1">'entropy'</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">szukanie</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
+    <span class="n">estimator</span><span class="o">=</span><span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+    <span class="n">param_grid</span><span class="o">=</span><span class="n">siatka</span><span class="p">,</span>
+    <span class="n">cv</span><span class="o">=</span><span class="n">kfold</span><span class="p">,</span>
+    <span class="n">scoring</span><span class="o">=</span><span class="s1">'accuracy'</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>          <span class="c1"># wykorzystaj wszystkie rdzenie procesora</span>
+    <span class="n">return_train_score</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">szukanie</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz_pelny</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">)</span>   <span class="c1"># kilkanaście sekund</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Najlepsze hiperparametry:"</span><span class="p">,</span> <span class="n">szukanie</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Najlepszy wynik walidacji krzyżowej: </span><span class="si">{</span><span class="n">szukanie</span><span class="o">.</span><span class="n">best_score_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=bc503a04"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>GridSearchCV</code> zapisuje pełną historię w <code>cv_results_</code>. To słownik, który najwygodniej obejrzeć jako <code>DataFrame</code> - poniżej pięć najlepszych kombinacji.</p>
+<p>Kolumna <code>std_test_score</code> jest tu ważniejsza, niż się wydaje: jeśli różnica średnich między pierwszym a piątym miejscem jest <strong>mniejsza niż odchylenie standardowe</strong>, to ranking jest w dużej mierze dziełem przypadku. W takiej sytuacji rozsądnie jest wybrać nie najlepszy wynik, lecz <strong>najprostszy model o wyniku porównywalnym</strong> - prostszy model rzadziej zaskakuje na produkcji.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=92c0e94e">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">wyniki_siatki</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">szukanie</span><span class="o">.</span><span class="n">cv_results_</span><span class="p">)</span>
+
+<span class="n">kolumny</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'param_max_depth'</span><span class="p">,</span> <span class="s1">'param_min_samples_leaf'</span><span class="p">,</span> <span class="s1">'param_criterion'</span><span class="p">,</span>
+           <span class="s1">'mean_test_score'</span><span class="p">,</span> <span class="s1">'std_test_score'</span><span class="p">,</span> <span class="s1">'mean_train_score'</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Pięć najlepszych kombinacji:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">wyniki_siatki</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'mean_test_score'</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+      <span class="p">[</span><span class="n">kolumny</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Pięć najgorszych kombinacji:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">wyniki_siatki</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'mean_test_score'</span><span class="p">)</span>
+      <span class="p">[</span><span class="n">kolumny</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2308e6c8"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Porównaj kolumny <code>mean_train_score</code> i <code>mean_test_score</code>. Tam, gdzie uczący jest bliski 1,0, a walidacyjny wyraźnie niższy, patrzysz na <strong>przeuczenie</strong> (ang. <em>overfitting</em>). Tam, gdzie oba są niskie i podobne - na <strong>niedouczenie</strong> (ang. <em>underfitting</em>).</p>
+<p>Po zakończeniu <code>GridSearchCV</code> domyślnie (<code>refit=True</code>) uczy najlepszy model jeszcze raz na <strong>całych</strong> przekazanych danych. Dlatego obiekt <code>szukanie</code> można od razu używać jak model: ma <code>predict</code> i <code>score</code>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=01527c3b">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># Teraz - i dopiero teraz - jednorazowa ocena na zbiorze testowym.</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wynik walidacji krzyżowej (na nim wybieraliśmy): </span><span class="si">{</span><span class="n">szukanie</span><span class="o">.</span><span class="n">best_score_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wynik na zbiorze TESTOWYM (ocena końcowa):       "</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">szukanie</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=150f7495"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="5.-RandomizedSearchCV---losowanie-zamiast-siatki">5. <code>RandomizedSearchCV</code> - losowanie zamiast siatki<a class="anchor-link" href="#5.-RandomizedSearchCV---losowanie-zamiast-siatki">¶</a></h2><p>Siatka ma wadę: koszt rośnie wykładniczo z liczbą hiperparametrów. Cztery parametry po pięć wartości to już 625 kombinacji.</p>
+<p><code>RandomizedSearchCV</code> zamiast sprawdzać wszystko, <strong>losuje ustaloną liczbę kombinacji</strong> (<code>n_iter</code>) z podanych rozkładów lub list. Brzmi jak gorsze rozwiązanie, a zwykle jest lepsze, i to z konkretnego powodu:</p>
+<blockquote>
+<p>W typowym problemie tylko jeden lub dwa hiperparametry naprawdę wpływają na wynik. Siatka marnuje większość dopasowań na staranne przeszukiwanie parametrów, które nic nie zmieniają. Losowanie sprawdza <strong>więcej różnych wartości tego jednego ważnego parametru</strong> przy tym samym budżecie.</p>
+</blockquote>
+<p>Dodatkowa zaleta: budżet ustalasz Ty (<code>n_iter</code>), więc z góry wiesz, ile to potrwa. Poniżej 30 losowań × 5 foldów = 150 dopasowań, czyli podobnie jak siatka wyżej - ale przeszukiwana przestrzeń jest znacznie większa.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=6700b0a8">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomizedSearchCV</span>
+
+<span class="n">przestrzen</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'max_depth'</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="s1">'min_samples_leaf'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span>
+    <span class="s1">'min_samples_split'</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span>
+    <span class="s1">'criterion'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'gini'</span><span class="p">,</span> <span class="s1">'entropy'</span><span class="p">],</span>
+    <span class="s1">'max_features'</span><span class="p">:</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">'sqrt'</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">liczba_kombinacji</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">3</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Pełna siatka miałaby </span><span class="si">{</span><span class="n">liczba_kombinacji</span><span class="si">}</span><span class="s2"> kombinacji "</span>
+      <span class="sa">f</span><span class="s2">"= </span><span class="si">{</span><span class="n">liczba_kombinacji</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">5</span><span class="si">}</span><span class="s2"> dopasowań (za długo)."</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Losujemy 30 kombinacji = 150 dopasowań."</span><span class="p">)</span>
+
+<span class="n">losowanie</span> <span class="o">=</span> <span class="n">RandomizedSearchCV</span><span class="p">(</span>
+    <span class="n">estimator</span><span class="o">=</span><span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+    <span class="n">param_distributions</span><span class="o">=</span><span class="n">przestrzen</span><span class="p">,</span>
+    <span class="n">n_iter</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>           <span class="c1"># budżet: tyle kombinacji sprawdzimy</span>
+    <span class="n">cv</span><span class="o">=</span><span class="n">kfold</span><span class="p">,</span>
+    <span class="n">scoring</span><span class="o">=</span><span class="s1">'accuracy'</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>     <span class="c1"># powtarzalne losowanie kombinacji</span>
+<span class="p">)</span>
+
+<span class="n">losowanie</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz_pelny</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">)</span>   <span class="c1"># kilkanaście sekund</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Najlepsze hiperparametry:"</span><span class="p">,</span> <span class="n">losowanie</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Najlepszy wynik CV: </span><span class="si">{</span><span class="n">losowanie</span><span class="o">.</span><span class="n">best_score_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dla porównania GridSearchCV: </span><span class="si">{</span><span class="n">szukanie</span><span class="o">.</span><span class="n">best_score_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=970c6f36"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>GridSearchCV</code></th>
+<th><code>RandomizedSearchCV</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Co sprawdza</td>
+<td>każdą kombinację z siatki</td>
+<td>losowo wybrane <code>n_iter</code> kombinacji</td>
+</tr>
+<tr>
+<td>Koszt</td>
+<td>rośnie mnożnikowo z liczbą parametrów</td>
+<td>ustalasz go sam przez <code>n_iter</code></td>
+</tr>
+<tr>
+<td>Wartości ciągłe</td>
+<td>musisz je wyliczyć ręcznie w listę</td>
+<td>przyjmuje rozkłady, np. <code>scipy.stats.uniform</code></td>
+</tr>
+<tr>
+<td>Kiedy używać</td>
+<td>1-2 parametry, mała siatka, chcesz pełny obraz</td>
+<td>3 i więcej parametrów, ograniczony czas</td>
+</tr>
+</tbody>
+</table>
+<p>W praktyce częsty schemat to: najpierw <code>RandomizedSearchCV</code> po szerokiej przestrzeni, żeby znaleźć obiecujący rejon, potem drobna <code>GridSearchCV</code> wokół znalezionych wartości.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c775f3b8"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="6.-Krzywa-uczenia---czy-pomo%C5%BCe-wi%C4%99cej-danych?">6. Krzywa uczenia - czy pomoże więcej danych?<a class="anchor-link" href="#6.-Krzywa-uczenia---czy-pomo%C5%BCe-wi%C4%99cej-danych?">¶</a></h2><p>Załóżmy, że model nie działa wystarczająco dobrze. Masz do wyboru kilka kosztownych ruchów: zebrać więcej danych, dołożyć cechy, zmienić algorytm. Który z nich ma sens?</p>
+<p><strong>Krzywa uczenia</strong> (ang. <em>learning curve</em>) odpowiada na to pytanie. Uczy ten sam model na coraz większych podzbiorach danych i dla każdego rozmiaru rysuje dwa wyniki: na danych uczących i na walidacyjnych (przez walidację krzyżową).</p>
+<p>Czyta się ją tak:</p>
+<table>
+<thead>
+<tr>
+<th>Obraz na wykresie</th>
+<th>Diagnoza</th>
+<th>Co robić</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Obie krzywe nisko, blisko siebie, płaskie</td>
+<td><strong>niedouczenie</strong> - model jest za prosty</td>
+<td>zwiększyć złożoność modelu, dodać cechy; więcej danych <strong>nie pomoże</strong></td>
+</tr>
+<tr>
+<td>Ucząca wysoko, walidacyjna wyraźnie niżej, przerwa się nie zamyka</td>
+<td><strong>przeuczenie</strong> - model za bardzo dopasowuje się do danych</td>
+<td>uprościć model, mocniej regularyzować, <strong>więcej danych pomoże</strong></td>
+</tr>
+<tr>
+<td>Krzywe zbiegają się i obie wypłaszczają wysoko</td>
+<td>model dobrze dobrany</td>
+<td>więcej danych da już niewiele - szukaj lepszych cech lub innego algorytmu</td>
+</tr>
+</tbody>
+</table>
+<p>Poniższa komórka liczy się <strong>około pół minuty do minuty</strong>: 5 rozmiarów × 5 foldów × 2 modele = 50 dopasowań, każde na innym wycinku danych.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=3893e220">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">learning_curve</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rysuj_krzywa_uczenia</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">tytul</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+    <span class="n">rozmiary</span><span class="p">,</span> <span class="n">wyniki_ucz</span><span class="p">,</span> <span class="n">wyniki_wal</span> <span class="o">=</span> <span class="n">learning_curve</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span> <span class="n">X_ucz_pelny</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">,</span>
+        <span class="n">train_sizes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="n">cv</span><span class="o">=</span><span class="n">kfold</span><span class="p">,</span>
+        <span class="n">scoring</span><span class="o">=</span><span class="s1">'accuracy'</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rozmiary</span><span class="p">,</span> <span class="n">wyniki_ucz</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'zbiór uczący'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rozmiary</span><span class="p">,</span> <span class="n">wyniki_wal</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'s'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'walidacja krzyżowa'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">rozmiary</span><span class="p">,</span>
+                    <span class="n">wyniki_wal</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">wyniki_wal</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                    <span class="n">wyniki_wal</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">wyniki_wal</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">tytul</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'liczba przykładów uczących'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'skuteczność'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">'lower right'</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">osie</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">rysuj_krzywa_uczenia</span><span class="p">(</span><span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+                     <span class="s1">'Drzewo max_depth=2 (model prosty)'</span><span class="p">,</span> <span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">rysuj_krzywa_uczenia</span><span class="p">(</span><span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+                     <span class="s1">'Drzewo bez ograniczeń (model złożony)'</span><span class="p">,</span> <span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=544a4c2b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Porównaj oba wykresy. Po lewej obie krzywe leżą blisko siebie i nisko - dołożenie danych nie podniesie ich, bo ogranicza je sam model. Po prawej krzywa ucząca siedzi przy 1,0, a walidacyjna znacznie niżej - to przerwa, którą <strong>można</strong> zmniejszać większą liczbą danych (albo przycięciem drzewa).</p>
+<p>To jest praktyczna wartość tego wykresu: mówi Ci, na co wydać pieniądze. Zbieranie danych jest drogie; jeśli krzywe są płaskie i zbieżne, wydasz je bez efektu.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=421922a3"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="7.-Przeciek-danych-przy-skalowaniu">7. Przeciek danych przy skalowaniu<a class="anchor-link" href="#7.-Przeciek-danych-przy-skalowaniu">¶</a></h2><p>Została najbardziej podstępna rzecz w całym ćwiczeniu. Spójrz na ten kod i spróbuj znaleźć w nim błąd:</p>
+<div class="highlight"><pre><span></span><span class="n">skaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">X_przeskalowane</span> <span class="o">=</span> <span class="n">skaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_ucz_pelny</span><span class="p">)</span>     <span class="c1"># skalujemy CAŁOŚĆ</span>
+<span class="n">wyniki</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">X_przeskalowane</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+<p>Wygląda niewinnie. A jednak jest błędny, i to z tego samego powodu co wybór <code>max_depth</code> na teście.</p>
+<p><code>StandardScaler</code> w metodzie <code>fit</code> liczy <strong>średnią i odchylenie standardowe</strong> każdej cechy. Jeśli policzymy je na całym zbiorze uczącym, to średnia zawiera wkład <strong>także tych wierszy, które w danym foldzie pełnią rolę walidacyjnych</strong>. Czyli model - pośrednio, przez parametry skalowania - dostaje informację o danych, których „nie powinien znać". To jest przeciek danych (ang. <em>data leakage</em>).</p>
+<p>Przy <code>StandardScaler</code> i 8000 wierszach efekt jest drobny - średnia policzona z 8000 wierszy i z 6400 wierszy niewiele się różni. Ale dokładnie ten sam mechanizm przy innych przekształceniach jest <strong>druzgocący</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Przekształcenie</th>
+<th>Co „wycieka"</th>
+<th>Skala problemu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StandardScaler</code></td>
+<td>średnia i odchylenie</td>
+<td>mała przy dużych danych, rosnąca przy małych</td>
+</tr>
+<tr>
+<td>Uzupełnianie braków medianą</td>
+<td>mediana z całości</td>
+<td>średnia</td>
+</tr>
+<tr>
+<td><code>SelectKBest</code> - wybór cech</td>
+<td><strong>które cechy korelują z etykietą</strong></td>
+<td>ogromna</td>
+</tr>
+<tr>
+<td>Nadpróbkowanie klasy mniejszościowej</td>
+<td>kopie wierszy trafiają do obu części</td>
+<td>ogromna</td>
+</tr>
+</tbody>
+</table>
+<p>Rozwiązanie jest jedno i zawsze to samo: <strong>wszystkie kroki przetwarzania muszą znaleźć się wewnątrz <code>Pipeline</code></strong>, a walidacja krzyżowa ma dostać ten potok, a nie gotowe przeskalowane dane. Wtedy <code>fit</code> skalera wykonuje się osobno w każdym foldzie, wyłącznie na jego części uczącej.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=912ec797">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="c1"># ŹLE: skalowanie przed walidacją krzyżową</span>
+<span class="n">skaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">X_przeskalowane</span> <span class="o">=</span> <span class="n">skaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_ucz_pelny</span><span class="p">)</span>
+<span class="n">zle</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+                      <span class="n">X_przeskalowane</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">kfold</span><span class="p">)</span>
+
+<span class="c1"># DOBRZE: skalowanie wewnątrz potoku, potok wewnątrz walidacji krzyżowej</span>
+<span class="n">potok</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">StandardScaler</span><span class="p">(),</span>
+    <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">dobrze</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">potok</span><span class="p">,</span> <span class="n">X_ucz_pelny</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">kfold</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skalowanie PRZED CV (przeciek): </span><span class="si">{</span><span class="n">zle</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><span class="n">zle</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skalowanie W POTOKU (poprawne): </span><span class="si">{</span><span class="n">dobrze</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><span class="n">dobrze</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Różnica jest tu niewielka - i to jest część lekcji: przeciek nie zawsze"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"widać w liczbach. Dlatego nie wykrywa się go patrząc na wynik, tylko"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"stosując zasadę: wszystko, co uczy się z danych, wchodzi do Pipeline."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2d8a8a9f"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>Pipeline</code> ma jeszcze jedną zaletę: jego hiperparametry można stroić razem z hiperparametrami modelu. Nazwy tworzy się jako <code>nazwa_kroku__nazwa_parametru</code> (dwa podkreślniki).</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e631b7ba">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">potok_nazwany</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+    <span class="p">(</span><span class="s1">'skalowanie'</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span>
+    <span class="p">(</span><span class="s1">'model'</span><span class="p">,</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)),</span>
+<span class="p">])</span>
+
+<span class="n">siatka_potoku</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'model__C'</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span>      <span class="c1"># siła regularyzacji</span>
+    <span class="s1">'skalowanie__with_mean'</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>   <span class="c1"># nawet krok przetwarzania da się stroić</span>
+<span class="p">}</span>
+
+<span class="n">szukanie_potok</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">potok_nazwany</span><span class="p">,</span> <span class="n">siatka_potoku</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">kfold</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">szukanie_potok</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz_pelny</span><span class="p">,</span> <span class="n">y_ucz_pelny</span><span class="p">)</span>   <span class="c1"># kilka sekund</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Najlepsze:"</span><span class="p">,</span> <span class="n">szukanie_potok</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wynik CV: </span><span class="si">{</span><span class="n">szukanie_potok</span><span class="o">.</span><span class="n">best_score_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=74bb2c5e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Zadania">Zadania<a class="anchor-link" href="#Zadania">¶</a></h1><p>Wszystko, czego potrzebujesz, pojawiło się w przykładzie powyżej. Pracuj na <code>X_ucz_pelny</code> / <code>y_ucz_pelny</code>; <code>X_test</code> zostaw w spokoju aż do zadania, które wyraźnie o nim mówi.</p>
+<h2 id="Zadanie-1:-Pierwsza-walidacja-krzy%C5%BCowa">Zadanie 1: Pierwsza walidacja krzyżowa<a class="anchor-link" href="#Zadanie-1:-Pierwsza-walidacja-krzy%C5%BCowa">¶</a></h2><p>Oceń potok <code>StandardScaler</code> + <code>LogisticRegression</code> walidacją krzyżową na 5 foldach (<code>kfold</code>).</p>
+<p>Wypisz: wynik każdego foldu, średnią oraz odchylenie standardowe. Zanim uruchomisz - oszacuj, jak duży będzie rozrzut między foldami przy 8000 wierszy: bliżej 0,001 czy bliżej 0,05?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=135a43be">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: cross_val_score(model, X_ucz_pelny, y_ucz_pelny, cv=kfold)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=6bc77ae6"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-2:-Uczciwe-por%C3%B3wnanie-trzech-modeli">Zadanie 2: Uczciwe porównanie trzech modeli<a class="anchor-link" href="#Zadanie-2:-Uczciwe-por%C3%B3wnanie-trzech-modeli">¶</a></h2><p>Porównaj walidacją krzyżową trzy modele:</p>
+<ol>
+<li><code>DummyClassifier(strategy="most_frequent")</code> - model odniesienia z ćwiczenia 01,</li>
+<li>potok <code>StandardScaler</code> + <code>LogisticRegression</code>,</li>
+<li><code>DecisionTreeClassifier(max_depth=5, random_state=42)</code>.</li>
+</ol>
+<p>Zbierz wyniki w <code>DataFrame</code> z kolumnami: nazwa modelu, średnia, odchylenie standardowe.</p>
+<p>Na koniec odpowiedz sobie: czy różnica między modelem 2 a 3 jest <strong>większa</strong> od odchyleń standardowych obu? Jeśli nie - czy wolno powiedzieć, że jeden jest lepszy?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=3d74bc47">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=f51ad5bd"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-3:-Ile-fold%C3%B3w?">Zadanie 3: Ile foldów?<a class="anchor-link" href="#Zadanie-3:-Ile-fold%C3%B3w?">¶</a></h2><p>Sprawdź, jak liczba foldów wpływa na ocenę. Dla <code>n_splits</code> równego 3, 5 i 10 (<code>StratifiedKFold(shuffle=True, random_state=42)</code>) oceń drzewo <code>max_depth=5</code> i wypisz średnią, odchylenie oraz <strong>czas wykonania</strong>.</p>
+<p>Czas zmierzysz tak:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+<span class="o">...</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"czas: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> s"</span><span class="p">)</span>
+</pre></div>
+<p>Pytanie, na które odpowiadasz: czy 10 foldów dało istotnie inną średnią niż 5? A o ile dłużej trwało?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=226a81cf">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d92e28ba"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-4:-W%C5%82asna-siatka-dla-regresji-logistycznej">Zadanie 4: Własna siatka dla regresji logistycznej<a class="anchor-link" href="#Zadanie-4:-W%C5%82asna-siatka-dla-regresji-logistycznej">¶</a></h2><p>Zbuduj <code>Pipeline</code> ze <code>StandardScaler</code> i <code>LogisticRegression(max_iter=1000, random_state=42)</code>, a następnie przeszukaj <code>GridSearchCV</code> siatkę:</p>
+<ul>
+<li><code>C</code>: 0,001, 0,01, 0,1, 1, 10, 100,</li>
+<li><code>class_weight</code>: <code>None</code> oraz <code>'balanced'</code>.</li>
+</ul>
+<p>To 12 kombinacji × 5 foldów = 60 dopasowań, czyli kilka sekund.</p>
+<p>Wypisz najlepsze parametry, najlepszy wynik CV oraz pełną tabelkę <code>cv_results_</code> posortowaną malejąco po <code>mean_test_score</code>. Zastanów się, co robi <code>class_weight='balanced'</code> przy klasach 66,6% / 33,4% - i dlaczego może <strong>obniżyć</strong> skuteczność, mimo że brzmi jak ulepszenie.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=af1c6d7f">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ab428ef7"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-5:-Siatka-kontra-losowanie-przy-tym-samym-bud%C5%BCecie">Zadanie 5: Siatka kontra losowanie przy tym samym budżecie<a class="anchor-link" href="#Zadanie-5:-Siatka-kontra-losowanie-przy-tym-samym-bud%C5%BCecie">¶</a></h2><p>Porównaj dwa podejścia do strojenia drzewa przy <strong>identycznym budżecie 20 kombinacji</strong>:</p>
+<ol>
+<li><code>GridSearchCV</code> po siatce <code>max_depth</code> ∈ {2,...,11} × <code>min_samples_leaf</code> ∈ {1, 20} - to dokładnie 20 kombinacji,</li>
+<li><code>RandomizedSearchCV</code> z <code>n_iter=20</code> po szerszej przestrzeni (np. <code>max_depth</code> od 2 do 20, <code>min_samples_leaf</code> z listy [1, 2, 5, 10, 20, 50, 100], <code>criterion</code> z ['gini', 'entropy']), <code>random_state=42</code>.</li>
+</ol>
+<p>Dla obu wypisz najlepsze parametry, najlepszy wynik CV i czas wykonania. Który wypadł lepiej? Czy różnica przekracza odchylenie standardowe najlepszego wyniku?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=00d006b8">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a24c05b2"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-6:-Krzywa-uczenia-dla-dobrze-dobranego-modelu">Zadanie 6: Krzywa uczenia dla dobrze dobranego modelu<a class="anchor-link" href="#Zadanie-6:-Krzywa-uczenia-dla-dobrze-dobranego-modelu">¶</a></h2><p>Narysuj krzywą uczenia dla modelu z najlepszymi parametrami znalezionymi w sekcji 4 (<code>szukanie.best_estimator_</code>). Użyj <code>train_sizes=np.linspace(0.1, 1.0, 6)</code>.</p>
+<p>Odpowiedz na podstawie wykresu (słowami, w komórce markdown albo w komentarzu):</p>
+<ol>
+<li>Czy krzywe się zbiegają?</li>
+<li>Czy zebranie kolejnych 8000 pacjentów podniosłoby wynik w sposób odczuwalny?</li>
+<li>Gdyby budżet wystarczył na <strong>jedną</strong> rzecz - więcej danych czy więcej cech (np. wynik dodatkowego badania) - co wybrać i dlaczego?</li>
+</ol>
+<p>Komórka liczy się około pół minuty.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=c3ff419b">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=988cfeff"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-7-(trudniejsze):-Zobacz-przeciek-na-w%C5%82asne-oczy">Zadanie 7 (trudniejsze): Zobacz przeciek na własne oczy<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Zobacz-przeciek-na-w%C5%82asne-oczy">¶</a></h2><p>W sekcji 7 różnica między poprawnym a błędnym skalowaniem była znikoma. Teraz zobaczysz przeciek, który <strong>niszczy wynik całkowicie</strong> - i to przy użyciu kodu, który u wielu osób przechodzi przez recenzję bez mrugnięcia okiem.</p>
+<p>Plan:</p>
+<ol>
+<li>Weź <strong>małą próbkę</strong>: pierwsze 300 wierszy z <code>X_ucz_pelny</code> i <code>y_ucz_pelny</code>.</li>
+<li>Dołóż do nich 500 kolumn czystego szumu: <code>rng = np.random.default_rng(42)</code>, <code>szum = rng.normal(size=(300, 500))</code>. Te kolumny <strong>z definicji nic nie znaczą</strong>.</li>
+<li><strong>Wariant błędny</strong>: na całej próbce (ze wszystkimi 508 kolumnami) uruchom <code>SelectKBest(f_classif, k=10)</code> i wybierz 10 „najlepszych" cech. Dopiero na tak wybranych cechach policz <code>cross_val_score</code> dla <code>LogisticRegression</code>.</li>
+<li><strong>Wariant poprawny</strong>: włóż <code>SelectKBest(f_classif, k=10)</code> i <code>LogisticRegression</code> do jednego <code>Pipeline</code> i przekaż ten potok do <code>cross_val_score</code> z pełnym zestawem kolumn.</li>
+<li>Wypisz oba wyniki obok siebie razem z wynikiem modelu odniesienia (udział klasy większościowej).</li>
+</ol>
+<p>Importy, których potrzebujesz:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">SelectKBest</span><span class="p">,</span> <span class="n">f_classif</span>
+</pre></div>
+<p>Zanim uruchomisz: który wariant da wyższy wynik? Który z nich mówi prawdę o tym, jak model poradzi sobie na nowym pacjencie?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4395fd2f">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d3d09e29"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Pytania-do-przemy%C5%9Blenia">Pytania do przemyślenia<a class="anchor-link" href="#Pytania-do-przemy%C5%9Blenia">¶</a></h1><p>Odpowiadasz słowami, nie kodem.</p>
+<ol>
+<li>Zbiór testowy „wolno użyć raz". Co konkretnie się psuje, gdy po zobaczeniu słabego wyniku testowego wracasz i zmieniasz hiperparametr? Czy pomogłoby, gdyby zrobić to tylko dwa razy?</li>
+<li>Walidacja krzyżowa na 5 foldach daje pięć wyników. Dlaczego <strong>odchylenie standardowe</strong> między nimi bywa ważniejsze od średniej, gdy porównujesz dwa modele?</li>
+<li><code>GridSearchCV</code> po dużej siatce sprawdza setki kombinacji i zwraca najlepszą. Czy tu także grozi „oszukiwanie samego siebie" - tym razem na zbiorze walidacyjnym? Kiedy to zaczyna być realnym problemem?</li>
+<li>Krzywa uczenia pokazuje dwie krzywe blisko siebie, obie płaskie i niskie. Klient pyta, czy warto kupić dane od drugiego szpitala. Co odpowiadasz i jak to uzasadniasz?</li>
+<li>Dlaczego uzupełnianie braków medianą policzoną z całego zbioru to przeciek, mimo że mediana to „tylko jedna liczba" i nie zawiera etykiet?</li>
+<li>Na jednym z foldów model wypadł zauważalnie gorzej niż na pozostałych czterech. Wymień dwa różne wyjaśnienia takiej sytuacji i powiedz, jak sprawdzić, które jest prawdziwe.</li>
+</ol>
+<h1 id="Chcesz-wiedzie%C4%87-wi%C4%99cej">Chcesz wiedzieć więcej<a class="anchor-link" href="#Chcesz-wiedzie%C4%87-wi%C4%99cej">¶</a></h1><ul>
+<li><a href="https://scikit-learn.org/stable/modules/cross_validation.html">Walidacja krzyżowa - przewodnik scikit-learn</a> - zwróć uwagę na <code>GroupKFold</code> i <code>TimeSeriesSplit</code>; przy danych pogrupowanych (kilka wizyt tego samego pacjenta) albo czasowych zwykły <code>KFold</code> jest błędem.</li>
+<li><a href="https://scikit-learn.org/stable/modules/grid_search.html">Strojenie hiperparametrów</a> - między innymi <code>HalvingGridSearchCV</code>, który odrzuca słabe kombinacje po krótkim treningu.</li>
+<li><a href="https://scikit-learn.org/stable/modules/learning_curve.html">Krzywe walidacji i uczenia</a> - obok <code>learning_curve</code> także <code>validation_curve</code>.</li>
+<li><a href="https://scikit-learn.org/stable/common_pitfalls.html#data-leakage"><code>Pipeline</code> i przeciek danych</a> - sekcja „Common pitfalls" warto przeczytać w całości.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_validate.html"><code>cross_validate</code></a> - jak <code>cross_val_score</code>, ale liczy wiele metryk naraz i zwraca czasy.</li>
+</ul>
+<p>W kolejnym ćwiczeniu (<strong>07 - Drzewa i lasy</strong>) wrócimy do drzew decyzyjnych i zobaczymy, co się stanie, gdy zamiast jednego drzewa wytrenujemy ich kilkaset naraz. Narzędzia z tego ćwiczenia - walidacja krzyżowa i <code>GridSearchCV</code> - będą tam podstawowym sposobem porównywania modeli.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="05-klasyfikacja-metryki.html"><span>Poprzednie</span>Ćwiczenie 5: Klasyfikacja i metryki</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="07-drzewa-i-lasy.html"><span>Następne</span>Ćwiczenie 7: Drzewa i lasy</a>
+</nav>
+</div></main>
+
+</body>
+</html>

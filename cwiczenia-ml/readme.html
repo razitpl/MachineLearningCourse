@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenia z uczenia maszynowego</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<h1>Ćwiczenia z uczenia maszynowego</h1>
+<p>Zestaw praktycznych ćwiczeń do przedmiotu <strong>Machine Learning</strong>. Materiał jest niezależny od Azure Machine Learning - wszystkie notatniki uruchomisz w JupyterLab (na instancji obliczeniowej Azure ML, na własnym komputerze albo w GitHub Codespaces).</p>
+<p>Nacisk położony jest na <strong>samodzielne pisanie kodu</strong>. Każdy notatnik ma tę samą budowę:</p>
+<ol>
+<li><strong>Po co to ćwiczenie</strong> - jaki problem rozwiązujemy i dlaczego ten temat jest ważny.</li>
+<li><strong>Przykład prowadzony</strong> - kod z wyjaśnieniem krok po kroku, do przeczytania i uruchomienia.</li>
+<li><strong>Zadania</strong> - miejsca oznaczone <code># TWÓJ KOD TUTAJ</code>, które uzupełniasz samodzielnie. To jest główna część pracy.</li>
+<li><strong>Pytania do przemyślenia</strong> - bez kodu; sprawdzają, czy rozumiesz, <em>dlaczego</em> coś działa.</li>
+<li><strong>Chcesz wiedzieć więcej</strong> - linki do dokumentacji i dalszej lektury.</li>
+</ol>
+<h2>Program ćwiczeń</h2>
+<table>
+<thead>
+<tr>
+  <th>Nr</th>
+  <th>Temat</th>
+  <th>Czego się nauczysz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>00</td>
+  <td><a href="00-instalacja.html">Przygotowanie środowiska</a> + <a href="00-sprawdz-srodowisko.html">sprawdzenie</a></td>
+  <td>Instalacja Pythona i pakietów na własnym komputerze, środowiska wirtualne, uruchomienie JupyterLab - <strong>do zrobienia przed pierwszymi zajęciami</strong></td>
+</tr>
+<tr>
+  <td>01</td>
+  <td><a href="01-pierwszy-model.html">Twój pierwszy model</a></td>
+  <td>Cały cykl ML od danych do oceny modelu; po co dzielić dane; dlaczego zawsze zaczynamy od modelu odniesienia</td>
+</tr>
+<tr>
+  <td>02</td>
+  <td><a href="02-poznaj-swoje-dane.html">Poznaj swoje dane (EDA)</a></td>
+  <td>Statystyki opisowe, rozkłady, korelacje, wykrywanie wartości odstających i braków</td>
+</tr>
+<tr>
+  <td>03</td>
+  <td><a href="03-przygotowanie-danych.html">Przygotowanie danych</a></td>
+  <td>Braki danych, skalowanie, kodowanie zmiennych kategorycznych, <code>Pipeline</code> i <code>ColumnTransformer</code></td>
+</tr>
+<tr>
+  <td>04</td>
+  <td><a href="04-regresja.html">Regresja</a></td>
+  <td>Regresja liniowa, regularyzacja (Ridge, Lasso), niedouczenie i przeuczenie</td>
+</tr>
+<tr>
+  <td>05</td>
+  <td><a href="05-klasyfikacja-metryki.html">Klasyfikacja i metryki</a></td>
+  <td>Macierz pomyłek, precyzja, czułość, F1, krzywa ROC, przesuwanie progu decyzyjnego</td>
+</tr>
+<tr>
+  <td>06</td>
+  <td><a href="06-walidacja-dobor-modelu.html">Walidacja i dobór modelu</a></td>
+  <td>Walidacja krzyżowa, <code>GridSearchCV</code>, krzywe uczenia, przeciek danych</td>
+</tr>
+<tr>
+  <td>07</td>
+  <td><a href="07-drzewa-i-lasy.html">Drzewa i lasy</a></td>
+  <td>Drzewa decyzyjne, lasy losowe, boosting, ważność cech</td>
+</tr>
+<tr>
+  <td>08</td>
+  <td><a href="08-uczenie-nienadzorowane.html">Uczenie nienadzorowane</a></td>
+  <td>Grupowanie (k-średnich), redukcja wymiarowości (PCA)</td>
+</tr>
+<tr>
+  <td>09</td>
+  <td><a href="09-projekt-koncowy.html">Projekt końcowy</a></td>
+  <td>Samodzielne przejście pełnej ścieżki na nowym zbiorze danych</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><a href="10-od-notatnika-do-skryptu.html">Od notatnika do skryptu</a></td>
+  <td>Przeniesienie modelu z notatnika do pliku <code>.py</code>, parametry z wiersza poleceń, zapis modelu na dysk, powtarzalność wyników</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><a href="11-jakosc-kodu-ml.html">Jakość kodu w ML</a></td>
+  <td>Wydzielenie funkcji, testy jednostkowe w <code>pytest</code>, sprawdzanie stylu kodu - czyli dlaczego „działa u mnie w notatniku&quot; to za mało</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Dlaczego ćwiczenia 10 i 11 są na końcu, a nie na początku</strong>: żeby zrozumieć, po co przenosić kod do skryptu i go testować, trzeba najpierw kilka razy poczuć ból pracy wyłącznie w notatniku - zgubione wyniki, komórki uruchomione w złej kolejności, model, którego nie da się odtworzyć. Ćwiczenia 01-09 ten ból wytwarzają, a 10-11 pokazują lekarstwo.</p>
+</blockquote>
+<h2>Czego potrzebujesz</h2>
+<ul>
+<li>Python 3.10 lub nowszy</li>
+<li>pakiety wymienione w <a href="requirements.txt"><code>requirements.txt</code></a></li>
+</ul>
+<p><strong>Pracujesz na własnym komputerze?</strong> Zacznij od <a href="00-instalacja.html"><code>00_INSTALACJA.md</code></a> - instrukcja krok po kroku, z rozwiązaniami typowych problemów. Potem uruchom <a href="00-sprawdz-srodowisko.html"><code>00_sprawdz_srodowisko.ipynb</code></a>, żeby potwierdzić, że wszystko działa.</p>
+<p><strong>Pracujesz na instancji obliczeniowej Azure ML albo w GitHub Codespaces?</strong> Pakiety są już zainstalowane (w Codespaces wykonaj <code>pip install -r cwiczenia-ml/requirements.txt</code>). Możesz od razu przejść do ćwiczenia 01.</p>
+<p>W skrócie, dla niecierpliwych:</p>
+<pre><code class="language-bash">cd cwiczenia-ml
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+jupyter lab
+</code></pre>
+<h2>Terminologia</h2>
+<p>Materiał jest po polsku, ale <strong>każdy ważny termin dostaje przy pierwszym użyciu angielski odpowiednik</strong> w nawiasie:</p>
+<blockquote>
+<p><code>X</code> to <strong>cechy</strong> (ang. <em>features</em>), <code>y</code> to <strong>etykieta</strong> (ang. <em>label</em>).</p>
+</blockquote>
+<p>Powód jest praktyczny. Dokumentacja scikit-learn, komunikaty błędów, artykuły i ogłoszenia o pracę są po angielsku - znając wyłącznie polskie nazwy, nie znajdziesz niczego w wyszukiwarce. Odwrotnie też: znając wyłącznie angielskie, nie nadążysz za polskim wykładem ani podręcznikiem.</p>
+<h2>Wykresy i wizualizacje</h2>
+<p>Wszystkie rysunki powstają w <strong>matplotlibie</strong> - i tylko w nim. Dotyczy to także wizualizacji drzew decyzyjnych, do których używamy <code>sklearn.tree.plot_tree</code>:</p>
+<pre><code class="language-python">from sklearn.tree import plot_tree
+import matplotlib.pyplot as plt
+</code></pre>
+<p>Świadomie <strong>nie korzystamy z Graphviza</strong> (<code>export_graphviz</code>, <code>pydot</code>, <code>dtreeviz</code>). Wymagałby instalacji dodatkowego programu poza Pythonem, co na współdzielonej instancji obliczeniowej albo bez uprawnień administratora bywa niewykonalne. <code>plot_tree</code> daje czytelny rysunek bez żadnych dodatkowych zależności.</p>
+<h2>Skąd biorą się dane</h2>
+<p>Podstawowy zbiór kursu to <a href="dane/"><code>dane/diabetes.csv</code></a> - 10 000 anonimowych kart pacjentów przebadanych pod kątem cukrzycy. Wracamy do niego niemal w każdym ćwiczeniu, i to jest celowe: <strong>poznajesz jeden zbiór naprawdę dobrze</strong>, zamiast za każdym razem tracić czas na zrozumienie nowych danych. Dzięki temu różnice między wynikami wynikają z metody, którą właśnie poznajesz, a nie z tego, że dane są inne.</p>
+<p>Kolumny: osiem wyników badań (glukoza, ciśnienie, BMI, wiek i pozostałe) jako <strong>cechy</strong> (ang. <em>features</em>), kolumna <code>Diabetic</code> jako <strong>etykieta</strong> (ang. <em>label</em>) oraz <code>PatientID</code>, czyli numer pacjenta - który <strong>nigdy nie jest cechą</strong> (dlaczego, dowiesz się w ćwiczeniu 01).</p>
+<p>Tam, gdzie temat tego wymaga, sięgamy dodatkowo po zbiory <strong>wbudowane w scikit-learn</strong> (np. w projekcie końcowym potrzebny jest zbiór, którego wcześniej nie widziałeś) albo po dane generowane syntetycznie, gdy chcemy mieć pełną kontrolę nad kształtem zależności.</p>
+<p>Niczego nie pobieramy z internetu - wszystkie ćwiczenia działają bez dostępu do sieci.</p>
+<blockquote>
+<p>Ten sam plik <code>diabetes.csv</code> jest używany w kursie <strong>Azure Machine Learning</strong> prowadzonym w tym repozytorium. Jeśli realizujesz oba przedmioty, zobaczysz te same dane z dwóch stron: tutaj od strony metod uczenia maszynowego, tam od strony uruchamiania ich w chmurze.</p>
+</blockquote>
+<h2>Jak pracować z tymi ćwiczeniami</h2>
+<ul>
+<li><strong>Uruchamiaj komórki po kolei.</strong> Późniejsze komórki korzystają ze zmiennych zdefiniowanych wcześniej.</li>
+<li><strong>Nie kopiuj rozwiązań bezmyślnie.</strong> Zadania są celowo tak dobrane, żeby dało się je zrobić po przeczytaniu przykładu prowadzonego kilka komórek wyżej.</li>
+<li><strong>Eksperymentuj.</strong> Zmień parametr, zepsuj coś celowo, zobacz co się stanie. Zepsuty model, który rozumiesz, uczy więcej niż działający, którego nie rozumiesz.</li>
+<li><strong>Czytaj komunikaty błędów do końca.</strong> W uczeniu maszynowym większość błędów to niezgodność kształtów tablic albo typów danych - komunikat mówi dokładnie, co się nie zgadza.</li>
+</ul>
+<h2>Uwaga o wynikach losowych</h2>
+<p>Wiele algorytmów ma element losowy (podział danych, inicjalizacja). Dlatego w kodzie pojawia się <code>random_state=42</code> - ustalenie ziarna losowości sprawia, że przy każdym uruchomieniu dostaniesz <strong>te same wyniki</strong>. To ważne, gdy porównujesz modele: inaczej nie wiedziałbyś, czy różnica bierze się ze zmiany modelu, czy z innego losowania.</p>
+
+</div></main>
+
+</body>
+</html>

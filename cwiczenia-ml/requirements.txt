@@ -1,0 +1,14 @@
+# Pakiety potrzebne do ćwiczeń z uczenia maszynowego
+# Instalacja:  pip install -r requirements.txt
+
+numpy>=1.24
+pandas>=2.0
+matplotlib>=3.7
+scikit-learn>=1.3
+joblib>=1.3
+
+# Środowisko pracy (notatniki)
+jupyterlab>=4.0
+
+# Potrzebne dopiero w ćwiczeniu 11 (testy jednostkowe)
+pytest>=7.4

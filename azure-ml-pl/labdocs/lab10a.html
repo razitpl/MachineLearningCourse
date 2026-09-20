@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 10A: Monitorowanie modelu</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (polski)</a></div><div class="tresc">
+<a class="pobierz" href="../10a-monitoring-a-model.html">Notatnik do tego ćwiczenia</a><h1>Lab 10A: Monitorowanie modelu</h1>
+<h2>Po co jest to ćwiczenie?</h2>
+<p>Wdrożenie modelu jako usługi nie kończy pracy - zaczyna nowy jej etap. Od tej chwili model przetwarza prawdziwe zapytania, a Ty nie widzisz ich z notatnika. Pojawiają się pytania, na które kod źródłowy nie odpowie: ile zapytań przychodzi, jak długo trwa odpowiedź, czy któreś kończą się błędem, jakie dane właściwie trafiają na wejście.</p>
+<p>Odpowiedzi daje <strong>telemetria</strong>, czyli dane o działaniu usługi zbierane automatycznie w trakcie jej pracy: czasy odpowiedzi, liczniki zapytań, komunikaty z logów. Azure Machine Learning udostępnia dla zarządzanego punktu końcowego (endpoint) dwa uzupełniające się mechanizmy:</p>
+<ul>
+<li><strong>Integracja z Application Insights</strong> - ustawienie na poziomie wdrożenia (<code>app_insights_enabled=True</code>), które wysyła wbudowane dane o zapytaniach i czasach odpowiedzi, a także wszystko, co skrypt scoringowy wypisze na standardowe wyjście, do zasobu Application Insights powiązanego z obszarem roboczym.</li>
+<li><strong>Monitorowanie modelu (ang. <em>model monitoring</em>)</strong> - szersza możliwość zbudowana na funkcji <strong>zbierania danych produkcyjnych</strong>, śledząca dryf danych, dryf przewidywań i jakość danych w czasie. Samo monitorowanie modelu jest tematem <a href="lab10b.html">Lab 10B</a>; <strong>to ćwiczenie włącza zbieranie danych, bez którego tamto nie ma czego analizować</strong>.</li>
+</ul>
+<blockquote>
+<p><strong>Jak te dwie rzeczy się mają do siebie</strong>: Application Insights odpowiada na pytanie „czy usługa działa&quot; - to diagnostyka techniczna. Monitorowanie modelu odpowiada na pytanie „czy usługa nadal ma sens&quot; - czy dane, które przychodzą dzisiaj, przypominają jeszcze te, na których model się uczył. Pierwsze wykryje awarię w kilka minut, drugie wykryje powolne psucie się przewidywań w ciągu tygodni.</p>
+</blockquote>
+<h2>Czego się nauczysz</h2>
+<ol>
+<li>Czym jest telemetria wdrożenia i czym różni się od metryk trenowania.</li>
+<li>Jak włączyć diagnostykę Application Insights przy tworzeniu wdrożenia.</li>
+<li>Czym są <strong>dane produkcyjne</strong> i jak je zbierać klasą <code>Collector</code> z pakietu <code>azureml-ai-monitoring</code>.</li>
+<li>Jak napisać skrypt scoringowy, który poza zwracaniem przewidywań rejestruje swoje wejścia i wyjścia.</li>
+<li>Jak obejrzeć zebraną telemetrię - na karcie <strong>Monitoring</strong> punktu końcowego oraz w zasobie Application Insights w portalu Azure.</li>
+</ol>
+<h2>Zanim zaczniesz</h2>
+<p>Upewnij się, że masz ukończone ćwiczenia <a href="lab01a.html">Lab 1A</a> i <a href="lab01b.html">Lab 1B</a> - powstaje w nich obszar roboczy Azure Machine Learning oraz pozostałe zasoby używane w tym ćwiczeniu. Warto też mieć za sobą <a href="lab07a.html">Lab 7A</a>, w którym powstaje punkt końcowy <code>diabetes-endpoint</code> używany tutaj ponownie - notatnik utworzy go samodzielnie, jeśli jeszcze nie istnieje.</p>
+<h2>Krok 1: Wdrożenie modelu z włączoną telemetrią</h2>
+<ol>
+<li><p>W <a href="https://ml.azure.com">Azure Machine Learning studio</a> przejdź do strony <strong>Compute</strong> swojego obszaru roboczego, a na karcie <strong>Compute instances</strong> upewnij się, że instancja obliczeniowa (<code>mymachine</code>) jest uruchomiona. Jeśli nie, uruchom ją.</p>
+</li>
+<li><p>Gdy instancja obliczeniowa jest uruchomiona, kliknij przy niej link <strong>JupyterLab</strong>, aby otworzyć JupyterLab w nowej karcie przeglądarki.</p>
+</li>
+<li><p>W przeglądarce plików JupyterLab otwórz folder <code>MachineLearningCourse/materialy/azure-ml/pl</code> sklonowany w <a href="lab01b.html">Lab 1B</a>, a w nim notatnik <strong>10A - Monitoring a Model.ipynb</strong>. Upewnij się, że korzysta on z kernela <strong>Python 3.10 - SDK v2</strong>, a następnie czytaj komentarze w notatniku, uruchamiając kolejno każdą komórkę kodu.</p>
+<blockquote>
+<p><strong>Dlaczego kernel jest ważny</strong>: kernel decyduje, które środowisko Pythona wykonuje kod. Tylko kernel z SDK v2 ma zainstalowany pakiet <code>azure-ai-ml</code>.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Krok 2: Na co zwrócić uwagę w notatniku</h2>
+<h3>Model i jego rejestracja</h3>
+<p>Notatnik trenuje prosty klasyfikator drzewa decyzyjnego i rejestruje go jako <code>diabetes_model</code>.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy tutaj jeszcze raz</strong>: ćwiczenie ma być samowystarczalne - jeśli model był już rejestrowany wcześniej, powstaje po prostu kolejna jego wersja, a nic się nie nadpisuje. Uwaga ćwiczenia leży nie na jakości modelu, tylko na tym, co dzieje się z nim po wdrożeniu.</p>
+</blockquote>
+<h3>Skrypt scoringowy</h3>
+<p>Skrypt <code>score_diabetes.py</code> robi trzy rzeczy naraz: zwraca przewidywania, wypisuje dane każdego zapytania na standardowe wyjście i rejestruje wejścia oraz wyjścia klasą <code>Collector</code> z pakietu <code>azureml-ai-monitoring</code>.</p>
+<blockquote>
+<p><strong>Dlaczego wypisywanie na wyjście ma sens</strong>: wszystko, co skrypt wypisze, trafia do Application Insights i daje się później przeszukać zapytaniem. To najprostsza droga, żeby zobaczyć, jakie dane realnie przychodzą do usługi - bez modyfikowania aplikacji klienckiej i bez zgadywania.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego <code>Collector</code> to co innego niż wypisywanie</strong>: tekst w logach nadaje się do czytania przez człowieka, ale nie do analizy statystycznej. <code>Collector</code> zapisuje wejścia i wyjścia w uporządkowanej, tabelarycznej postaci do magazynu danych obszaru roboczego. Dopiero takie dane da się porównać ze zbiorem treningowym - i dokładnie z nich skorzysta monitor dryfu w <a href="lab10b.html">Lab 10B</a>.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego pakiet musi być w środowisku</strong>: <code>azureml-ai-monitoring</code> znajduje się na liście zależności w pliku środowiska. Bez niego kontener wdrożenia nie wystartuje, bo skrypt nie zaimportuje klasy <code>Collector</code>.</p>
+</blockquote>
+<h3>Konfiguracja wdrożenia</h3>
+<p>Wdrożenie <code>blue</code> punktu końcowego <code>diabetes-endpoint</code> powstaje z dwoma ustawieniami: <code>app_insights_enabled=True</code> oraz <code>data_collector</code>.</p>
+<blockquote>
+<p><strong>Dlaczego oba naraz</strong>: te ustawienia można włączyć tylko przy tworzeniu albo aktualizacji wdrożenia - nie da się ich dołożyć do działającej usługi bez ponownego wdrożenia. Dlatego warto zdecydować się na nie od razu. Konsekwencja dla dalszej części kursu jest wprost praktyczna: gdyby pominąć <code>data_collector</code>, <a href="lab10b.html">Lab 10B</a> nie miałby żadnych danych produkcyjnych do porównania i monitor dryfu nie pokazałby nic.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga o czasie</strong>: tworzenie wdrożenia trwa kilka minut - kod czeka, aż wdrożenie zgłosi się jako sprawne.</p>
+</blockquote>
+<h3>Wywołanie usługi</h3>
+<p>Notatnik wysyła do punktu końcowego przykładowe dane pacjentów i wypisuje przewidywania.</p>
+<blockquote>
+<p><strong>Dlaczego to jest potrzebne do monitorowania</strong>: świeżo wdrożona usługa nie ma żadnego ruchu, więc nie ma też żadnej telemetrii. Każde wywołanie wytwarza wpis w Application Insights i wiersz w zbieranych danych produkcyjnych. Bez wywołań wszystkie wykresy w kolejnym kroku byłyby puste.</p>
+</blockquote>
+<blockquote>
+<p><strong>Wskazówka</strong>: jeśli pierwsze wywołanie zwróci błąd, wdrożenie może jeszcze nie być gotowe - odczekaj kilkanaście sekund i spróbuj ponownie.</p>
+</blockquote>
+<h2>Krok 3: Obejrzenie telemetrii</h2>
+<ol>
+<li><p>W <a href="https://ml.azure.com">Azure Machine Learning studio</a> otwórz stronę punktu końcowego <code>diabetes-endpoint</code> i przejdź na kartę <strong>Monitoring</strong>, aby zobaczyć wbudowane wykresy liczby zapytań i czasów odpowiedzi.</p>
+<blockquote>
+<p><strong>Dlaczego zaczynamy stąd</strong>: to najszybszy sposób, żeby potwierdzić, że Application Insights w ogóle odbiera dane. Jeśli wykresy są puste, nie ma sensu układać zapytań w logach - problem leży wcześniej, po stronie konfiguracji wdrożenia albo braku ruchu.</p>
+</blockquote>
+</li>
+<li><p>W <a href="https://portal.azure.com">portalu Azure</a> otwórz swój obszar roboczy Machine Learning i na stronie <strong>Overview</strong> kliknij powiązany zasób <strong>Application Insights</strong>.</p>
+<blockquote>
+<p><strong>Dlaczego to jest osobny zasób</strong>: Application Insights powstaje razem z obszarem roboczym, ale jest samodzielną usługą Azure Monitor. Tam trafia telemetria i tam mieszka pełny język zapytań - Studio pokazuje tylko wybrane, gotowe wykresy.</p>
+</blockquote>
+</li>
+<li><p>W zasobie Application Insights wybierz <strong>Logs</strong> i przejrzyj zapisane ślady zapytań. Przy pierwszym otwarciu Log Analytics może być konieczne kliknięcie <strong>Get Started</strong>.</p>
+<blockquote>
+<p><strong>Dlaczego warto tam zajrzeć</strong>: w logach znajdziesz to, co skrypt scoringowy wypisał dla każdego zapytania, łącznie z danymi wejściowymi i zwróconym przewidywaniem. To jedyne miejsce, w którym da się prześledzić pojedyncze wywołanie od danych po odpowiedź - nieocenione przy zgłoszeniu w rodzaju „usługa zwróciła dziwny wynik dla tego pacjenta&quot;.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga o opóźnieniu</strong>: telemetria pojawia się z opóźnieniem rzędu kilku minut. Pusta lista tuż po wysłaniu zapytań nie oznacza błędu konfiguracji - warto odczekać i odświeżyć.</p>
+</blockquote>
+</li>
+</ol>
+<blockquote>
+<p><strong>Uwaga</strong>: Jeśli zamierzasz od razu przejść do <a href="lab10b.html">kolejnego ćwiczenia</a>, zostaw instancję obliczeniową uruchomioną i <strong>nie usuwaj punktu końcowego</strong> - <a href="lab10b.html">Lab 10B</a> korzysta z tego samego wdrożenia i z danych, które właśnie zaczęło ono zbierać. Jeśli robisz przerwę, warto zamknąć wszystkie karty JupyterLab i zatrzymać instancję obliczeniową przyciskiem <strong>Stop</strong>, aby uniknąć niepotrzebnych kosztów.</p>
+</blockquote>
+<h2>Co dalej</h2>
+<p>Telemetria z tego ćwiczenia mówi, czy usługa żyje. Nie powie jednak, czy model nadal przewiduje sensownie - usługa może odpowiadać bez zarzutu i w milisekundach, podając przy tym coraz gorsze wyniki, bo dane pacjentów przestały przypominać te sprzed roku. W <a href="lab10b.html">Lab 10B</a> użyjesz danych produkcyjnych, które zaczęło właśnie zbierać to wdrożenie, do wykrywania <strong>dryfu danych</strong> i ustawisz harmonogram, który będzie sprawdzał to regularnie za Ciebie.</p>
+<nav class="przejscia">
+<a class="wstecz" href="lab09b.html"><span>Poprzednie</span>Lab 9B: Interpretowanie modeli</a>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<a class="dalej" href="lab10b.html"><span>Następne</span>Lab 10B: Monitorowanie dryfu danych</a>
+</nav>
+</div></main>
+
+</body>
+</html>

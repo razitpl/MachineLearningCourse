@@ -1,0 +1,6 @@
+# Strona jest generowana z koncami linii LF - trzymamy je bez zmian.
+* text=auto eol=lf
+*.ipynb text eol=lf
+*.csv text eol=lf
+*.jpg binary
+*.png binary

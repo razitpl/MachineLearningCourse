@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 8B: Automatyczne uczenie maszynowe</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (polski)</a></div><div class="tresc">
+<a class="pobierz" href="../08b-using-automated-machine-learning.html">Notatnik do tego ćwiczenia</a><h1>Lab 8B: Automatyczne uczenie maszynowe</h1>
+<h2>Po co jest to ćwiczenie?</h2>
+<p>Przy każdym nowym zbiorze danych wracają te same pytania: który algorytm sprawdzi się najlepiej? Czy cechy trzeba znormalizować? Czy zakodować inaczej? Odpowiedzi nie da się wyczytać z danych samym patrzeniem - trzeba sprawdzić empirycznie. Ręcznie oznacza to dziesiątki wariantów: dla każdego algorytmu inny zestaw przekształceń, dla każdego połączenia osobne trenowanie i osobne porównanie wyników.</p>
+<p><strong>AutoML</strong> (automatyczne uczenie maszynowe) automatyzuje właśnie ten przegląd. Podajesz dane, wskazujesz kolumnę do przewidzenia i metrykę, którą chcesz maksymalizować, a Azure Machine Learning sam generuje kolejne próby - każda z innym algorytmem i innym sposobem przygotowania danych - uruchamia je równolegle na klastrze i zestawia wyniki w jednym rankingu.</p>
+<p>Warto od razu ustawić to we właściwym świetle. AutoML nie zastępuje zrozumienia problemu: nie powie, czy dane są wiarygodne, czy metryka odpowiada celowi biznesowemu ani czy przypadkiem nie podano modelowi kolumny, której w chwili przewidywania nie będzie. Daje natomiast solidny punkt odniesienia w godzinę zamiast w tydzień - i pokazuje, ile jeszcze da się wycisnąć ze starannie zbudowanego modelu własnego.</p>
+<blockquote>
+<p><strong>Czym to się różni od ćwiczenia 8A</strong>: zadanie przeglądu (sweep) stroi wartości parametrów <strong>jednego, wybranego przez Ciebie</strong> algorytmu. AutoML wybiera także sam algorytm i przekształcenia danych. To ten sam pomysł - przeszukiwanie wariantów - zastosowany o poziom wyżej.</p>
+</blockquote>
+<h2>Czego się nauczysz</h2>
+<ol>
+<li>Czym jest AutoML i jakie decyzje podejmuje za Ciebie, a jakich nie.</li>
+<li>Jak przygotować dane wejściowe dla zadania AutoML (zasób typu <code>mltable</code>).</li>
+<li>Jak skonfigurować zadanie klasyfikacji: kolumna docelowa, metryka główna, limity czasu i liczby prób.</li>
+<li>Jak porównać próby i odnaleźć tę, która dała najlepszy model.</li>
+<li>Jak obejrzeć kroki przygotowania danych wbudowane w zwycięski model i jak go zarejestrować.</li>
+</ol>
+<h2>Zanim zaczniesz</h2>
+<p>Upewnij się, że masz ukończone ćwiczenia <a href="lab01a.html">Lab 1A</a> i <a href="lab01b.html">Lab 1B</a> - powstaje w nich obszar roboczy Azure Machine Learning oraz pozostałe zasoby używane w tym ćwiczeniu.</p>
+<h2>Krok 1: Uruchomienie automatycznego uczenia maszynowego</h2>
+<ol>
+<li><p>W <a href="https://ml.azure.com">Azure Machine Learning studio</a> przejdź do strony <strong>Compute</strong> swojego obszaru roboczego, a na karcie <strong>Compute instances</strong> upewnij się, że instancja obliczeniowa (<code>mymachine</code>) jest uruchomiona. Jeśli nie, uruchom ją.</p>
+</li>
+<li><p>Gdy instancja obliczeniowa jest uruchomiona, kliknij przy niej link <strong>JupyterLab</strong>, aby otworzyć JupyterLab w nowej karcie przeglądarki.</p>
+</li>
+<li><p>W przeglądarce plików JupyterLab otwórz folder <code>MachineLearningCourse/materialy/azure-ml/pl</code> sklonowany w <a href="lab01b.html">Lab 1B</a>, a w nim notatnik <strong>08B - Using Automated Machine Learning.ipynb</strong>. Upewnij się, że korzysta on z kernela <strong>Python 3.10 - SDK v2</strong>, a następnie czytaj komentarze w notatniku, uruchamiając kolejno każdą komórkę kodu.</p>
+<blockquote>
+<p><strong>Dlaczego kernel jest ważny</strong>: kernel decyduje, które środowisko Pythona wykonuje kod. Tylko kernel z SDK v2 ma zainstalowany pakiet <code>azure-ai-ml</code>.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Krok 2: Na co zwrócić uwagę w notatniku</h2>
+<h3>Przygotowanie danych</h3>
+<p>Notatnik łączy <code>data/diabetes.csv</code> i <code>data/diabetes2.csv</code> w jedną tabelę MLTable i rejestruje ją jako zasób danych <code>diabetes_mltable</code>.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: zadanie AutoML przyjmuje na wejściu zasób danych tego typu - nie ścieżkę do pliku CSV. To dlatego przy tworzeniu zasobu danych w Studio wybiera się typ <strong>Tabular</strong>. Wybór z wcześniejszego ćwiczenia daje o sobie znać właśnie tutaj.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego nie dzielimy danych na treningowe i testowe</strong>: AutoML robi to sam - wydziela zbiór walidacyjny albo stosuje walidację krzyżową. Dzięki temu wszystkie próby są oceniane w identyczny sposób, co jest warunkiem uczciwego porównania.</p>
+</blockquote>
+<h3>Klaster obliczeniowy</h3>
+<blockquote>
+<p><strong>Dlaczego to musi być klaster</strong>: AutoML opiera się na sprawdzaniu wielu wariantów. Na jednej maszynie próby wykonywałyby się jedna po drugiej i przegląd trwałby wielokrotnie dłużej. Klaster z kilkoma węzłami pozwala uruchamiać je równolegle.</p>
+</blockquote>
+<h3>Konfiguracja zadania</h3>
+<p>Funkcja <code>automl.classification()</code> buduje zadanie, a <code>set_limits()</code> ustawia jego granice. Kluczowe parametry:</p>
+<table>
+<thead>
+<tr>
+  <th>Parametr</th>
+  <th>Co znaczy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>target_column_name=&quot;Diabetic&quot;</code></td>
+  <td>kolumna, którą model ma przewidywać; reszta kolumn to cechy</td>
+</tr>
+<tr>
+  <td><code>primary_metric=&quot;AUC_weighted&quot;</code></td>
+  <td>metryka rozstrzygająca ranking prób</td>
+</tr>
+<tr>
+  <td><code>featurization=&quot;auto&quot;</code></td>
+  <td>AutoML sam dobiera przekształcenia danych</td>
+</tr>
+<tr>
+  <td><code>max_trials</code> / <code>max_concurrent_trials</code></td>
+  <td>ile prób łącznie i ile naraz</td>
+</tr>
+<tr>
+  <td><code>timeout_minutes</code> / <code>trial_timeout_minutes</code></td>
+  <td>limit czasu dla całego zadania i dla pojedynczej próby</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Dlaczego metryka to nie szczegół techniczny</strong>: to jedyna informacja o tym, co uznajesz za „lepszy model&quot;. W zbiorze <code>diabetes.csv</code> klasy są nierówne - około 66,6% do 33,4% - więc model przewidujący zawsze klasę większościową osiągnąłby 66,6% skuteczności, nie ucząc się zupełnie niczego. Skuteczność jako metryka główna premiowałaby takie modele. <code>AUC_weighted</code> mierzy zdolność odróżniania klas i na nierównowagę jest odporny, dlatego nadaje się tu znacznie lepiej.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego limity czasu są obowiązkowe</strong>: przeszukiwanie mogłoby trwać dowolnie długo, a każda minuta na klastrze kosztuje. Limity mówią wprost, ile czasu i pieniędzy wolno przeznaczyć na szukanie. W tym ćwiczeniu są celowo małe - w realnym projekcie przegląd bywa dłuższy, a liczba prób idzie w dziesiątki.</p>
+</blockquote>
+<blockquote>
+<p><strong>Na co uważać przy kolumnach wejściowych</strong>: AutoML traktuje jako cechy wszystkie kolumny poza wskazaną kolumną docelową - także <code>PatientID</code>, który jest przecież tylko identyfikatorem i nie niesie żadnej informacji medycznej. W realnym projekcie taką kolumnę wyklucza się z danych wejściowych, bo podanie jej modelowi to klasyczny przeciek danych: model może „nauczyć się&quot; numerów zamiast zależności i zawieść na nowych pacjentach. AutoML nie zna sensu kolumn, więc czuwanie nad tym, co trafia na wejście, pozostaje po Twojej stronie.</p>
+</blockquote>
+<h3>Uruchomienie i obserwacja</h3>
+<blockquote>
+<p><strong>Dlaczego to trwa</strong>: najpierw klaster musi się uruchomić (i ewentualnie zwolnić węzły po poprzednim zadaniu), potem AutoML analizuje dane, a dopiero na końcu wykonują się kolejne próby. Postęp widać w logach w notatniku, a także w Azure Machine Learning studio - warto zajrzeć tam na karty <strong>Models</strong> i <strong>Child jobs</strong>, gdzie każda próba jest opisana użytym algorytmem i uzyskanymi metrykami.</p>
+</blockquote>
+<h3>Wybór najlepszego modelu</h3>
+<p>Notatnik wypisuje wszystkie próby potomne, a następnie odczytuje z etykiety (taga) zadania nadrzędnego identyfikator najlepszej z nich.</p>
+<blockquote>
+<p><strong>Dlaczego warto obejrzeć całą listę</strong>: jeśli różnica między pierwszym a dziesiątym wynikiem jest minimalna, wybór zwycięzcy zależy w dużej mierze od przypadku - a wtedy rozsądniej postawić na model prostszy albo szybszy w działaniu. Jeśli czołówka wyraźnie odstaje, wiadomo, że rodzaj algorytmu naprawdę ma tu znaczenie.</p>
+</blockquote>
+<h3>Kroki przekształceń wewnątrz modelu</h3>
+<p>Notatnik wczytuje zwycięski model i wypisuje jego kroki (<code>named_steps</code>).</p>
+<blockquote>
+<p><strong>Dlaczego to ciekawe</strong>: AutoML nie zwraca samego algorytmu, tylko potok przekształceń scikit-learn - przygotowanie danych i model w jednym obiekcie. Dzięki temu wdrożony model sam wykonuje na przychodzących danych dokładnie te same przekształcenia co przy trenowaniu, co eliminuje najczęstsze źródło błędów przy wdrożeniach. Ten wydruk pokazuje też, na czym polegała automatyczna obróbka cech - AutoML przestaje być czarną skrzynką.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga o nazewnictwie</strong>: „potok&quot; oznacza tutaj potok przekształceń scikit-learn wewnątrz modelu, a nie potok (pipeline) Azure Machine Learning znany z ćwiczeń 6A i 6B. To dwa różne pojęcia o tej samej nazwie.</p>
+</blockquote>
+<h3>Rejestracja modelu</h3>
+<p>Ostatnia komórka rejestruje zwycięski model pod nazwą <code>diabetes_model_automl</code>.</p>
+<blockquote>
+<p><strong>Dlaczego pod inną nazwą</strong>: model z AutoML powstał inną drogą niż modele z wcześniejszych ćwiczeń, a osobna nazwa pozwala trzymać oba w rejestrze i porównywać. Od tej chwili nic go nie odróżnia od modelu napisanego ręcznie - można go wdrożyć dokładnie tak samo jak w <a href="lab07a.html">Lab 7A</a>.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga</strong>: Jeśli zamierzasz od razu przejść do <a href="lab09a.html">kolejnego ćwiczenia</a>, zostaw instancję obliczeniową uruchomioną. Jeśli robisz przerwę, warto zamknąć wszystkie karty JupyterLab i zatrzymać instancję obliczeniową przyciskiem <strong>Stop</strong>, aby uniknąć niepotrzebnych kosztów.</p>
+</blockquote>
+<h2>Co dalej</h2>
+<p>Masz model, o którym wiesz, że wygrał ranking - ale nie wiesz, na czym opiera swoje decyzje. Przy przewidywaniu cukrzycy to pytanie nie jest akademickie: lekarz zapyta, dlaczego akurat ten pacjent został wskazany. W <a href="lab09a.html">Lab 9A</a> zajrzysz do wyjaśnień, które AutoML generuje dla swoich modeli, i zobaczysz, które cechy najmocniej wpływają na wynik.</p>
+<nav class="przejscia">
+<a class="wstecz" href="lab08a.html"><span>Poprzednie</span>Lab 8A: Strojenie hiperparametrów</a>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<a class="dalej" href="lab09a.html"><span>Następne</span>Lab 9A: Przeglądanie wyjaśnień modeli z automatycznego uczenia maszynowego</a>
+</nav>
+</div></main>
+
+</body>
+</html>

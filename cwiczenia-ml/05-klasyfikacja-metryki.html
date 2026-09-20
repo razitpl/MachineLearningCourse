@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenie 5: Klasyfikacja i metryki</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="pobierz/05_klasyfikacja_metryki.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=78ea606e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="%C4%86wiczenie-5:-Klasyfikacja-i-metryki">Ćwiczenie 5: Klasyfikacja i metryki<a class="anchor-link" href="#%C4%86wiczenie-5:-Klasyfikacja-i-metryki">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 01 pojawił się model odniesienia (ang. <em>baseline</em>), który zawsze odpowiadał „ten pacjent jest zdrowy". Nie patrzył na wyniki badań, nie miał żadnej wiedzy o medycynie - a mimo to jego skuteczność (ang. <em>accuracy</em>) wyniosła około <strong>66,6%</strong>, bo dokładnie tyle osób w zbiorze jest zdrowych.</p>
+<p>Ten model <strong>nie wykrył ani jednego chorego pacjenta</strong>. Zostało wtedy obiecane, że metrykami zajmiemy się w ćwiczeniu 05. To jest właśnie to ćwiczenie.</p>
+<p>Pytanie, na które odpowiadamy, brzmi: <strong>jak zmierzyć jakość klasyfikatora tak, żeby zobaczyć to, czego skuteczność nie pokazuje?</strong> A przy okazji drugie, w praktyce ważniejsze:</p>
+<blockquote>
+<p>W diagnostyce medycznej przeoczenie chorego kosztuje więcej niż fałszywy alarm. Skoro tak, to dlaczego model ma stawiać diagnozę przy progu 0,5 - liczbie, która nie wzięła się z żadnej analizy kosztów, tylko z domyślnego ustawienia biblioteki?</p>
+</blockquote>
+<p>Domyślny próg 0,5 prawie nigdy nie jest właściwym wyborem. To ćwiczenie pokazuje, skąd to wiadomo i co z tym zrobić.</p>
+<h2 id="Czego-si%C4%99-nauczysz">Czego się nauczysz<a class="anchor-link" href="#Czego-si%C4%99-nauczysz">¶</a></h2><ol>
+<li>Dlaczego sama skuteczność kłamie, gdy klasy są niezrównoważone (ang. <em>imbalanced classes</em>).</li>
+<li>Jak czytać macierz pomyłek (ang. <em>confusion matrix</em>) i co każde z jej czterech pól oznacza dla pacjenta.</li>
+<li>Czym różni się precyzja (ang. <em>precision</em>) od czułości (ang. <em>recall</em>) i dlaczego rosną kosztem siebie nawzajem.</li>
+<li>Kiedy sięgać po F1, a kiedy ta metryka jest złym pomysłem.</li>
+<li>Jak czytać <code>classification_report</code>.</li>
+<li>Jak przesunąć <strong>próg decyzyjny</strong> (ang. <em>decision threshold</em>) przy użyciu <code>predict_proba</code> - i dlaczego to najtańszy sposób na poprawę modelu.</li>
+<li>Jak korzystać z krzywej ROC i pola pod nią (AUC) oraz z krzywej precyzja-czułość - i która z nich jest uczciwsza przy niezrównoważonych klasach.</li>
+</ol>
+<blockquote>
+<p><strong>Zanim zaczniesz</strong>: uruchamiaj komórki po kolei (Shift+Enter). Późniejsze korzystają ze zmiennych zdefiniowanych wcześniej.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=20f80439"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Punkt-wyj%C5%9Bcia:-te-same-dane,-te-same-dwa-modele">1. Punkt wyjścia: te same dane, te same dwa modele<a class="anchor-link" href="#1.-Punkt-wyj%C5%9Bcia:-te-same-dane,-te-same-dwa-modele">¶</a></h2><p>Zaczynamy dokładnie tam, gdzie skończyło się ćwiczenie 01: zbiór <code>dane/diabetes.csv</code>, <code>PatientID</code> wyrzucony z cech (to identyfikator, nie wynik badania), podział ze stratyfikacją i ustalonym ziarnem losowości.</p>
+<p>Budujemy <strong>dwa</strong> modele, bo cały sens tego ćwiczenia polega na ich porównywaniu:</p>
+<ul>
+<li><code>model_odniesienia</code> - zawsze odpowiada klasą większościową (ang. <em>majority class</em>), czyli „zdrowy",</li>
+<li><code>model</code> - regresja logistyczna (ang. <em>logistic regression</em>) w potoku ze skalowaniem.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=dfa0b27a">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.dummy</span><span class="w"> </span><span class="kn">import</span> <span class="n">DummyClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+
+<span class="n">dane</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'dane/diabetes.csv'</span><span class="p">)</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'PatientID'</span><span class="p">,</span> <span class="s1">'Diabetic'</span><span class="p">])</span>   <span class="c1"># PatientID to identyfikator, nie cecha</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span>
+
+<span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>
+
+<span class="n">model_odniesienia</span> <span class="o">=</span> <span class="n">DummyClassifier</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s2">"most_frequent"</span><span class="p">)</span>
+<span class="n">model_odniesienia</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Udział chorych w zbiorze testowym: </span><span class="si">{</span><span class="n">y_test</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność modelu odniesienia:    </span><span class="si">{</span><span class="n">model_odniesienia</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność regresji logistycznej: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2938c274"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="2.-Dlaczego-jedna-liczba-to-za-ma%C5%82o">2. Dlaczego jedna liczba to za mało<a class="anchor-link" href="#2.-Dlaczego-jedna-liczba-to-za-ma%C5%82o">¶</a></h2><p>Skuteczność to po prostu <strong>odsetek trafnych odpowiedzi</strong>:</p>
+<p>$$\text{skuteczność} = \frac{\text{liczba trafnych odpowiedzi}}{\text{liczba wszystkich pacjentów}}$$</p>
+<p>Wada tego wzoru jest w tym, czego w nim <strong>nie ma</strong>: nie ma informacji, <em>kogo</em> model pomylił. Traktuje on pomyłkę „zdrowy uznany za chorego" i „chory uznany za zdrowego" jako jeden i ten sam błąd, wart tyle samo.</p>
+<p>W diagnostyce medycznej te błędy nie są równie kosztowne i nawet nie są tego samego rzędu:</p>
+<table>
+<thead>
+<tr>
+<th>Rodzaj błędu</th>
+<th>Co się dzieje z pacjentem</th>
+<th>Koszt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>zdrowy uznany za chorego</td>
+<td>dodatkowe badanie, stres, koszt wizyty</td>
+<td>kilkadziesiąt złotych i kilka nieprzyjemnych dni</td>
+</tr>
+<tr>
+<td>chory uznany za zdrowego</td>
+<td>brak diagnozy, brak leczenia, choroba postępuje</td>
+<td>powikłania, w skrajnym przypadku życie</td>
+</tr>
+</tbody>
+</table>
+<p>Skoro koszty są niesymetryczne, to miara, która je uśrednia, jest miarą złą. Potrzebujemy czegoś, co pokazuje <strong>oba rodzaje błędów osobno</strong>.</p>
+<p>Zacznijmy od sprawdzenia, jak sobie radzi model odniesienia w kategoriach innych niż skuteczność.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=dff50e08">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">y_pred_odniesienia</span> <span class="o">=</span> <span class="n">model_odniesienia</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Model odniesienia - jakie odpowiedzi w ogóle padły?"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">y_pred_odniesienia</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Ilu chorych jest w zbiorze testowym:      "</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Ilu chorych model odniesienia wskazał:    "</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">y_pred_odniesienia</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7f690d46"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Model odniesienia nie wskazał <strong>ani jednego</strong> chorego. Wszyscy chorzy pacjenci ze zbioru testowego zostali odesłani do domu z informacją „wszystko w porządku".</p>
+<p>I ten model ma 66,6% skuteczności. Ta liczba brzmi przyzwoicie i jest kompletnie bezwartościowa. Gdyby chorych był 1% zamiast 33%, ten sam bezmyślny model miałby 99% skuteczności - i nadal przeoczyłby <strong>każdy</strong> przypadek choroby.</p>
+<blockquote>
+<p><strong>Reguła do zapamiętania</strong>: im rzadsza jest klasa, na której nam zależy, tym bardziej skuteczność wprowadza w błąd.</p>
+</blockquote>
+<h2 id="3.-Macierz-pomy%C5%82ek---cztery-pola-zamiast-jednej-liczby">3. Macierz pomyłek - cztery pola zamiast jednej liczby<a class="anchor-link" href="#3.-Macierz-pomy%C5%82ek---cztery-pola-zamiast-jednej-liczby">¶</a></h2><p>Macierz pomyłek rozbija wynik na cztery liczby. W zadaniu binarnym jedną z klas nazywamy <strong>klasą pozytywną</strong> (ang. <em>positive class</em>) - to ta, którą chcemy wykrywać. Tutaj jest nią <code>Diabetic = 1</code>, czyli chory pacjent.</p>
+<blockquote>
+<p><strong>Uwaga językowa</strong>: „pozytywny" nie znaczy „dobry". Pozytywny wynik testu na cukrzycę to zła wiadomość dla pacjenta. Klasa pozytywna to po prostu ta, której szukamy.</p>
+</blockquote>
+<p>Cztery pola macierzy:</p>
+<table>
+<thead>
+<tr>
+<th>Skrót</th>
+<th>Nazwa angielska</th>
+<th>Nazwa polska</th>
+<th>Co to znaczy w naszym zadaniu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TN</strong></td>
+<td><em>true negative</em></td>
+<td>prawdziwie ujemny</td>
+<td>zdrowy pacjent rozpoznany jako zdrowy</td>
+</tr>
+<tr>
+<td><strong>FP</strong></td>
+<td><em>false positive</em></td>
+<td><strong>fałszywie dodatni</strong></td>
+<td>zdrowy pacjent wysłany na niepotrzebne badania (fałszywy alarm)</td>
+</tr>
+<tr>
+<td><strong>FN</strong></td>
+<td><em>false negative</em></td>
+<td><strong>fałszywie ujemny</strong></td>
+<td><strong>chory pacjent odesłany do domu</strong> - błąd, którego się boimy</td>
+</tr>
+<tr>
+<td><strong>TP</strong></td>
+<td><em>true positive</em></td>
+<td>prawdziwie dodatni</td>
+<td>chory pacjent wykryty i skierowany do leczenia</td>
+</tr>
+</tbody>
+</table>
+<p>W scikit-learn macierz ma układ: <strong>wiersze to rzeczywistość, kolumny to przewidywanie</strong>, a klasy idą rosnąco (najpierw 0, potem 1):</p>
+<pre><code>                      przewidziano 0   przewidziano 1
+rzeczywiście 0             TN                FP
+rzeczywiście 1             FN                TP
+</code></pre>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=2e22eaf7">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">ConfusionMatrixDisplay</span>
+
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">macierz</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+
+<span class="n">tn</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">tp</span> <span class="o">=</span> <span class="n">macierz</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>   <span class="c1"># rozpakowanie czterech pól do osobnych zmiennych</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Regresja logistyczna, próg domyślny 0,5:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  TN = </span><span class="si">{</span><span class="n">tn</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">  zdrowi rozpoznani poprawnie"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  FP = </span><span class="si">{</span><span class="n">fp</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">  zdrowi wysłani na niepotrzebne badania"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  FN = </span><span class="si">{</span><span class="n">fn</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">  CHORZY ODESŁANI DO DOMU"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  TP = </span><span class="si">{</span><span class="n">tp</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">  chorzy wykryci"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e16c9f30">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">osie</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">os_</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">tytul</span> <span class="ow">in</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">model_odniesienia</span><span class="p">,</span> <span class="s2">"Model odniesienia"</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">model</span><span class="p">,</span> <span class="s2">"Regresja logistyczna"</span><span class="p">),</span>
+<span class="p">]:</span>
+    <span class="n">ConfusionMatrixDisplay</span><span class="o">.</span><span class="n">from_estimator</span><span class="p">(</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span>
+        <span class="n">display_labels</span><span class="o">=</span><span class="p">[</span><span class="s1">'zdrowy'</span><span class="p">,</span> <span class="s1">'chory'</span><span class="p">],</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="s2">"Blues"</span><span class="p">,</span> <span class="n">values_format</span><span class="o">=</span><span class="s2">"d"</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">os_</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">os_</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">tytul</span><span class="p">)</span>
+    <span class="n">os_</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Przewidziano"</span><span class="p">)</span>
+    <span class="n">os_</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Rzeczywistość"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=767ee984"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Po lewej stronie widać w liczbach to, o czym była mowa: cała prawa kolumna modelu odniesienia jest pusta (zero fałszywych alarmów, ale i zero wykrytych chorych), a wszyscy chorzy siedzą w polu FN.</p>
+<p>Po prawej model faktycznie kogoś wykrywa. Ale pole FN nadal nie jest puste - i to właśnie ono nas interesuje najbardziej.</p>
+<h2 id="4.-Precyzja,-czu%C5%82o%C5%9B%C4%87,-F1">4. Precyzja, czułość, F1<a class="anchor-link" href="#4.-Precyzja,-czu%C5%82o%C5%9B%C4%87,-F1">¶</a></h2><p>Z czterech pól macierzy da się policzyć metryki, które odpowiadają na <strong>różne pytania</strong>. To jest sedno: nie ma jednej „najlepszej metryki", jest metryka pasująca do pytania, które zadajemy.</p>
+<h3 id="Precyzja-(ang.-precision)">Precyzja (ang. <em>precision</em>)<a class="anchor-link" href="#Precyzja-(ang.-precision)">¶</a></h3><p>$$\text{precyzja} = \frac{TP}{TP + FP}$$</p>
+<p>Odpowiada na pytanie: <strong>spośród pacjentów, których model uznał za chorych, ilu faktycznie choruje?</strong> Czyli: na ile można ufać alarmowi. Niska precyzja oznacza dużo fałszywych alarmów.</p>
+<h3 id="Czu%C5%82o%C5%9B%C4%87-(ang.-recall,-w-medycynie-te%C5%BC-sensitivity)">Czułość (ang. <em>recall</em>, w medycynie też <em>sensitivity</em>)<a class="anchor-link" href="#Czu%C5%82o%C5%9B%C4%87-(ang.-recall,-w-medycynie-te%C5%BC-sensitivity)">¶</a></h3><p>$$\text{czułość} = \frac{TP}{TP + FN}$$</p>
+<p>Odpowiada na pytanie: <strong>spośród faktycznie chorych, ilu model wykrył?</strong> Czyli: ilu chorych nie przeoczyliśmy. Niska czułość oznacza pacjentów odesłanych do domu z chorobą.</p>
+<h3 id="Dlaczego-te-dwie-metryki-walcz%C4%85-ze-sob%C4%85">Dlaczego te dwie metryki walczą ze sobą<a class="anchor-link" href="#Dlaczego-te-dwie-metryki-walcz%C4%85-ze-sob%C4%85">¶</a></h3><p>Bo można je „kupić" jedna za drugą. Model, który uznaje <strong>wszystkich</strong> za chorych, ma czułość 100% - nie przeoczy nikogo - i fatalną precyzję, bo większość jego alarmów jest fałszywa. Model, który alarmuje tylko przy pacjentach absolutnie oczywistych, ma bardzo wysoką precyzję i niską czułość.</p>
+<table>
+<thead>
+<tr>
+<th>Chcemy wysoką…</th>
+<th>Kiedy</th>
+<th>Przykład</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>czułość</strong></td>
+<td>gdy przeoczenie jest groźne</td>
+<td>badanie przesiewowe w kierunku nowotworu, wykrywanie awarii, filtrowanie zagrożeń</td>
+</tr>
+<tr>
+<td><strong>precyzję</strong></td>
+<td>gdy fałszywy alarm jest kosztowny lub uciążliwy</td>
+<td>filtr antyspamowy (mail od szefa w spamie boli bardziej niż spam w skrzynce), automatyczne blokowanie konta</td>
+</tr>
+</tbody>
+</table>
+<p>W naszym zadaniu medycznym priorytetem jest <strong>czułość</strong>.</p>
+<h3 id="F1">F1<a class="anchor-link" href="#F1">¶</a></h3><p>$$F_1 = 2 \cdot \frac{\text{precyzja} \cdot \text{czułość}}{\text{precyzja} + \text{czułość}}$$</p>
+<p>To średnia harmoniczna obu metryk. Używa się jej, gdy potrzebna jest <strong>jedna liczba</strong> podsumowująca oba aspekty, na przykład do automatycznego porównania wielu modeli.</p>
+<p>Średnia harmoniczna, a nie zwykła, dlatego że mocno karze skrajności: model o precyzji 1,0 i czułości 0,0 ma zwykłą średnią 0,5, a F1 równe 0. I bardzo dobrze - taki model jest bezużyteczny.</p>
+<blockquote>
+<p><strong>Ostrzeżenie</strong>: F1 traktuje precyzję i czułość jako równie ważne. W diagnostyce medycznej <strong>nie są</strong> równie ważne. Optymalizowanie F1 w zadaniu, w którym przeoczenie chorego kosztuje dziesięć razy więcej niż fałszywy alarm, to wybór wygodnej liczby zamiast właściwej.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=8775b10f">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span>
+
+<span class="c1"># Liczymy najpierw "recznie" ze wzorow, zeby bylo widac, skad sie biora liczby</span>
+<span class="n">precyzja_recznie</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fp</span><span class="p">)</span>
+<span class="n">czulosc_recznie</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fn</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Ze wzorów:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  precyzja = TP / (TP + FP) = </span><span class="si">{</span><span class="n">tp</span><span class="si">}</span><span class="s2"> / (</span><span class="si">{</span><span class="n">tp</span><span class="si">}</span><span class="s2"> + </span><span class="si">{</span><span class="n">fp</span><span class="si">}</span><span class="s2">) = </span><span class="si">{</span><span class="n">precyzja_recznie</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  czułość  = TP / (TP + FN) = </span><span class="si">{</span><span class="n">tp</span><span class="si">}</span><span class="s2"> / (</span><span class="si">{</span><span class="n">tp</span><span class="si">}</span><span class="s2"> + </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">) = </span><span class="si">{</span><span class="n">czulosc_recznie</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Z funkcji scikit-learn (te same liczby):"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  skuteczność: </span><span class="si">{</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  precyzja:    </span><span class="si">{</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  czułość:     </span><span class="si">{</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  F1:          </span><span class="si">{</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=749ebf6f"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="5.-classification_report---wszystko-naraz">5. <code>classification_report</code> - wszystko naraz<a class="anchor-link" href="#5.-classification_report---wszystko-naraz">¶</a></h2><p>Ręczne wypisywanie metryk jest dobre do nauki, ale w praktyce używa się jednej funkcji, która liczy je <strong>dla każdej klasy osobno</strong>.</p>
+<p>To „osobno" jest ważne. Do tej pory patrzyliśmy na metryki klasy chorych. Klasa zdrowych ma własną precyzję i własną czułość - i przy niezrównoważonych danych wyglądają one znacznie lepiej, co potrafi uśpić czujność.</p>
+<p>W raporcie pojawiają się trzy wiersze podsumowania:</p>
+<table>
+<thead>
+<tr>
+<th>Wiersz</th>
+<th>Co liczy</th>
+<th>Kiedy jest zdradliwy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>accuracy</code></td>
+<td>odsetek trafnych odpowiedzi</td>
+<td>zawsze, gdy klasy są niezrównoważone</td>
+</tr>
+<tr>
+<td><code>macro avg</code></td>
+<td>zwykła średnia z obu klas, każda liczy się tak samo</td>
+<td>dobry sygnał, gdy zależy nam na klasie rzadkiej</td>
+</tr>
+<tr>
+<td><code>weighted avg</code></td>
+<td>średnia ważona liczebnością klas</td>
+<td>klasa większościowa przeważa i zagłusza problem</td>
+</tr>
+</tbody>
+</table>
+<p>Kolumna <code>support</code> to po prostu liczba pacjentów danej klasy w zbiorze testowym.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=da54e1b6">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">classification_report</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"=== MODEL ODNIESIENIA ==="</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span>
+    <span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_odniesienia</span><span class="p">,</span>
+    <span class="n">target_names</span><span class="o">=</span><span class="p">[</span><span class="s1">'zdrowy'</span><span class="p">,</span> <span class="s1">'chory'</span><span class="p">],</span>
+    <span class="n">zero_division</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>      <span class="c1"># model nie wskazal ani jednego chorego -&gt; dzielenie przez zero</span>
+<span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"=== REGRESJA LOGISTYCZNA ==="</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">target_names</span><span class="o">=</span><span class="p">[</span><span class="s1">'zdrowy'</span><span class="p">,</span> <span class="s1">'chory'</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0d9e33e6"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>W raporcie modelu odniesienia wiersz <code>chory</code> ma same zera - precyzja, czułość i F1 równe 0. Dokładnie to chcieliśmy zobaczyć: metryka, która <strong>od razu</strong> pokazuje, że model jest bezwartościowy, mimo przyzwoicie wyglądającej skuteczności.</p>
+<p>Zwróć też uwagę na argument <code>zero_division=0</code>. Bez niego scikit-learn zgłasza ostrzeżenie, bo precyzja tego modelu to dzielenie przez zero (żadnego alarmu nie było, więc nie da się policzyć, jaki odsetek alarmów był trafny). To nie jest usterka biblioteki - to sygnał, że model w ogóle nie korzysta z jednej z klas.</p>
+<h2 id="6.-Model-nie-m%C3%B3wi-%E2%80%9Etak%22-ani-%E2%80%9Enie%22.-Model-podaje-prawdopodobie%C5%84stwo">6. Model nie mówi „tak" ani „nie". Model podaje prawdopodobieństwo<a class="anchor-link" href="#6.-Model-nie-m%C3%B3wi-%E2%80%9Etak%22-ani-%E2%80%9Enie%22.-Model-podaje-prawdopodobie%C5%84stwo">¶</a></h2><p>Tu dochodzimy do najważniejszej części ćwiczenia.</p>
+<p>Metoda <code>predict</code> zwraca gotowe zera i jedynki - i przez to wygląda, jakby model podejmował decyzję. <strong>Nie podejmuje.</strong> Model wylicza prawdopodobieństwo (ang. <em>probability</em>), a dopiero potem ktoś je zamienia na decyzję, porównując z progiem. Ten ktoś to domyślne ustawienie biblioteki, które brzmi: <em>jeśli prawdopodobieństwo choroby przekracza 0,5, odpowiedz „chory"</em>.</p>
+<p>Skąd wzięło się 0,5? Z niczego. To liczba wygodna, a nie liczba przemyślana. Nikt nie policzył, że w tym szpitalu, przy tych kosztach badań i tych konsekwencjach przeoczenia, optymalny punkt odcięcia wypada akurat w połowie.</p>
+<p>Do prawdopodobieństw sięgamy metodą <code>predict_proba</code>. Zwraca ona tablicę o dwóch kolumnach: prawdopodobieństwo klasy 0 i klasy 1. Interesuje nas druga kolumna.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=eb42201c">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">prawdopodobienstwa</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>   <span class="c1"># kolumna [:, 1] = P(pacjent jest chory)</span>
+
+<span class="n">podglad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">'P(chory)'</span><span class="p">:</span> <span class="n">prawdopodobienstwa</span><span class="p">,</span>
+    <span class="s1">'decyzja przy progu 0,5'</span><span class="p">:</span> <span class="p">(</span><span class="n">prawdopodobienstwa</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+    <span class="s1">'prawda'</span><span class="p">:</span> <span class="n">y_test</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">podglad</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Sprawdzenie: decyzja przy progu 0,5 jest identyczna z wynikiem predict():"</span><span class="p">,</span>
+      <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">((</span><span class="n">prawdopodobienstwa</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">y_pred</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=482bd6fd"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Zwróć uwagę na <strong>ostatni wiersz wydruku</strong> - ten z napisem <code>Sprawdzenie: ... True</code>. Właśnie potwierdził rzecz, która brzmi banalnie, a ma spore konsekwencje: <code>predict()</code> to dosłownie <code>predict_proba() &gt;= 0,5</code>. Nic więcej się tam nie dzieje.</p>
+<p>Innymi słowy: model <strong>nie podejmuje decyzji</strong> - model zwraca prawdopodobieństwo. Decyzję podejmuje próg, a próg <code>0,5</code> jest tylko wartością domyślną, którą ktoś kiedyś wybrał za Ciebie.</p>
+<p>Skoro tak, to <strong>próg jest parametrem, który wolno zmienić bez ponownego trenowania modelu</strong>. To najtańsza zmiana, jaką da się w modelu wprowadzić - nie kosztuje ani jednej sekundy obliczeń.</p>
+<p>Zobaczmy, jak rozkładają się prawdopodobieństwa w obu grupach pacjentów.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4a78f3ee">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">prawdopodobienstwa</span><span class="p">[</span><span class="n">y_test</span> <span class="o">==</span> <span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'pacjenci zdrowi'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">prawdopodobienstwa</span><span class="p">[</span><span class="n">y_test</span> <span class="o">==</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'pacjenci chorzy'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'domyślny próg 0,5'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'P(pacjent jest chory) według modelu'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'liczba pacjentów'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Gdzie postawić kreskę?'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=643e33f4"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Gdyby obie grupy były całkowicie rozdzielone, wybór progu nie miałby znaczenia - wystarczyłoby postawić kreskę w pustym miejscu. W rzeczywistości rozkłady się <strong>nakładają</strong>, i to w tym obszarze nakładania rodzą się wszystkie błędy.</p>
+<p>Przesunięcie kreski w lewo (niższy próg) oznacza: łapiemy więcej chorych, ale zgarniamy przy okazji więcej zdrowych. Przesunięcie w prawo - odwrotnie.</p>
+<h2 id="7.-Przesuwanie-progu-decyzyjnego">7. Przesuwanie progu decyzyjnego<a class="anchor-link" href="#7.-Przesuwanie-progu-decyzyjnego">¶</a></h2><p>Sprawdźmy to liczbowo: dla kilku progów policzmy komplet metryk i pola macierzy pomyłek.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=125bfef3">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">progi</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
+<span class="n">wiersze</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">prog</span> <span class="ow">in</span> <span class="n">progi</span><span class="p">:</span>
+    <span class="n">decyzja</span> <span class="o">=</span> <span class="p">(</span><span class="n">prawdopodobienstwa</span> <span class="o">&gt;=</span> <span class="n">prog</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">tn_p</span><span class="p">,</span> <span class="n">fp_p</span><span class="p">,</span> <span class="n">fn_p</span><span class="p">,</span> <span class="n">tp_p</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">decyzja</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">wiersze</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">'próg'</span><span class="p">:</span> <span class="n">prog</span><span class="p">,</span>
+        <span class="s1">'FN (przeoczeni chorzy)'</span><span class="p">:</span> <span class="n">fn_p</span><span class="p">,</span>
+        <span class="s1">'FP (fałszywe alarmy)'</span><span class="p">:</span> <span class="n">fp_p</span><span class="p">,</span>
+        <span class="s1">'precyzja'</span><span class="p">:</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">decyzja</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="s1">'czułość'</span><span class="p">:</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">decyzja</span><span class="p">),</span>
+        <span class="s1">'F1'</span><span class="p">:</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">decyzja</span><span class="p">),</span>
+        <span class="s1">'skuteczność'</span><span class="p">:</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">decyzja</span><span class="p">),</span>
+    <span class="p">})</span>
+
+<span class="n">tabela_progow</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wiersze</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tabela_progow</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a9e39437"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Przeczytaj tę tabelę w dwóch kierunkach:</p>
+<ul>
+<li><strong>z dołu do góry</strong> (próg maleje): czułość rośnie, FN spada - coraz mniej chorych wymyka się modelowi,</li>
+<li><strong>przy okazji</strong>: precyzja spada, FP rośnie - coraz więcej zdrowych trafia na niepotrzebne badania.</li>
+</ul>
+<p>Nie da się mieć obu naraz. To jest kompromis (ang. <em>trade-off</em>), którego nie usuwa żaden algorytm - można go jedynie <strong>świadomie ustawić</strong> tam, gdzie pasuje do kosztów zadania.</p>
+<p>Prześledź osobno kolumnę skuteczności i sprawdź, przy którym progu wypada ona najwyżej. Skuteczność premiuje klasę większościową, więc jej maksimum wypada tam, gdzie model rzadko alarmuje - a to znaczy, że <strong>próg maksymalizujący skuteczność nie jest progiem, który chcemy w szpitalu</strong>. To ta sama pułapka co w ćwiczeniu 01, tylko widziana od innej strony.</p>
+<p>Te same dane wyglądają wyraźniej na wykresie, gdy próg zmienia się płynnie.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=0c39ccaa">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_recall_curve</span>
+
+<span class="n">precyzje</span><span class="p">,</span> <span class="n">czulosci</span><span class="p">,</span> <span class="n">progi_pr</span> <span class="o">=</span> <span class="n">precision_recall_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">prawdopodobienstwa</span><span class="p">)</span>
+
+<span class="c1"># precision_recall_curve zwraca o jeden element wiecej dla precyzji i czulosci</span>
+<span class="c1"># niz dla progow - ostatni punkt (precyzja 1, czulosc 0) nie ma odpowiadajacego progu</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">progi_pr</span><span class="p">,</span> <span class="n">precyzje</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">'precyzja'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">progi_pr</span><span class="p">,</span> <span class="n">czulosci</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">'czułość'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'domyślny próg 0,5'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'próg decyzyjny'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'wartość metryki'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Precyzja i czułość jako funkcje progu - jedna rośnie kosztem drugiej'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c6ca95ba"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Dwie krzywe biegnące w przeciwnych kierunkach - to jest obraz, który warto zapamiętać z tego ćwiczenia.</p>
+<blockquote>
+<p><strong>Jak wybrać próg w prawdziwym projekcie</strong>: nie z wykresu i nie ze wzoru, tylko z rozmowy z osobą, która zna koszty. Pytanie do lekarza brzmi: <em>„ilu dodatkowych zdrowych pacjentów wolno nam wysłać na badanie kontrolne, żeby wykryć jednego chorego więcej?"</em>. Odpowiedź na to pytanie wyznacza próg. Zadaniem osoby budującej model jest <strong>pokazać kompromis</strong>, a nie wybrać go samodzielnie.</p>
+</blockquote>
+<h2 id="8.-Krzywa-ROC-i-pole-pod-ni%C4%85-(AUC)">8. Krzywa ROC i pole pod nią (AUC)<a class="anchor-link" href="#8.-Krzywa-ROC-i-pole-pod-ni%C4%85-(AUC)">¶</a></h2><p>Tabela progów ma wadę: pokazuje kilka wybranych punktów. Krzywa ROC (ang. <em>receiver operating characteristic</em>) pokazuje <strong>wszystkie progi naraz</strong>, jako jedną linię.</p>
+<p>Na osiach są dwie wielkości:</p>
+<ul>
+<li>oś pionowa: <strong>czułość</strong> (TPR, ang. <em>true positive rate</em>) - odsetek chorych, których wykryliśmy,</li>
+<li>oś pozioma: <strong>odsetek fałszywych alarmów</strong> (FPR, ang. <em>false positive rate</em>) - $FP / (FP + TN)$, czyli odsetek zdrowych, których niepotrzebnie zaalarmowaliśmy.</li>
+</ul>
+<p>Każdy punkt krzywej to jeden próg. Im bardziej krzywa wygina się ku lewemu górnemu rogowi, tym lepiej - tam jest dużo wykrytych chorych przy mało fałszywych alarmach.</p>
+<p><strong>AUC</strong> (ang. <em>area under the curve</em>) to pole pod tą krzywą, liczba od 0 do 1. Ma ładną interpretację: to prawdopodobieństwo, że losowo wybrany chory pacjent dostanie od modelu wyższą ocenę niż losowo wybrany zdrowy. AUC = 0,5 oznacza model losowy (przekątna na wykresie), AUC = 1,0 - model idealny.</p>
+<p>Najważniejsza zaleta AUC: <strong>nie zależy od progu</strong>. Mierzy jakość samego uszeregowania pacjentów, a nie konkretnej decyzji.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5210265a">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">RocCurveDisplay</span><span class="p">,</span> <span class="n">roc_auc_score</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="n">RocCurveDisplay</span><span class="o">.</span><span class="n">from_predictions</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">prawdopodobienstwa</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'regresja logistyczna'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'model losowy (AUC = 0,5)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'odsetek fałszywych alarmów (FPR)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'czułość (TPR)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Krzywa ROC'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ROC AUC: </span><span class="si">{</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="w"> </span><span class="n">prawdopodobienstwa</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d73b5f33"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="9.-Krzywa-precyzja-czu%C5%82o%C5%9B%C4%87---uczciwsza-przy-rzadkiej-klasie">9. Krzywa precyzja-czułość - uczciwsza przy rzadkiej klasie<a class="anchor-link" href="#9.-Krzywa-precyzja-czu%C5%82o%C5%9B%C4%87---uczciwsza-przy-rzadkiej-klasie">¶</a></h2><p>ROC ma jedną niewygodną właściwość: jej oś pozioma, czyli FPR, ma w mianowniku $FP + TN$ - a więc <strong>wszystkich zdrowych pacjentów</strong>. Gdy zdrowych jest bardzo dużo, nawet spora liczba fałszywych alarmów daje mały ułamek i krzywa wygląda dobrze.</p>
+<p>Przykład: przy 9 900 zdrowych pacjentach 99 fałszywych alarmów to FPR równe zaledwie 0,01 - krzywa ROC ledwie drgnie. Ale jeśli chorych jest 100 i model wykrył 50, to na 149 alarmów tylko 50 jest trafnych: precyzja wynosi około 34%. Lekarz odbierający takie alarmy uzna model za niewiarygodny, a ROC zaraportuje, że jest świetnie.</p>
+<p>Krzywa precyzja-czułość (ang. <em>precision-recall curve</em>) tego problemu nie ma, bo <strong>w żadnej z jej metryk nie występuje TN</strong>. Patrzy wyłącznie na klasę, na której nam zależy.</p>
+<table>
+<thead>
+<tr>
+<th>Cecha</th>
+<th>Krzywa ROC</th>
+<th>Krzywa precyzja-czułość</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>osie</td>
+<td>FPR kontra czułość</td>
+<td>czułość kontra precyzja</td>
+</tr>
+<tr>
+<td>czy uwzględnia TN</td>
+<td>tak</td>
+<td><strong>nie</strong></td>
+</tr>
+<tr>
+<td>zachowanie przy rzadkiej klasie pozytywnej</td>
+<td>bywa zbyt optymistyczna</td>
+<td>pokazuje problem wprost</td>
+</tr>
+<tr>
+<td>poziom odniesienia dla modelu losowego</td>
+<td>zawsze 0,5</td>
+<td>udział klasy pozytywnej w danych</td>
+</tr>
+<tr>
+<td>podsumowanie jedną liczbą</td>
+<td>ROC AUC</td>
+<td>średnia precyzja (ang. <em>average precision</em>)</td>
+</tr>
+</tbody>
+</table>
+<p>Zwróć uwagę na wiersz o poziomie odniesienia. W ROC model losowy zawsze daje 0,5, niezależnie od danych. W krzywej precyzja-czułość poziom odniesienia to udział chorych w zbiorze - u nas około 0,334. Dlatego wartości średniej precyzji nie porównuje się między różnymi zbiorami danych, tylko z tym poziomem odniesienia.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=cc2ac8b1">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrecisionRecallDisplay</span><span class="p">,</span> <span class="n">average_precision_score</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="n">PrecisionRecallDisplay</span><span class="o">.</span><span class="n">from_predictions</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">prawdopodobienstwa</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'regresja logistyczna'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span>
+           <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'model losowy (udział chorych = </span><span class="si">{</span><span class="n">y_test</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'czułość'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'precyzja'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Krzywa precyzja-czułość'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">'lower left'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Średnia precyzja (average precision): </span><span class="si">{</span><span class="n">average_precision_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="w"> </span><span class="n">prawdopodobienstwa</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Poziom odniesienia (udział chorych):  </span><span class="si">{</span><span class="n">y_test</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=6e59f2b9"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Zadania">Zadania<a class="anchor-link" href="#Zadania">¶</a></h1><p>Wszystko, czego potrzeba, pojawiło się w przykładzie powyżej. Zadania są ustawione od najprostszego do najtrudniejszego.</p>
+<h2 id="Zadanie-1:-Metryki-modelu-odniesienia-w-liczbach">Zadanie 1: Metryki modelu odniesienia w liczbach<a class="anchor-link" href="#Zadanie-1:-Metryki-modelu-odniesienia-w-liczbach">¶</a></h2><p>Dla <code>model_odniesienia</code> policz i wypisz cztery pola macierzy pomyłek (TN, FP, FN, TP) oraz precyzję, czułość i F1 dla klasy chorych.</p>
+<p>Przy liczeniu precyzji przyda się argument <code>zero_division=0</code> - zastanów się, <strong>dlaczego</strong> akurat ta metryka wymaga tu specjalnego traktowania.</p>
+<p>Na koniec odpowiedz jednym zdaniem: która z policzonych liczb najkrócej uzasadnia, że tego modelu nie wolno wdrożyć w szpitalu?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=745dc934">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: confusion_matrix(y_test, y_pred_odniesienia).ravel()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ac7f89d8"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-2:-Metryki-ze-wzoru,-bez-gotowych-funkcji">Zadanie 2: Metryki ze wzoru, bez gotowych funkcji<a class="anchor-link" href="#Zadanie-2:-Metryki-ze-wzoru,-bez-gotowych-funkcji">¶</a></h2><p>Napisz funkcję <code>metryki_recznie(y_prawda, y_przewidziane)</code>, która na podstawie macierzy pomyłek policzy <strong>ze wzorów</strong> precyzję, czułość i F1, i zwróci je jako słownik.</p>
+<p>Nie korzystaj wewnątrz z <code>precision_score</code>, <code>recall_score</code> ani <code>f1_score</code> - o to właśnie chodzi w tym zadaniu. Z <code>confusion_matrix</code> korzystać wolno.</p>
+<p>Sprawdź wynik na przewidywaniach regresji logistycznej, porównując z funkcjami scikit-learn. Zadbaj o to, żeby funkcja nie wywracała się przy dzieleniu przez zero.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5cf40e77">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=f6e4330d"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-3:-W%C5%82asna-tabela-prog%C3%B3w">Zadanie 3: Własna tabela progów<a class="anchor-link" href="#Zadanie-3:-W%C5%82asna-tabela-prog%C3%B3w">¶</a></h2><p>Zbuduj tabelę metryk dla progów od 0,05 do 0,95 co 0,05 (<code>np.arange(0.05, 1.0, 0.05)</code>).</p>
+<p>Dla każdego progu podaj: liczbę przeoczonych chorych (FN), liczbę fałszywych alarmów (FP), precyzję, czułość i F1.</p>
+<p>Następnie odczytaj z tabeli trzy rzeczy:</p>
+<ol>
+<li>przy jakim progu F1 jest największe,</li>
+<li>przy jakim progu skuteczność jest największa,</li>
+<li>czy to ten sam próg - a jeśli nie, to dlaczego.</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d8d5b1ee">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=fec2254d"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-4:-Pr%C3%B3g-dla-czu%C5%82o%C5%9Bci-co-najmniej-0,9">Zadanie 4: Próg dla czułości co najmniej 0,9<a class="anchor-link" href="#Zadanie-4:-Pr%C3%B3g-dla-czu%C5%82o%C5%9Bci-co-najmniej-0,9">¶</a></h2><p>To zadanie jest w tym ćwiczeniu najważniejsze, bo odwraca zwykły sposób myślenia: zamiast pytać „jakie metryki ma mój model", stawiamy <strong>wymaganie</strong> i pytamy, ile ono kosztuje.</p>
+<p>Szpital stawia warunek: model ma wykrywać <strong>co najmniej 90% chorych</strong>. Czułość poniżej 0,9 dyskwalifikuje rozwiązanie.</p>
+<ol>
+<li>Znajdź <strong>najwyższy</strong> próg, przy którym czułość wynosi co najmniej 0,9. Dlaczego akurat najwyższy - zastanów się, zanim zajrzysz do podpowiedzi.</li>
+<li>Podaj, jaka jest przy tym progu precyzja.</li>
+<li>Wypisz macierz pomyłek dla tego progu i porównaj ją z macierzą dla progu 0,5: ilu chorych więcej udało się wykryć i ilu zdrowych pacjentów za to zapłaciło niepotrzebnym badaniem.</li>
+<li>Sformułuj wniosek zdaniem, które dałoby się powiedzieć lekarzowi - bez żargonu, za to z liczbami.</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=866cbe69">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: precision_recall_curve zwraca gotowe tablice precyzji, czułości i progów.</span>
+<span class="c1"># Szukamy najwyższego progu, bo im wyższy próg, tym mniej fałszywych alarmów -</span>
+<span class="c1"># chcemy spełnić wymaganie czułości jak najmniejszym kosztem precyzji.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2d776ad1"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-5:-Kt%C3%B3re-por%C3%B3wnanie-modeli-jest-uczciwe?">Zadanie 5: Które porównanie modeli jest uczciwe?<a class="anchor-link" href="#Zadanie-5:-Kt%C3%B3re-por%C3%B3wnanie-modeli-jest-uczciwe?">¶</a></h2><p>Wytrenuj <code>DecisionTreeClassifier(max_depth=5, random_state=42)</code> i porównaj go z regresją logistyczną na cztery sposoby:</p>
+<ol>
+<li>skuteczność,</li>
+<li>F1 przy domyślnym progu,</li>
+<li>ROC AUC,</li>
+<li>średnia precyzja.</li>
+</ol>
+<p>Wyniki zestaw w tabeli (<code>pd.DataFrame</code>). Narysuj też obie krzywe ROC na jednym wykresie i obie krzywe precyzja-czułość na drugim.</p>
+<p>Pytanie, na które odpowiadasz: czy wszystkie cztery metryki wskazują ten sam model jako lepszy? Jeśli nie - która z nich najlepiej pasuje do zadania medycznego i dlaczego?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=315f8a72">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: obie krzywe na jednym wykresie rysuje się, przekazując ten sam `ax`</span>
+<span class="c1"># do kolejnych wywołań RocCurveDisplay.from_predictions(...).</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d529f75d"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-6:-Wagi-klas-kontra-przesuni%C4%99cie-progu">Zadanie 6: Wagi klas kontra przesunięcie progu<a class="anchor-link" href="#Zadanie-6:-Wagi-klas-kontra-przesuni%C4%99cie-progu">¶</a></h2><p>Przesuwanie progu to nie jedyny sposób na zwiększenie czułości. Drugi to powiedzenie modelowi <strong>już na etapie uczenia</strong>, że pomyłka na chorym pacjencie boli bardziej. Służy do tego argument <code>class_weight='balanced'</code> w <code>LogisticRegression</code>.</p>
+<ol>
+<li>Wytrenuj regresję logistyczną z <code>class_weight='balanced'</code> (reszta bez zmian: <code>max_iter=1000</code>, <code>random_state=42</code>, potok ze skalowaniem).</li>
+<li>Porównaj jej macierz pomyłek i metryki przy progu 0,5 z modelem bez wag.</li>
+<li>Porównaj jej ROC AUC z modelem bez wag. Czy ta metryka się zmieniła? Zastanów się, dlaczego wynik wygląda właśnie tak.</li>
+<li>Znajdź taki próg dla modelu <strong>bez</strong> wag, przy którym czułość jest w przybliżeniu równa czułości modelu z wagami. Porównaj wtedy precyzję obu modeli.</li>
+</ol>
+<p>Wniosek, do którego zmierzamy: czy <code>class_weight</code> daje coś, czego nie da się osiągnąć samym przesunięciem progu?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=35c99a4f">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e63c2114"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-7-(trudniejsze):-Pr%C3%B3g-wyznaczony-z-koszt%C3%B3w">Zadanie 7 (trudniejsze): Próg wyznaczony z kosztów<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Pr%C3%B3g-wyznaczony-z-koszt%C3%B3w">¶</a></h2><p>Do tej pory próg wybieraliśmy „na oko" albo pod zadane wymaganie. Teraz wyznaczymy go rachunkiem.</p>
+<p>Przyjmijmy koszty (umowne jednostki, ustalone przez szpital):</p>
+<table>
+<thead>
+<tr>
+<th>Zdarzenie</th>
+<th>Koszt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FN - chory odesłany do domu</td>
+<td>10</td>
+</tr>
+<tr>
+<td>FP - zdrowy wysłany na dodatkowe badanie</td>
+<td>1</td>
+</tr>
+<tr>
+<td>TP, TN - trafna decyzja</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>Napisz funkcję, która dla zadanego progu policzy łączny koszt: <code>10 * FN + 1 * FP</code>.</li>
+<li>Policz koszt dla progów od 0,01 do 0,99 co 0,01 i narysuj wykres koszt-próg.</li>
+<li>Znajdź próg minimalizujący koszt. Porównaj go z 0,5 oraz z progiem z zadania 4.</li>
+<li>Sprawdź, jak przesuwa się optymalny próg, gdy stosunek kosztów zmieni się na 3:1 oraz na 30:1. Opisz zależność jednym zdaniem.</li>
+<li>Na koniec pytanie bez kodu: skąd w prawdziwym projekcie wziąć te koszty i co zrobić, gdy nikt nie potrafi ich podać?</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1dcbb0c6">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=27c08816"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Pytania-do-przemy%C5%9Blenia">Pytania do przemyślenia<a class="anchor-link" href="#Pytania-do-przemy%C5%9Blenia">¶</a></h1><p>Na te pytania odpowiada się słowami, nie kodem.</p>
+<ol>
+<li>Model wykrywania rzadkiej choroby (1 przypadek na 1000 badanych) osiąga 99,9% skuteczności. Ile w najgorszym razie wykrył chorych? Jakie dwie metryki trzeba zobaczyć, zanim będzie można cokolwiek o tym modelu powiedzieć?</li>
+<li>Filtr antyspamowy i badanie przesiewowe w kierunku nowotworu to oba zadania klasyfikacji binarnej. Dlaczego w jednym priorytetem jest precyzja, a w drugim czułość? Co jest klasą pozytywną w każdym z nich?</li>
+<li>Dwa modele mają identyczne ROC AUC, ale różne F1 przy progu 0,5. Czy to w ogóle możliwe - a jeśli tak, to co się między nimi różni?</li>
+<li>Dlaczego F1 jest średnią harmoniczną, a nie zwykłą? Co by się stało z oceną modelu, który uznaje wszystkich pacjentów za chorych, gdyby F1 liczyło się jako zwykła średnia?</li>
+<li>Obniżenie progu z 0,5 do 0,3 podniosło czułość. Czy model stał się przez to lepszy? Która z metryk omawianych w tym ćwiczeniu w ogóle <strong>nie zareaguje</strong> na zmianę progu i dlaczego właśnie ona jest dobrym miernikiem samego modelu?</li>
+<li>Próg dobrany w tym ćwiczeniu został wyznaczony na zbiorze testowym. To wygodne, ale metodycznie podejrzane. Na czym dokładnie polega problem i jak należałoby to zrobić poprawnie?</li>
+</ol>
+<h1 id="Chcesz-wiedzie%C4%87-wi%C4%99cej">Chcesz wiedzieć więcej<a class="anchor-link" href="#Chcesz-wiedzie%C4%87-wi%C4%99cej">¶</a></h1><ul>
+<li><a href="https://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics">Metryki klasyfikacji w scikit-learn</a> - komplet definicji ze wzorami.</li>
+<li><a href="https://scikit-learn.org/stable/auto_examples/model_selection/plot_precision_recall.html">Precision-Recall w scikit-learn</a> - przykład z omówieniem, dlaczego przy rzadkiej klasie ta krzywa mówi więcej niż ROC.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TunedThresholdClassifierCV.html"><code>TunedThresholdClassifierCV</code></a> - klasa, która dobiera próg automatycznie, na osobnych danych (dostępna od scikit-learn 1.5). To poprawna odpowiedź na pytanie 6.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.make_scorer.html"><code>make_scorer</code></a> - jak zbudować własną funkcję oceny, na przykład opartą na kosztach z zadania 7.</li>
+</ul>
+<p>Ostatnie pytanie do przemyślenia zostawia otwarty problem: próg dobrany na zbiorze testowym przestaje być bezstronny, bo zbiór testowy został użyty do podjęcia decyzji. Dokładnie tym zajmuje się <strong>ćwiczenie 06 - Walidacja i dobór modelu</strong>: walidacją krzyżową (ang. <em>cross-validation</em>), doborem hiperparametrów i przeciekiem danych. Metryki poznane tutaj będą tam narzędziem pomiaru - zobaczysz między innymi, że <code>GridSearchCV</code> z argumentem <code>scoring='recall'</code> szuka czegoś zupełnie innego niż <code>scoring='accuracy'</code>.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="04-regresja.html"><span>Poprzednie</span>Ćwiczenie 4: Regresja - przewidywanie wartości liczbowej</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="06-walidacja-dobor-modelu.html"><span>Następne</span>Ćwiczenie 6: Walidacja i dobór modelu</a>
+</nav>
+</div></main>
+
+</body>
+</html>

@@ -1,0 +1,1361 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenie 11: Jakość kodu w uczeniu maszynowym</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="pobierz/11_jakosc_kodu_ml.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=c69eb5fc"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="%C4%86wiczenie-11:-Jako%C5%9B%C4%87-kodu-w-uczeniu-maszynowym">Ćwiczenie 11: Jakość kodu w uczeniu maszynowym<a class="anchor-link" href="#%C4%86wiczenie-11:-Jako%C5%9B%C4%87-kodu-w-uczeniu-maszynowym">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 10 kod przeniósł się z notatnika do pliku <code>.py</code>: powstały funkcje <code>wczytaj_dane</code>, <code>przygotuj_cechy</code>, <code>trenuj_model</code> i <code>ocen_model</code>, parametry trafiły do wiersza poleceń, a model - na dysk. Skrypt uruchamia się w świeżym procesie i daje ten sam wynik za każdym razem.</p>
+<p>Zostało jednak pytanie, na które ćwiczenie 10 nie odpowiada: <strong>skąd wiadomo, że ten kod robi to, co obiecuje?</strong></p>
+<p>Dziś jedyną odpowiedzią jest: „bo kod się uruchomił, a wynik wyglądał sensownie". To znaczy <strong>„działa u mnie w notatniku"</strong> - i to jest za mało, bo:</p>
+<ul>
+<li>skuteczność 78% wygląda sensownie także wtedy, gdy <code>PatientID</code> przez pomyłkę został wśród cech,</li>
+<li>skuteczność 99% wygląda podejrzanie dobrze - ale trzeba to najpierw zauważyć, a nikt nie zauważa wszystkiego,</li>
+<li>po zmianie jednej linijki w <code>przygotuj_cechy</code> nic nie krzyczy; wynik po prostu cicho staje się inny.</li>
+</ul>
+<p>Lekarstwem są <strong>testy jednostkowe</strong> (ang. <em>unit tests</em>): mały kod, który sprawdza inny kod i mówi „przeszło" albo „nie przeszło" - bez oglądania wyników na oko.</p>
+<p>Zanim je napiszemy, trzeba rozstrzygnąć najważniejszą kwestię tego ćwiczenia: <strong>co właściwie da się testować w kodzie uczenia maszynowego</strong>. Bo na pewno nie skuteczność modelu.</p>
+<blockquote>
+<p><strong>Dlaczego to ćwiczenie jest ostatnie, a nie pierwsze.</strong> Tak jak w ćwiczeniu 10: ból musi być pierwszy, lekarstwo drugie. Zdanie „pisz testy" na pierwszych zajęciach brzmi jak niepotrzebna biurokracja. Po dziesięciu ćwiczeniach - po pomyłkowo zostawionym identyfikatorze, po przecieku danych z ćwiczenia 06 i po wynikach, których nie dało się odtworzyć - widać, przed czym dokładnie testy chronią. Każdy test w tym notatniku jest odpowiedzią na konkretny błąd popełniony wcześniej w tym kursie.</p>
+</blockquote>
+<h2 id="Czego-si%C4%99-nauczysz">Czego się nauczysz<a class="anchor-link" href="#Czego-si%C4%99-nauczysz">¶</a></h2><ol>
+<li>Co w kodzie uczenia maszynowego da się testować, a czego <strong>nie da się</strong> i dlaczego.</li>
+<li>Jak wygląda pojedynczy test w <code>pytest</code> i jak go uruchomić.</li>
+<li>Dlaczego testy pisze się na <strong>małych, sztucznych ramkach danych</strong>, a nie na pełnym zbiorze.</li>
+<li>Czym jest atrapa (ang. <em>fixture</em>) i po co powtarzać dane w kilku testach tylko raz.</li>
+<li>Jak przetestować kształty tablic, brak przecieku danych, zakresy po skalowaniu i determinizm.</li>
+<li>Czym różni się <code>assert</code> wewnątrz potoku danych od <code>assert</code> wewnątrz testu.</li>
+<li>Jak sprawdzić styl kodu narzędziem <code>flake8</code> albo <code>ruff</code>.</li>
+</ol>
+<blockquote>
+<p><strong>Zanim zaczniesz</strong>: uruchamiaj komórki po kolei (Shift+Enter). Notatnik zakłada, że katalogiem roboczym jest <code>cwiczenia-ml/</code>.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b96a5896"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Co-w%C5%82a%C5%9Bciwie-da-si%C4%99-testowa%C4%87-w-kodzie-ML">1. Co właściwie da się testować w kodzie ML<a class="anchor-link" href="#1.-Co-w%C5%82a%C5%9Bciwie-da-si%C4%99-testowa%C4%87-w-kodzie-ML">¶</a></h2><p>To jest sedno całego ćwiczenia, więc warto zatrzymać się tu na dłużej.</p>
+<p>W zwykłym programie test wygląda tak: „funkcja licząca podatek dla kwoty 1000 ma zwrócić 170". Wejście znane, wyjście znane, sprawdzenie oczywiste.</p>
+<p>W uczeniu maszynowym pojawia się pokusa napisania testu: „model ma mieć co najmniej 85% skuteczności". <strong>To nie jest test jednostkowy.</strong> To pomiar, i to pomiar czegoś, co nie zależy wyłącznie od kodu:</p>
+<ul>
+<li>skuteczność zależy od <strong>danych</strong> - zmienią się dane, zmieni się wynik, a kod pozostanie bez zarzutu,</li>
+<li>zależy od <strong>hiperparametrów</strong>, czyli od decyzji, a nie od poprawności,</li>
+<li>gdy taki test nie przechodzi, nie wiadomo, <strong>co</strong> naprawić: dane, model, próg czy sam test.</li>
+</ul>
+<p>Testujemy więc nie skuteczność, tylko <strong>poprawność przekształceń danych</strong> - czyli te fragmenty, w których istnieje jedna prawidłowa odpowiedź, niezależna od tego, jaki model zostanie potem użyty.</p>
+<table>
+<thead>
+<tr>
+<th>Da się testować (jedna poprawna odpowiedź)</th>
+<th>Nie nadaje się na test jednostkowy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>przygotuj_cechy</code> usuwa <code>PatientID</code></td>
+<td>„skuteczność ≥ 85%"</td>
+</tr>
+<tr>
+<td>suma wierszy po podziale = liczba wierszy przed</td>
+<td>„las losowy bije drzewo"</td>
+</tr>
+<tr>
+<td>kolumna z etykietą nie trafia do cech</td>
+<td>„ta cecha jest najważniejsza"</td>
+</tr>
+<tr>
+<td>po skalowaniu średnia ≈ 0, odchylenie ≈ 1</td>
+<td>„krzywa ROC ładnie wygląda"</td>
+</tr>
+<tr>
+<td>dwa wywołania z tym samym ziarnem dają ten sam wynik</td>
+<td>„model jest wystarczająco dobry"</td>
+</tr>
+<tr>
+<td>wiersze z brakami zostały obsłużone zgodnie z umową</td>
+<td>„predykcja dla pacjenta 1001 to 1"</td>
+</tr>
+</tbody>
+</table>
+<p>Zasada jednym zdaniem:</p>
+<blockquote>
+<p><strong>Testujemy kod, nie model. Kod ma być poprawny, model ma być skuteczny - to dwie różne sprawy, mierzone w zupełnie inny sposób.</strong></p>
+</blockquote>
+<p>Skuteczność modelu też się monitoruje, ale służą do tego metryki, walidacja krzyżowa i raporty z ćwiczeń 05 i 06 - a nie zestaw testów, który ma przejść na zielono przed każdym wysłaniem zmian.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=790c6781"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="2.-Czy-pytest-jest-zainstalowany?">2. Czy <code>pytest</code> jest zainstalowany?<a class="anchor-link" href="#2.-Czy-pytest-jest-zainstalowany?">¶</a></h2><p><code>pytest</code> to osobny pakiet - <strong>nie wchodzi w skład standardowej biblioteki Pythona</strong>. Na instancji obliczeniowej Azure ML zwykle jest, na własnym komputerze bywa różnie.</p>
+<p>Poniższa komórka tylko sprawdza, czy pakiet da się zaimportować. Niczego nie instaluje i niczym nie rzuca, gdy pakietu brakuje.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=50569068">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="k">if</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s2">"pytest"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"pytest NIE jest zainstalowany."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Uruchom w osobnej komórce:  !pip install pytest"</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"pytest jest dostępny, wersja:"</span><span class="p">,</span> <span class="n">pytest</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Python:"</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=35675245"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Gdy w wyniku pojawiło się „NIE jest zainstalowany", wykonaj w nowej komórce:</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">pytest</span>
+</pre></div>
+<p>a potem uruchom komórkę sprawdzającą jeszcze raz. Instalacja jest jednorazowa - pakiet jest wymieniony w <code>requirements.txt</code> tego kursu właśnie z myślą o tym ćwiczeniu.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7101f43a"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="3.-Kod,-kt%C3%B3ry-da-si%C4%99-przetestowa%C4%87">3. Kod, który da się przetestować<a class="anchor-link" href="#3.-Kod,-kt%C3%B3ry-da-si%C4%99-przetestowa%C4%87">¶</a></h2><p>Testowalność nie jest cechą testu - jest cechą <strong>kodu</strong>. Funkcja nadaje się do testowania, gdy:</p>
+<ol>
+<li><strong>robi jedną rzecz</strong> - inaczej nie wiadomo, którą z nich test właśnie sprawdził,</li>
+<li><strong>dostaje dane przez argumenty</strong>, a nie sięga po zmienne globalne z notatnika,</li>
+<li><strong>zwraca wynik</strong>, zamiast tylko go wypisywać - z <code>print</code> nie da się nic sprawdzić,</li>
+<li><strong>nie miesza wczytywania danych z liczeniem</strong> - funkcja, która sama czyta plik z dysku, wymaga pliku przy każdym teście.</li>
+</ol>
+<p>Zaczynamy od kodu z ćwiczenia 10 i rozbijamy go na funkcje spełniające te warunki. Dochodzą dwie nowe: <code>podziel_dane</code> i <code>skaluj_cechy</code> - w ćwiczeniu 10 obie były wplecione w <code>main()</code>, a przez to niedostępne dla testów.</p>
+<p>Zwróć też uwagę na <code>assert</code> wewnątrz <code>wczytaj_dane</code>. To <strong>asercja sanity-check</strong> (ang. <em>sanity check</em>): warunek, który musi być spełniony, żeby dalsza praca miała sens. Wrócimy do niej w sekcji 8.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=49c751de">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># %%writefile nie tworzy katalogów - zakładamy je sami</span>
+<span class="n">Path</span><span class="p">(</span><span class="s1">'src'</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">Path</span><span class="p">(</span><span class="s1">'tests'</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Katalogi src/ i tests/ gotowe."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1b19b126">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="o">%%</span><span class="n">writefile</span> <span class="n">src</span><span class="o">/</span><span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+<span class="sd">"""Pakiet z kodem zrodlowym cwiczenia 11.</span>
+
+<span class="sd">Ten plik moze byc pusty - jego obecnosc sprawia, ze katalog src/ jest</span>
+<span class="sd">pakietem Pythona, wiec z testow da sie napisac: from src.potok import ...</span>
+<span class="sd">"""</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=56fc6b48">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="o">%%</span><span class="n">writefile</span> <span class="n">src</span><span class="o">/</span><span class="n">potok</span><span class="o">.</span><span class="n">py</span>
+<span class="sd">"""Potok danych i treningu dla klasyfikatora cukrzycy.</span>
+
+<span class="sd">Kazda funkcja robi jedna rzecz i ma jasne wejscie oraz wyjscie.</span>
+<span class="sd">Dzieki temu da sie ja wywolac z testu, bez uruchamiania calego treningu.</span>
+<span class="sd">"""</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">recall_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+
+<span class="n">KOLUMNA_ID</span> <span class="o">=</span> <span class="s2">"PatientID"</span>
+<span class="n">KOLUMNA_ETYKIETY</span> <span class="o">=</span> <span class="s2">"Diabetic"</span>
+<span class="n">ZIARNO</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="n">SCIEZKA_DOMYSLNA</span> <span class="o">=</span> <span class="s2">"dane/diabetes.csv"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">wczytaj_dane</span><span class="p">(</span><span class="n">sciezka</span><span class="o">=</span><span class="n">SCIEZKA_DOMYSLNA</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Wczytuje plik CSV i sprawdza, czy w ogole nadaje sie do dalszej pracy."""</span>
+    <span class="n">ramka</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">sciezka</span><span class="p">)</span>
+
+    <span class="c1"># Asercje sanity-check: warunki, ktore MUSZA byc spelnione, zeby</span>
+    <span class="c1"># reszta potoku miala sens. Lepiej zatrzymac sie tutaj niz liczyc</span>
+    <span class="c1"># przez godzine na danych, ktore sa nie te.</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ramka</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Plik </span><span class="si">{</span><span class="n">sciezka</span><span class="si">}</span><span class="s2"> nie zawiera ani jednego wiersza"</span>
+    <span class="k">assert</span> <span class="n">KOLUMNA_ETYKIETY</span> <span class="ow">in</span> <span class="n">ramka</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Brak kolumny z etykieta: </span><span class="si">{</span><span class="n">KOLUMNA_ETYKIETY</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ramka</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">przygotuj_cechy</span><span class="p">(</span><span class="n">ramka</span><span class="p">,</span> <span class="n">usun_braki</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Dzieli ramke na cechy X i etykiete y.</span>
+
+<span class="sd">    Identyfikator pacjenta NIE jest cecha - to etykietka z systemu</span>
+<span class="sd">    rejestracji, a nie wynik badania.</span>
+<span class="sd">    """</span>
+    <span class="n">ramka</span> <span class="o">=</span> <span class="n">ramka</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">usun_braki</span><span class="p">:</span>
+        <span class="n">ramka</span> <span class="o">=</span> <span class="n">ramka</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+    <span class="n">do_usuniecia</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="n">KOLUMNA_ID</span><span class="p">,</span> <span class="n">KOLUMNA_ETYKIETY</span><span class="p">)</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ramka</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">ramka</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">do_usuniecia</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">ramka</span><span class="p">[</span><span class="n">KOLUMNA_ETYKIETY</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">podziel_dane</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">ziarno</span><span class="o">=</span><span class="n">ZIARNO</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Dzieli dane na czesc uczaca i testowa. Zwraca (X_ucz, X_test, y_ucz, y_test)."""</span>
+    <span class="k">return</span> <span class="n">train_test_split</span><span class="p">(</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">ziarno</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">skaluj_cechy</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Skaluje cechy. Skaler uczy sie WYLACZNIE na zbiorze uczacym."""</span>
+    <span class="n">skaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+    <span class="n">X_ucz_skalowane</span> <span class="o">=</span> <span class="n">skaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">)</span>
+    <span class="n">X_test_skalowane</span> <span class="o">=</span> <span class="n">skaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X_ucz_skalowane</span><span class="p">,</span> <span class="n">X_test_skalowane</span><span class="p">,</span> <span class="n">skaler</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">trenuj_model</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ziarno</span><span class="o">=</span><span class="n">ZIARNO</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Trenuje drzewo decyzyjne i zwraca wytrenowany model."""</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">ziarno</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ocen_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Zwraca slownik metryk. Slownik, bo latwo go zapisac do JSON-a."""</span>
+    <span class="n">przewidywania</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"skutecznosc"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">)),</span>
+        <span class="s2">"czulosc"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">)),</span>
+        <span class="s2">"f1"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">)),</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ef009e70"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="4.-Pierwszy-test">4. Pierwszy test<a class="anchor-link" href="#4.-Pierwszy-test">¶</a></h2><p>Test w <code>pytest</code> to <strong>zwykła funkcja</strong>, bez klas i bez dziedziczenia. Obowiązują tylko trzy konwencje:</p>
+<table>
+<thead>
+<tr>
+<th>Konwencja</th>
+<th>Po co</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>plik nazywa się <code>test_*.py</code></td>
+<td><code>pytest</code> sam znajduje pliki z testami - nie trzeba nigdzie ich wymieniać</td>
+</tr>
+<tr>
+<td>funkcja nazywa się <code>test_*</code></td>
+<td>j.w., dla funkcji</td>
+</tr>
+<tr>
+<td>sprawdzenie przez zwykłe <code>assert</code></td>
+<td>gdy warunek jest fałszywy, <code>pytest</code> sam pokazuje wartości obu stron</td>
+</tr>
+</tbody>
+</table>
+<p>Dobry test ma trzy części, choć nic ich formalnie nie wymusza:</p>
+<ol>
+<li><strong>przygotowanie</strong> - budujemy dane wejściowe,</li>
+<li><strong>wykonanie</strong> - wywołujemy testowaną funkcję,</li>
+<li><strong>sprawdzenie</strong> - asercja.</li>
+</ol>
+<h3 id="Dlaczego-testy-piszemy-na-ma%C5%82ych,-sztucznych-ramkach">Dlaczego testy piszemy na małych, sztucznych ramkach<a class="anchor-link" href="#Dlaczego-testy-piszemy-na-ma%C5%82ych,-sztucznych-ramkach">¶</a></h3><p>W pierwszym teście pojawiają się <strong>cztery wiersze wymyślone na miejscu</strong> zamiast <code>dane/diabetes.csv</code>. To nie jest lenistwo, tylko reguła:</p>
+<ul>
+<li><strong>szybkość</strong>: 10 000 wierszy razy kilkadziesiąt testów to sekundy czekania przy każdej zmianie. Testy, na które trzeba czekać, przestają być uruchamiane - a wtedy równie dobrze mogłoby ich nie być.</li>
+<li><strong>powtarzalność</strong>: prawdziwy plik można podmienić, rozszerzyć albo przenieść. Cztery wiersze wpisane w test są zawsze takie same i nie zależą od niczego na dysku.</li>
+<li><strong>czytelność przyczyny błędu</strong>: gdy test na czterech wierszach nie przechodzi, widać <strong>dokładnie</strong>, na którym wierszu i dlaczego. Gdy nie przechodzi na 10 000 wierszy, zaczyna się śledztwo.</li>
+<li><strong>kontrola nad przypadkiem szczególnym</strong>: braki danych, jedna klasa, jeden wiersz, wartość ujemna - takie sytuacje w sztucznej ramce tworzy się w jednej linii, a w prawdziwym zbiorze trzeba ich szukać albo wcale ich nie ma.</li>
+</ul>
+<p>Pełny zbiór też się przydaje - ale w teście innego rodzaju, o czym w zadaniu 7.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4ec811b9">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="o">%%</span><span class="n">writefile</span> <span class="n">tests</span><span class="o">/</span><span class="n">test_przygotuj_cechy</span><span class="o">.</span><span class="n">py</span>
+<span class="sd">"""Testy funkcji przygotuj_cechy."""</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.potok</span><span class="w"> </span><span class="kn">import</span> <span class="n">przygotuj_cechy</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">przykladowa_ramka</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Cztery wiersze, ktore w calosci widac na ekranie.</span>
+
+<span class="sd">    To NIE sa prawdziwe dane - to najmniejszy przyklad, na ktorym</span>
+<span class="sd">    da sie sprawdzic, czy funkcja robi to, co obiecuje.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">"PatientID"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1001</span><span class="p">,</span> <span class="mi">1002</span><span class="p">,</span> <span class="mi">1003</span><span class="p">,</span> <span class="mi">1004</span><span class="p">],</span>
+        <span class="s2">"PlasmaGlucose"</span><span class="p">:</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">85</span><span class="p">],</span>
+        <span class="s2">"BMI"</span><span class="p">:</span> <span class="p">[</span><span class="mf">22.0</span><span class="p">,</span> <span class="mf">33.5</span><span class="p">,</span> <span class="mf">28.1</span><span class="p">,</span> <span class="mf">24.4</span><span class="p">],</span>
+        <span class="s2">"Age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">21</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">33</span><span class="p">],</span>
+        <span class="s2">"Diabetic"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_przygotuj_cechy_usuwa_identyfikator</span><span class="p">():</span>
+    <span class="c1"># Przygotowanie</span>
+    <span class="n">ramka</span> <span class="o">=</span> <span class="n">przykladowa_ramka</span><span class="p">()</span>
+    <span class="c1"># Wykonanie</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">ramka</span><span class="p">)</span>
+    <span class="c1"># Sprawdzenie</span>
+    <span class="k">assert</span> <span class="s2">"PatientID"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_przygotuj_cechy_nie_przepuszcza_etykiety</span><span class="p">():</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">przykladowa_ramka</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="s2">"Diabetic"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_przygotuj_cechy_zostawia_dokladnie_cechy</span><span class="p">():</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">przykladowa_ramka</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="p">[</span><span class="s2">"PlasmaGlucose"</span><span class="p">,</span> <span class="s2">"BMI"</span><span class="p">,</span> <span class="s2">"Age"</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_przygotuj_cechy_zgadza_sie_liczba_wierszy</span><span class="p">():</span>
+    <span class="n">ramka</span> <span class="o">=</span> <span class="n">przykladowa_ramka</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">ramka</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">ramka</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">ramka</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_przygotuj_cechy_nie_psuje_ramki_wejsciowej</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Funkcja nie ma prawa modyfikowac tego, co dostala."""</span>
+    <span class="n">ramka</span> <span class="o">=</span> <span class="n">przykladowa_ramka</span><span class="p">()</span>
+    <span class="n">kolumny_przed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ramka</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">ramka</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">ramka</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="n">kolumny_przed</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=dbc60e09"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Uruchomienie-test%C3%B3w">Uruchomienie testów<a class="anchor-link" href="#Uruchomienie-test%C3%B3w">¶</a></h3><p>Polecenie to <code>python -m pytest tests/ -v</code>:</p>
+<ul>
+<li><code>-m pytest</code> uruchamia <code>pytest</code> <strong>jako moduł bieżącego interpretera</strong>. Ma to skutek uboczny, bez którego nic by nie zadziałało: bieżący katalog trafia do ścieżki wyszukiwania modułów, dzięki czemu <code>from src.potok import ...</code> w teście znajduje nasz pakiet. Samo <code>pytest</code> (bez <code>python -m</code>) tego nie robi i zobaczylibyśmy <code>ModuleNotFoundError</code>.</li>
+<li><code>tests/</code> to katalog do przeszukania,</li>
+<li><code>-v</code> (ang. <em>verbose</em>) wypisuje każdy test z osobna zamiast ciągu kropek.</li>
+</ul>
+<p>W wyniku szukaj linii <code>PASSED</code> przy każdym teście i podsumowania na zielono na samym dole.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=13079492">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="n">tests</span><span class="o">/</span> <span class="o">-</span><span class="n">v</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c6bad0e4"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Pięć testów, pięć razy <code>PASSED</code>. Warto zauważyć, czego te testy <strong>nie</strong> sprawdzają: ani jednego słowa o skuteczności, drzewie czy metrykach. Sprawdzają wyłącznie, czy przekształcenie danych robi to, co obiecuje jego nazwa.</p>
+<p>Test <code>test_przygotuj_cechy_usuwa_identyfikator</code> to tak zwany <strong>test regresyjny</strong> (ang. <em>regression test</em>): powstał po realnym błędzie - tym samym, który w ćwiczeniu 01 dawał drzewo z nieprzyzwoicie dobrym wynikiem na danych uczących. Test regresyjny nie zapobiega pierwszemu wystąpieniu błędu. Zapobiega <strong>drugiemu</strong>.</p>
+<h2 id="5.-Atrapa,-czyli-wsp%C3%B3lne-dane-dla-wielu-test%C3%B3w">5. Atrapa, czyli wspólne dane dla wielu testów<a class="anchor-link" href="#5.-Atrapa,-czyli-wsp%C3%B3lne-dane-dla-wielu-test%C3%B3w">¶</a></h2><p>W pliku powyżej dane budowała zwykła funkcja <code>przykladowa_ramka()</code>, wywoływana w każdym teście osobno. Działa, ale <code>pytest</code> ma na to mechanizm wygodniejszy: <strong>atrapę</strong> (ang. <em>fixture</em>).</p>
+<p>Funkcję oznaczoną <code>@pytest.fixture</code> traktuje się jak dostawcę danych: test, który prosi o argument o tej samej nazwie, dostaje świeży wynik jej wywołania. Zalety są dwie:</p>
+<ul>
+<li>dane przygotowuje się <strong>raz</strong>, a korzysta z nich wiele testów,</li>
+<li>każdy test dostaje <strong>własną, świeżą kopię</strong> - jeden test nie jest w stanie zepsuć drugiemu danych wejściowych.</li>
+</ul>
+<p>Kolejny plik testuje <code>podziel_dane</code> i pokazuje cztery rzeczy, które warto sprawdzać po każdym podziale danych: <strong>sumę kształtów</strong>, <strong>zestaw kolumn</strong>, <strong>brak wycieku etykiety</strong> i <strong>determinizm</strong>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=59f63dfc">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="o">%%</span><span class="n">writefile</span> <span class="n">tests</span><span class="o">/</span><span class="n">test_podzial</span><span class="o">.</span><span class="n">py</span>
+<span class="sd">"""Testy funkcji podziel_dane - ksztalty, przeciek i determinizm."""</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.potok</span><span class="w"> </span><span class="kn">import</span> <span class="n">podziel_dane</span><span class="p">,</span> <span class="n">przygotuj_cechy</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dane_sztuczne</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Atrapa danych: 20 wierszy, 12 zdrowych i 8 chorych.</span>
+
+<span class="sd">    Dekorator @pytest.fixture sprawia, ze kazdy test, ktory poprosi</span>
+<span class="sd">    o argument o tej nazwie, dostanie SWIEZA kopie tych danych.</span>
+<span class="sd">    """</span>
+    <span class="n">liczba</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">ramka</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">"PatientID"</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">liczba</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s2">"PlasmaGlucose"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">80</span> <span class="o">+</span> <span class="n">liczba</span><span class="p">),</span>
+        <span class="s2">"BMI"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">20.0</span><span class="p">,</span> <span class="mf">20.0</span> <span class="o">+</span> <span class="n">liczba</span><span class="p">),</span>
+        <span class="s2">"Age"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span> <span class="o">+</span> <span class="n">liczba</span><span class="p">),</span>
+        <span class="s2">"Diabetic"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="k">return</span> <span class="n">ramka</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_podzial_sumuje_sie_do_wejscia</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">):</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">)</span>
+
+    <span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">podziel_dane</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_ucz</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_test</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_podzial_nie_gubi_ani_nie_dodaje_kolumn</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">):</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">)</span>
+
+    <span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">podziel_dane</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">X_ucz</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">X_test</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_etykieta_nie_wycieka_do_cech</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Najczestszy przeciek danych: kolumna z odpowiedzia wsrod cech."""</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">)</span>
+
+    <span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">podziel_dane</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="s2">"Diabetic"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">X_ucz</span><span class="o">.</span><span class="n">columns</span>
+    <span class="k">assert</span> <span class="s2">"Diabetic"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">X_test</span><span class="o">.</span><span class="n">columns</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_cechy_i_etykieta_opisuja_tych_samych_pacjentow</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""X i y musza byc ustawione w tej samej kolejnosci - inaczej model</span>
+<span class="sd">    uczy sie odpowiedzi doklejonych do losowych pacjentow."""</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">)</span>
+
+    <span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">podziel_dane</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">X_ucz</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">y_ucz</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">X_test</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_podzial_jest_deterministyczny</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""To samo ziarno = ten sam podzial. Za kazdym razem."""</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">)</span>
+
+    <span class="n">pierwszy</span> <span class="o">=</span> <span class="n">podziel_dane</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">ziarno</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">drugi</span> <span class="o">=</span> <span class="n">podziel_dane</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">ziarno</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">pierwszy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">drugi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_inne_ziarno_daje_inny_podzial</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Dopelnienie poprzedniego testu: sprawdzamy, ze ziarno w ogole dziala.</span>
+
+<span class="sd">    Bez tego testu funkcja, ktora ignoruje argument ziarno i zawsze</span>
+<span class="sd">    zwraca to samo, przeszlaby test determinizmu celujaco.</span>
+<span class="sd">    """</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">przygotuj_cechy</span><span class="p">(</span><span class="n">dane_sztuczne</span><span class="p">)</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="n">podziel_dane</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">ziarno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">podziel_dane</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">ziarno</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=fb12443e">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="n">tests</span><span class="o">/</span><span class="n">test_podzial</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">v</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e1f36ed6"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Zwróć uwagę na parę testów <code>test_podzial_jest_deterministyczny</code> i <code>test_inne_ziarno_daje_inny_podzial</code>. Same się uzupełniają:</p>
+<ul>
+<li>pierwszy sprawdza, że to samo ziarno daje ten sam wynik - czyli <strong>odtwarzalność</strong> (ang. <em>reproducibility</em>) z ćwiczenia 10,</li>
+<li>drugi sprawdza, że ziarno w ogóle ma jakiś wpływ.</li>
+</ul>
+<p>Bez drugiego funkcja, która ignoruje argument <code>ziarno</code> i zawsze zwraca ten sam podział, przeszłaby pierwszy test bez zarzutu. To ogólna pułapka: <strong>test, który przechodzi zawsze, niczego nie testuje</strong> - a wygląda dokładnie tak samo jak test prawdziwy.</p>
+<h2 id="6.-Zakresy-warto%C5%9Bci-po-skalowaniu">6. Zakresy wartości po skalowaniu<a class="anchor-link" href="#6.-Zakresy-warto%C5%9Bci-po-skalowaniu">¶</a></h2><p>Skalowanie to przekształcenie czysto arytmetyczne, więc daje się sprawdzić dokładnie: po <code>StandardScaler</code> zbiór uczący ma średnią 0 i odchylenie standardowe 1 w każdej kolumnie.</p>
+<p>Dwie rzeczy techniczne, które tu zobaczysz:</p>
+<ul>
+<li><strong>liczb zmiennoprzecinkowych nie porównuje się przez <code>==</code></strong>. Średnia wyjdzie <code>-1.48e-17</code>, a nie idealne zero. Służą do tego <code>numpy.allclose</code> (dla tablic) i <code>pytest.approx</code> (dla pojedynczych liczb) - z jawnie podaną tolerancją.</li>
+<li>ostatnie dwa testy sprawdzają coś ważniejszego niż arytmetyka: że <strong>skaler uczy się wyłącznie na zbiorze uczącym</strong>. Użycie <code>fit_transform</code> na danych testowych to przeciek danych (ang. <em>data leakage</em>) z ćwiczenia 06 - błąd, którego w wynikach nie widać, bo one po prostu wychodzą odrobinę lepsze, niż powinny.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=197b70e8">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="o">%%</span><span class="n">writefile</span> <span class="n">tests</span><span class="o">/</span><span class="n">test_skalowanie</span><span class="o">.</span><span class="n">py</span>
+<span class="sd">"""Testy skalowania - zakresy wartosci i szczelnosc zbioru testowego."""</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.potok</span><span class="w"> </span><span class="kn">import</span> <span class="n">skaluj_cechy</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cechy_uczace</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">"PlasmaGlucose"</span><span class="p">:</span> <span class="p">[</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">140.0</span><span class="p">,</span> <span class="mf">160.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">],</span>
+        <span class="s2">"BMI"</span><span class="p">:</span> <span class="p">[</span><span class="mf">18.0</span><span class="p">,</span> <span class="mf">22.0</span><span class="p">,</span> <span class="mf">26.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">34.0</span><span class="p">,</span> <span class="mf">38.0</span><span class="p">],</span>
+    <span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_po_skalowaniu_srednia_wynosi_zero</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">):</span>
+    <span class="n">X_ucz_s</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">skaluj_cechy</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">,</span> <span class="n">cechy_uczace</span><span class="p">)</span>
+
+    <span class="c1"># np.allclose zamiast ==, bo liczby zmiennoprzecinkowe nigdy nie sa</span>
+    <span class="c1"># rowne co do bitu; 1e-9 to tolerancja, a nie niedbalstwo.</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_ucz_s</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_po_skalowaniu_odchylenie_wynosi_jeden</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">):</span>
+    <span class="n">X_ucz_s</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">skaluj_cechy</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">,</span> <span class="n">cechy_uczace</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">X_ucz_s</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_skalowanie_nie_zmienia_ksztaltu</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">):</span>
+    <span class="n">X_ucz_s</span><span class="p">,</span> <span class="n">X_test_s</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">skaluj_cechy</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">,</span> <span class="n">cechy_uczace</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">assert</span> <span class="n">X_ucz_s</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">cechy_uczace</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">assert</span> <span class="n">X_test_s</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">cechy_uczace</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_skaler_uczy_sie_tylko_na_zbiorze_uczacym</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Gdyby skaler zobaczyl dane testowe, jego srednia bylaby inna.</span>
+
+<span class="sd">    To jest test na przeciek danych (ang. data leakage) - sprawdza</span>
+<span class="sd">    MECHANIZM, a nie wynik modelu.</span>
+<span class="sd">    """</span>
+    <span class="n">X_test</span> <span class="o">=</span> <span class="n">cechy_uczace</span> <span class="o">+</span> <span class="mf">1000.0</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">skaler</span> <span class="o">=</span> <span class="n">skaluj_cechy</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">,</span> <span class="n">X_test</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">skaler</span><span class="o">.</span><span class="n">mean_</span><span class="p">,</span> <span class="n">cechy_uczace</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_zbior_testowy_nie_jest_wysrodkowany_na_sile</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Dane testowe przesuniete o 1000 MUSZA po skalowaniu odstawac.</span>
+
+<span class="sd">    Gdyby test wyszedl na zero, znaczyloby to, ze uzyto fit_transform</span>
+<span class="sd">    zamiast transform - czyli klasyczny blad.</span>
+<span class="sd">    """</span>
+    <span class="n">X_test</span> <span class="o">=</span> <span class="n">cechy_uczace</span> <span class="o">+</span> <span class="mf">1000.0</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">X_test_s</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">skaluj_cechy</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">,</span> <span class="n">X_test</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">X_test_s</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">10.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_pojedyncza_wartosc_z_tolerancja</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""pytest.approx dla pojedynczej liczby - czytelniej niz abs(a - b) &lt; eps."""</span>
+    <span class="n">X_ucz_s</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">skaluj_cechy</span><span class="p">(</span><span class="n">cechy_uczace</span><span class="p">,</span> <span class="n">cechy_uczace</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">float</span><span class="p">(</span><span class="n">X_ucz_s</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">abs</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=0e8b415b">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="n">tests</span><span class="o">/</span> <span class="o">-</span><span class="n">v</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b420f17a"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="7.-Jak-wygl%C4%85da-test,-kt%C3%B3ry-nie-przechodzi">7. Jak wygląda test, który nie przechodzi<a class="anchor-link" href="#7.-Jak-wygl%C4%85da-test,-kt%C3%B3ry-nie-przechodzi">¶</a></h2><p>Testy przechodzące na zielono są przyjemne, ale nauczyć się trzeba czytania tych <strong>czerwonych</strong> - bo to one niosą informację.</p>
+<p>Zapiszemy test celowo zepsuty, uruchomimy go osobno i zaraz potem skasujemy, żeby nie psuł kolejnych uruchomień.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=c9e7227c">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="o">%%</span><span class="n">writefile</span> <span class="n">tests</span><span class="o">/</span><span class="n">test_celowo_zepsuty</span><span class="o">.</span><span class="n">py</span>
+<span class="sd">"""Test, ktory ma nie przejsc. Pokazuje, jak wyglada kolor czerwony."""</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_celowo_zepsuty</span><span class="p">():</span>
+    <span class="n">oczekiwano</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">otrzymano</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">4</span>
+
+    <span class="k">assert</span> <span class="n">otrzymano</span> <span class="o">==</span> <span class="n">oczekiwano</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1982ffa4">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="err">!</span><span class="p">{</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">}</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="n">tests</span><span class="o">/</span><span class="n">test_celowo_zepsuty</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">v</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=f5e7cd02"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>W raporcie z błędu warto zobaczyć trzy rzeczy:</p>
+<ol>
+<li><code>FAILED tests/test_celowo_zepsuty.py::test_celowo_zepsuty</code> - <strong>który</strong> test nie przeszedł,</li>
+<li><code>assert 7 == 8</code> - <code>pytest</code> podstawił wartości obu stron, więc nie trzeba dopisywać <code>print</code>,</li>
+<li><code>E</code> przy linii i strzałki <code>&gt;</code> - miejsce w kodzie.</li>
+</ol>
+<p>To jest powód, dla którego w <code>pytest</code> używa się zwykłego <code>assert</code>, a nie metod w rodzaju <code>assertEqual</code>: narzędzie samo rozbiera wyrażenie i pokazuje, co z czym się nie zgodziło.</p>
+<p>Sprzątamy plik.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=ae440c30">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">Path</span><span class="p">(</span><span class="s1">'tests/test_celowo_zepsuty.py'</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Usunięto celowo zepsuty test."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1bd3ccb8"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="8.-Asercje-sanity-check-wewn%C4%85trz-potoku-danych">8. Asercje sanity-check wewnątrz potoku danych<a class="anchor-link" href="#8.-Asercje-sanity-check-wewn%C4%85trz-potoku-danych">¶</a></h2><p><code>assert</code> w teście i <code>assert</code> w kodzie potoku wyglądają identycznie, ale odpowiadają na różne pytania:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>assert</code> w teście</th>
+<th><code>assert</code> w potoku (sanity-check)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pytanie</td>
+<td>czy <strong>kod</strong> jest poprawny?</td>
+<td>czy <strong>dane</strong> są takie, jak zakładam?</td>
+</tr>
+<tr>
+<td>Kiedy działa</td>
+<td>przy uruchomieniu testów</td>
+<td>przy każdym przetwarzaniu danych</td>
+</tr>
+<tr>
+<td>Na czym</td>
+<td>na sztucznej, małej ramce</td>
+<td>na prawdziwych danych</td>
+</tr>
+<tr>
+<td>Gdy nie przechodzi</td>
+<td>trzeba poprawić kod</td>
+<td>trzeba przyjrzeć się danym (albo założeniom)</td>
+</tr>
+</tbody>
+</table>
+<p>W <code>wczytaj_dane</code> są dwie takie asercje: plik ma mieć co najmniej jeden wiersz i ma zawierać kolumnę z etykietą. Kosztują mikrosekundę, a ratują przed liczeniem godzinami na danych, które są nie te.</p>
+<blockquote>
+<p><strong>Jedno ostrzeżenie.</strong> Instrukcję <code>assert</code> da się wyłączyć - Python uruchomiony z przełącznikiem <code>-O</code> (optymalizacja) <strong>całkowicie ją pomija</strong>. Dlatego asercje nadają się do wychwytywania <strong>własnych pomyłek</strong> („tu nie miało prawa być pustej ramki"), a nie do sprawdzania danych od użytkownika ani do obsługi sytuacji, które w normalnej pracy mogą się zdarzyć. Do tego drugiego służy jawny warunek i <code>raise ValueError(...)</code>.</p>
+</blockquote>
+<p>Zobaczmy asercję w działaniu: podsuniemy funkcji plik bez kolumny <code>Diabetic</code>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=ae7bacbf">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.potok</span><span class="w"> </span><span class="kn">import</span> <span class="n">wczytaj_dane</span>
+
+<span class="c1"># Plik z poprawnymi kolumnami, ale bez etykiety - typowa pomyłka</span>
+<span class="c1"># przy podmianie źródła danych</span>
+<span class="n">Path</span><span class="p">(</span><span class="s1">'wyniki'</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">'PatientID'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">'PlasmaGlucose'</span><span class="p">:</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span>
+<span class="p">})</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'wyniki/dane_bez_etykiety.csv'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">wczytaj_dane</span><span class="p">(</span><span class="s1">'wyniki/dane_bez_etykiety.csv'</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">blad</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Potok zatrzymał się od razu. Komunikat:"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="n">blad</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0515a22a"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Bez tej asercji błąd wyszedłby na jaw dopiero w <code>przygotuj_cechy</code> - albo, w gorszym wariancie, jeszcze później i pod postacią komunikatu, który z prawdziwą przyczyną nie ma nic wspólnego. <strong>Im wcześniej potok się zatrzyma, tym taniej.</strong></p>
+<h2 id="9.-Sprawdzanie-stylu-kodu">9. Sprawdzanie stylu kodu<a class="anchor-link" href="#9.-Sprawdzanie-stylu-kodu">¶</a></h2><p>Testy odpowiadają na pytanie „czy kod robi to, co trzeba". Zostaje drugie: „czy da się go przeczytać". Zajmują się nim narzędzia zwane linterami (ang. <em>linter</em>), które czytają kod bez uruchamiania go i zgłaszają: nieużywane importy, zmienne, których nikt nie czyta, zbyt długie linie, niespójne odstępy, przesłonięte nazwy wbudowane.</p>
+<p>Dwa najpopularniejsze:</p>
+<table>
+<thead>
+<tr>
+<th>Narzędzie</th>
+<th>Uwagi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flake8</code></td>
+<td>klasyk, sprawdza zgodność z <strong>PEP 8</strong> - oficjalnym przewodnikiem stylu Pythona</td>
+</tr>
+<tr>
+<td><code>ruff</code></td>
+<td>nowszy i wielokrotnie szybszy, obejmuje reguły <code>flake8</code> i wielu wtyczek</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Oba to osobne pakiety i najprawdopodobniej nie są zainstalowane.</strong> Nie są potrzebne do niczego wcześniej w tym kursie. Poniższa komórka tylko sprawdza ich dostępność - jeśli żadnego nie ma, zainstaluj wybrane poleceniem <code>!pip install ruff</code> albo <code>!pip install flake8</code> (i pomiń ten krok, gdy na współdzielonej maszynie brakuje uprawnień do instalacji).</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=352ddde0">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="n">dostepne</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"ruff"</span><span class="p">,</span> <span class="s2">"flake8"</span><span class="p">)</span> <span class="k">if</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">narzedzie</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"ruff"</span><span class="p">,</span> <span class="s2">"flake8"</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">narzedzie</span><span class="si">:</span><span class="s2">8s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">'dostępne'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">narzedzie</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">dostepne</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'BRAK'</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">dostepne</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Żadne narzędzie nie jest zainstalowane - pomiń tę sekcję"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"albo uruchom:  !pip install ruff"</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">narzedzie</span> <span class="o">=</span> <span class="n">dostepne</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Uruchamiam </span><span class="si">{</span><span class="n">narzedzie</span><span class="si">}</span><span class="s2"> na katalogach src/ i tests/:"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="n">polecenie</span> <span class="o">=</span> <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">"-m"</span><span class="p">,</span> <span class="n">narzedzie</span><span class="p">]</span>
+    <span class="n">polecenie</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"check"</span><span class="p">,</span> <span class="s2">"src"</span><span class="p">,</span> <span class="s2">"tests"</span><span class="p">]</span> <span class="k">if</span> <span class="n">narzedzie</span> <span class="o">==</span> <span class="s2">"ruff"</span> <span class="k">else</span> <span class="p">[</span><span class="s2">"src"</span><span class="p">,</span> <span class="s2">"tests"</span><span class="p">]</span>
+    <span class="n">wynik</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">polecenie</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">wynik</span><span class="o">.</span><span class="n">stdout</span> <span class="ow">or</span> <span class="s2">"(brak uwag)"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">wynik</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=857b4769"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Uwagi lintera nie są błędami - kod z nieużywanym importem uruchomi się bez problemu. Są sygnałem, że coś jest <strong>niepotrzebne albo mylące dla czytelnika</strong>, a nieużywany import to często ślad po funkcji, która została skasowana w połowie.</p>
+<p>Warto znać kolejność, w jakiej te narzędzia się opłacają:</p>
+<ol>
+<li><strong>testy</strong> - czy kod robi to, co trzeba (bez tego reszta nie ma znaczenia),</li>
+<li><strong>linter</strong> - czy da się go przeczytać i czy nie ma w nim śmieci,</li>
+<li><strong>formatter</strong> (<code>black</code>, <code>ruff format</code>) - jednolite formatowanie, żeby przestać o nim dyskutować.</li>
+</ol>
+<hr/>
+<h1 id="Zadania">Zadania<a class="anchor-link" href="#Zadania">¶</a></h1><p>Wszystko, czego potrzebujesz, pojawiło się w przykładzie powyżej. Pliki twórz przez <code>%%writefile</code> (ta linia musi być <strong>pierwszą linią komórki</strong>), a testy uruchamiaj przez <code>!python -m pytest ... -v</code>.</p>
+<p>Uwaga praktyczna: <code>pytest</code> przy każdym uruchomieniu <code>tests/</code> wykonuje <strong>wszystkie</strong> testy z tego katalogu - także te z przykładu prowadzonego. To jest zaleta, nie wada: od razu widać, czy nowa zmiana czegoś nie popsuła.</p>
+<h2 id="Zadanie-1:-Test-funkcji-ocen_model-bez-trenowania-czegokolwiek">Zadanie 1: Test funkcji <code>ocen_model</code> bez trenowania czegokolwiek<a class="anchor-link" href="#Zadanie-1:-Test-funkcji-ocen_model-bez-trenowania-czegokolwiek">¶</a></h2><p><code>ocen_model</code> liczy metryki - to zwykła arytmetyka, więc da się ją sprawdzić dokładnie. Do testu <strong>nie jest potrzebny wytrenowany model</strong>; wystarczy obiekt, który udaje model i zwraca z góry ustalone przewidywania:</p>
+<div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ModelAtrapa</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Udaje model: metoda predict zwraca to, co dostala w konstruktorze."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_przewidywania</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">przewidywania</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_przewidywania</span>
+</pre></div>
+<p>Napisz plik <code>tests/test_ocen_model.py</code> z testami:</p>
+<ol>
+<li>model trafiający <strong>wszystko</strong> → skuteczność, czułość i F1 równe 1,0,</li>
+<li>model odpowiadający <strong>zawsze zerem</strong> przy <code>y_test = [0, 1, 1, 0]</code> → skuteczność 0,5 i czułość 0,0,</li>
+<li>zwrócony słownik zawiera dokładnie klucze <code>skutecznosc</code>, <code>czulosc</code>, <code>f1</code>.</li>
+</ol>
+<p>Uruchom testy. Zastanów się przy okazji: dlaczego test metryk jest sensowny, a test „skuteczność ≥ 85%" nie jest?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b06beaee">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: pierwsza linia komórki musi brzmieć dokładnie:</span>
+<span class="c1"># %%writefile tests/test_ocen_model.py</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=69d7ae42"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-2:-Test-determinizmu-treningu">Zadanie 2: Test determinizmu treningu<a class="anchor-link" href="#Zadanie-2:-Test-determinizmu-treningu">¶</a></h2><p>W ćwiczeniu 10 odtwarzalność sprawdzało się, uruchamiając skrypt dwa razy i porównując pliki. Teraz zapiszemy to samo jako test, który wykonuje się w ułamku sekundy.</p>
+<p>Napisz <code>tests/test_determinizm.py</code>:</p>
+<ol>
+<li>atrapa (<code>@pytest.fixture</code>) z 20-wierszową sztuczną ramką (wzoruj się na <code>tests/test_podzial.py</code>),</li>
+<li>test: dwa wywołania <code>trenuj_model</code> z tym samym <code>ziarno</code> dają <strong>identyczne co do elementu</strong> przewidywania (<code>numpy.array_equal</code>),</li>
+<li>test: <code>trenuj_model</code> z <code>max_depth=1</code> daje drzewo o głębokości 1 (<code>model.get_depth()</code>).</li>
+</ol>
+<p>Punkt 3 jest ciekawszy, niż wygląda: sprawdza, że argument funkcji faktycznie dociera tam, gdzie powinien - a nie ginie po drodze.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=9caf36f8">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=77e20e53"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-3:-Test-obs%C5%82ugi-brak%C3%B3w-danych">Zadanie 3: Test obsługi braków danych<a class="anchor-link" href="#Zadanie-3:-Test-obs%C5%82ugi-brak%C3%B3w-danych">¶</a></h2><p><code>przygotuj_cechy</code> ma argument <code>usun_braki=True</code> i wywołuje <code>dropna()</code>. Sprawdź, że rzeczywiście robi to, co obiecuje.</p>
+<p>Napisz <code>tests/test_braki.py</code> z ramką, w której <strong>celowo</strong> brakuje wartości (<code>numpy.nan</code> w dwóch różnych wierszach i różnych kolumnach), i przetestuj:</p>
+<ol>
+<li>w zwróconym <code>X</code> nie ma ani jednej brakującej wartości (<code>X.isna().sum().sum() == 0</code>),</li>
+<li>liczba wierszy zmalała dokładnie o liczbę wierszy z brakami,</li>
+<li><strong><code>X</code> i <code>y</code> mają tę samą długość</strong> - to najważniejszy z tych testów,</li>
+<li>przy <code>usun_braki=False</code> żaden wiersz nie znika.</li>
+</ol>
+<p>Punkt 3 wygląda trywialnie, a odpowiada na realny, bardzo kosztowny błąd: odfiltrowanie wierszy w <code>X</code> bez odfiltrowania ich w <code>y</code>. Kod nadal działa, tablice nadal mają sensowne kształty, a model uczy się odpowiedzi doklejonych do niewłaściwych pacjentów.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=72fef8c4">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=33c0c01e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-4:-Nowa-asercja-sanity-check-i-test,-%C5%BCe-dzia%C5%82a">Zadanie 4: Nowa asercja sanity-check i test, że działa<a class="anchor-link" href="#Zadanie-4:-Nowa-asercja-sanity-check-i-test,-%C5%BCe-dzia%C5%82a">¶</a></h2><p>Etykieta <code>Diabetic</code> jest binarna - dopuszczalne wartości to wyłącznie 0 i 1. Wartość 2 albo <code>-1</code> oznacza, że coś jest nie tak z danymi.</p>
+<ol>
+<li>Dopisz w <code>src/potok.py</code> (w funkcji <code>wczytaj_dane</code>) asercję sprawdzającą, że zbiór unikalnych wartości etykiety zawiera się w <code>{0, 1}</code>. Zadbaj o czytelny komunikat - taki, z którego wynika, co znaleziono.</li>
+<li>Napisz <code>tests/test_wczytaj_dane.py</code>, w którym:<ul>
+<li>atrapa <code>tmp_path</code> (wbudowana w <code>pytest</code>, daje tymczasowy katalog) posłuży do zapisania małego pliku CSV z etykietą zawierającą wartość 2,</li>
+<li>test sprawdzi, że <code>wczytaj_dane</code> <strong>podnosi</strong> <code>AssertionError</code>:</li>
+</ul>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">AssertionError</span><span class="p">):</span>
+    <span class="n">wczytaj_dane</span><span class="p">(</span><span class="n">sciezka_do_zlego_pliku</span><span class="p">)</span>
+</pre></div>
+<ol start="3">
+<li>Dodaj drugi test: poprawny plik wczytuje się bez wyjątku i ma oczekiwaną liczbę wierszy.</li>
+</ol>
+<p>To jest test sprawdzający, że kod <strong>odrzuca</strong> złe dane. Testowanie ścieżek błędu jest równie ważne jak testowanie ścieżki poprawnej - a wypada z pola widzenia znacznie częściej.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=62702b41">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Najpierw komórka z %%writefile src/potok.py (cały plik z dopisaną asercją),</span>
+<span class="c1"># potem osobna komórka z %%writefile tests/test_wczytaj_dane.py.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=699ac051"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-5:-Test,-kt%C3%B3ry-wykrywa-zostawiony-PatientID">Zadanie 5: Test, który wykrywa zostawiony <code>PatientID</code><a class="anchor-link" href="#Zadanie-5:-Test,-kt%C3%B3ry-wykrywa-zostawiony-PatientID">¶</a></h2><p>To zadanie odtwarza realny błąd z ćwiczenia 01 i pokazuje najważniejszą właściwość testu: <strong>zanim uwierzysz, że test coś sprawdza, zobacz go czerwonego</strong>.</p>
+<ol>
+<li>Napisz plik <code>src/potok_zly.py</code> z funkcją <code>przygotuj_cechy_zle(ramka)</code>, która usuwa <strong>tylko</strong> kolumnę <code>Diabetic</code>, a <code>PatientID</code> zostawia wśród cech. To dokładnie ta pomyłka, którą łatwo popełnić przy pisaniu <code>drop(columns=['Diabetic'])</code> z pamięci.</li>
+<li>Napisz <code>tests/test_bez_identyfikatora.py</code> z testem, który sprawdza, że wśród kolumn <code>X</code> nie ma żadnego identyfikatora. Napisz go <strong>ogólnie</strong> - nie jako <code>assert "PatientID" not in X.columns</code>, tylko jako sprawdzenie, czy w nazwach kolumn nie występuje wzorzec identyfikatora (np. nazwa kończąca się na <code>ID</code> albo <code>Id</code>, bez rozróżniania wielkości liter).</li>
+<li>Uruchom ten test na funkcji <strong>zepsutej</strong> i pokaż, że nie przechodzi.</li>
+<li>Uruchom go na <code>przygotuj_cechy</code> z <code>src/potok.py</code> i pokaż, że przechodzi.</li>
+</ol>
+<p>Podpowiedź do punktu 2: <code>@pytest.mark.parametrize</code> pozwala uruchomić ten sam test dla obu funkcji naraz - ale wolno też napisać po prostu dwa testy.</p>
+<p>Pytanie na koniec: dlaczego test napisany ogólnie (wzorzec nazwy) jest lepszy od wymienienia <code>PatientID</code> wprost? Pomyśl o tym, co się stanie, gdy do zbioru dojdzie kolumna <code>VisitID</code>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=952a7a86">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=76e35332"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-6:-Sprawdzenie-stylu-w%C5%82asnego-kodu">Zadanie 6: Sprawdzenie stylu własnego kodu<a class="anchor-link" href="#Zadanie-6:-Sprawdzenie-stylu-w%C5%82asnego-kodu">¶</a></h2><ol>
+<li>Uruchom <code>ruff</code> albo <code>flake8</code> na katalogach <code>src/</code> i <code>tests/</code> - tak jak w sekcji 9. Gdy żadnego nie ma, zainstaluj wybrane (<code>!pip install ruff</code>); przy braku uprawnień do instalacji zrób punkt 4 „na piechotę".</li>
+<li>Wypisz wszystkie zgłoszone uwagi i przy każdej odpowiedz sobie: czy to realny problem, czy tylko kwestia gustu?</li>
+<li>Popraw te, które uznasz za realne, i uruchom narzędzie ponownie.</li>
+<li>Do jednego z plików testowych dopisz <strong>celowo</strong>: nieużywany import (<code>import os</code>), zmienną, której nikt nie czyta, i linię dłuższą niż 100 znaków. Sprawdź, czy narzędzie je znajdzie - i <strong>czy testy nadal przechodzą</strong> (przechodzą; to jest właśnie różnica między poprawnością a czytelnością).</li>
+</ol>
+<p>Na koniec usuń celowo dopisane brzydactwa.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=077d3398">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0ef4f9e0"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-7-(trudniejsze):-Testy-parametryzowane-i-test-ca%C5%82ego-potoku">Zadanie 7 (trudniejsze): Testy parametryzowane i test całego potoku<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Testy-parametryzowane-i-test-ca%C5%82ego-potoku">¶</a></h2><p>Dwie części - pierwsza o testach jednostkowych, druga o teście innego rodzaju.</p>
+<p><strong>Część A: jeden test, wiele przypadków.</strong> Napisz <code>tests/test_parametry_podzialu.py</code> z testem oznaczonym:</p>
+<div class="highlight"><pre><span></span><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">"test_size"</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+</pre></div>
+<p>sprawdzającym dla każdej z tych wartości, że:</p>
+<ul>
+<li>suma długości obu części równa się długości wejścia,</li>
+<li>część testowa ma oczekiwaną liczbę wierszy (<code>round(len(X) * test_size)</code>),</li>
+<li>proporcja klas w obu częściach jest zbliżona do wyjściowej - z tolerancją (<code>pytest.approx(..., abs=0.05)</code>), bo przy małej próbce idealnie wyjść nie może.</li>
+</ul>
+<p><code>pytest</code> policzy to jako <strong>cztery osobne testy</strong>, więc w raporcie widać, która wartość zawiodła.</p>
+<blockquote>
+<p><strong>Uwaga na rozmiar atrapy.</strong> Nie użyj tu 20-wierszowej ramki z przykładu prowadzonego - przy <code>test_size=0.1</code> część testowa ma wtedy <strong>2 wiersze</strong>, po jednym z każdej klasy, więc proporcja wychodzi 0,5 zamiast 0,4 i test na proporcje <strong>nie ma prawa przejść</strong>, choćby kod był bez zarzutu. Zbuduj atrapę na co najmniej 200 wierszy. To nie jest obejście problemu, tylko sama lekcja: <strong>test musi dostać dane, na których sprawdzana własność w ogóle może zajść</strong>. Test, który zawodzi przy poprawnym kodzie, jest gorszy niż brak testu - uczy zespół ignorować czerwone wyniki.</p>
+</blockquote>
+<p><strong>Część B: test całego potoku (ang. <em>integration test</em>).</strong> Napisz <code>tests/test_potok_calosc.py</code>, który na <strong>prawdziwym</strong> pliku <code>dane/diabetes.csv</code> przejdzie całą ścieżkę: wczytanie → przygotowanie cech → podział → trening → ocena, i sprawdzi, że:</p>
+<ul>
+<li>liczba cech wynosi 8 (czyli identyfikator ani etykieta nie przeciekły),</li>
+<li>metryki są liczbami z przedziału od 0 do 1,</li>
+<li>skuteczność jest <strong>wyższa niż 0,666</strong> - czyli wyższa niż model odniesienia z ćwiczenia 01.</li>
+</ul>
+<p>Ostatni warunek jest sporny i właśnie dlatego jest tu umieszczony. Odpowiedz na dwa pytania:</p>
+<ol>
+<li>Czy to jest test kodu, czy pomiar jakości modelu? A jeśli jedno i drugie - co konkretnie ten test wykryje? (Wskazówka: jak wypadnie, gdy ktoś pomyłkowo przestawi <code>X</code> i <code>y</code> albo potasuje etykiety?)</li>
+<li>Dlaczego próg ustawiony na 0,666 jest znacznie rozsądniejszy od progu 0,85?</li>
+</ol>
+<p>Uruchom oba pliki i porównaj <strong>czas wykonania</strong> (<code>pytest</code> pokazuje go na dole raportu) z czasem testów jednostkowych na czterowierszowych ramkach.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=22663ac3">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=118b6b3c"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Pytania-do-przemy%C5%9Blenia">Pytania do przemyślenia<a class="anchor-link" href="#Pytania-do-przemy%C5%9Blenia">¶</a></h1><p>Na te pytania odpowiadasz słowami, nie kodem.</p>
+<ol>
+<li>Dlaczego „model ma mieć co najmniej 85% skuteczności" nie jest dobrym testem jednostkowym? Podaj co najmniej dwa powody i zaproponuj, gdzie taki warunek pasuje lepiej.</li>
+<li>Cztery sztuczne wiersze zamiast 10 000 prawdziwych - wymień trzy powody. Kiedy pełny zbiór jednak jest w teście potrzebny?</li>
+<li>Czym różni się <code>assert</code> w teście od <code>assert</code> w funkcji <code>wczytaj_dane</code>? Który z nich zniknie po uruchomieniu Pythona z przełącznikiem <code>-O</code> i jakie to ma konsekwencje?</li>
+<li>Wszystkie testy przechodzą, a model na nowych pacjentach daje bzdury. Czy testy zawiodły? Co w ogóle są w stanie wykryć, a czego nie wykryją nigdy?</li>
+<li>Test <code>test_podzial_jest_deterministyczny</code> przechodzi na jednym komputerze, a na drugim nie. Wymień trzy możliwe przyczyny (przypomnij sobie ćwiczenie 10).</li>
+<li>Jak rozpoznać test, który <strong>zawsze</strong> przechodzi, niezależnie od stanu kodu? Jak się przed takim testem bronić?</li>
+<li>Ile testów wystarczy? Czy sensowne jest testowanie każdej funkcji w projekcie - a jeśli nie, to które testować w pierwszej kolejności?</li>
+</ol>
+<h1 id="Chcesz-wiedzie%C4%87-wi%C4%99cej">Chcesz wiedzieć więcej<a class="anchor-link" href="#Chcesz-wiedzie%C4%87-wi%C4%99cej">¶</a></h1><ul>
+<li><a href="https://docs.pytest.org/">Dokumentacja <code>pytest</code></a> - zacznij od rozdziałów o atrapach (<em>fixtures</em>) i o <code>parametrize</code>.</li>
+<li><a href="https://docs.pytest.org/en/stable/reference/reference.html#pytest-approx"><code>pytest.approx</code></a> - porównywanie liczb zmiennoprzecinkowych bez wymyślania własnych tolerancji.</li>
+<li><a href="https://peps.python.org/pep-0008/">PEP 8 - przewodnik stylu Pythona</a> - źródło reguł, których pilnują <code>flake8</code> i <code>ruff</code>.</li>
+<li><a href="https://docs.astral.sh/ruff/">Dokumentacja <code>ruff</code></a> - lista reguł i konfiguracja w pliku <code>pyproject.toml</code>.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.utils.estimator_checks.check_estimator.html"><code>sklearn.utils.estimator_checks.check_estimator</code></a> - gotowy zestaw testów dla własnego estymatora zgodnego z API scikit-learn.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=88ec6833"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Podsumowanie-kursu:-co-potrafisz-po-%C4%87wiczeniach-01-11">Podsumowanie kursu: co potrafisz po ćwiczeniach 01-11<a class="anchor-link" href="#Podsumowanie-kursu:-co-potrafisz-po-%C4%87wiczeniach-01-11">¶</a></h1><p>To ostatnie ćwiczenie, więc warto zebrać całość w jednym miejscu.</p>
+<table>
+<thead>
+<tr>
+<th>Nr</th>
+<th>Temat</th>
+<th>Co zostaje na stałe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td>Pierwszy model</td>
+<td>pełny cykl od danych do oceny; nigdy nie oceniać na danych uczących; zacząć od modelu odniesienia</td>
+</tr>
+<tr>
+<td>02</td>
+<td>Poznaj swoje dane</td>
+<td>rozkłady, korelacje, wartości odstające i podejrzane zera - zanim padnie słowo „model"</td>
+</tr>
+<tr>
+<td>03</td>
+<td>Przygotowanie danych</td>
+<td>braki, skalowanie, kodowanie zmiennych kategorycznych, <code>Pipeline</code> i <code>ColumnTransformer</code></td>
+</tr>
+<tr>
+<td>04</td>
+<td>Regresja</td>
+<td>regresja liniowa, regularyzacja, napięcie między niedouczeniem a przeuczeniem</td>
+</tr>
+<tr>
+<td>05</td>
+<td>Klasyfikacja i metryki</td>
+<td>skuteczność to nie wszystko: macierz pomyłek, precyzja, czułość, F1, próg decyzyjny</td>
+</tr>
+<tr>
+<td>06</td>
+<td>Walidacja i dobór modelu</td>
+<td>walidacja krzyżowa, <code>GridSearchCV</code>, przeciek danych, uczciwe użycie zbioru testowego</td>
+</tr>
+<tr>
+<td>07</td>
+<td>Drzewa i lasy</td>
+<td>drzewa, lasy losowe, boosting, ważność cech, cena za utratę zrozumiałości</td>
+</tr>
+<tr>
+<td>08</td>
+<td>Uczenie nienadzorowane</td>
+<td>grupowanie i redukcja wymiarowości, gdy etykiet nie ma</td>
+</tr>
+<tr>
+<td>09</td>
+<td>Projekt końcowy</td>
+<td>samodzielne przejście całej ścieżki na nowym zbiorze</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Od notatnika do skryptu</td>
+<td>kod w pliku <code>.py</code>, parametry z wiersza poleceń, model na dysku, odtwarzalność</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Jakość kodu w ML</td>
+<td>funkcje z jasnym kontraktem, testy jednostkowe, asercje sanity-check, styl kodu</td>
+</tr>
+</tbody>
+</table>
+<p>Trzy rzeczy, które warto zapamiętać ponad wszystkie pozostałe:</p>
+<ol>
+<li><strong>Najtrudniejsza w uczeniu maszynowym jest uczciwa ocena, a nie wybór algorytmu.</strong> Algorytm to jedna linia kodu. Ustalenie, czy wynik jest prawdziwy, zajmuje resztę projektu.</li>
+<li><strong>Wynik, którego nie da się odtworzyć, nie jest wynikiem.</strong> Ustalone ziarno losowości, kod w pliku, parametry zapisane razem z metrykami.</li>
+<li><strong>Testujemy kod, nie model.</strong> Kod ma być poprawny, model ma być skuteczny - i mierzy się to zupełnie inaczej.</li>
+</ol>
+<p>Czego ten kurs <strong>nie</strong> obejmował, a warto wiedzieć, że istnieje: sieci neuronowe i uczenie głębokie, przetwarzanie tekstu i obrazu, szeregi czasowe, systemy rekomendacyjne, wdrażanie modeli jako usług i ich monitorowanie w czasie (temu ostatniemu poświęcony jest osobny kurs Azure Machine Learning prowadzony w tym samym repozytorium - warto do niego zajrzeć, bo pokazuje te same dane od strony produkcyjnej).</p>
+<p>Ostatnia uwaga. Wszystko, co tu powstało, opierało się na jednym zbiorze 10 000 kart pacjentów, w którym nie brakowało żadnej wartości i nikt niczego nie pomylił przy wpisywaniu. Prawdziwe dane tak nie wyglądają. Umiejętność, która przyda się najbardziej, to nie znajomość kolejnego algorytmu, tylko <strong>podejrzliwość wobec zbyt dobrych wyników</strong> - i nawyk sprawdzania, skąd się wzięły.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="10-od-notatnika-do-skryptu.html"><span>Poprzednie</span>Ćwiczenie 10: Od notatnika do skryptu</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<span></span>
+</nav>
+</div></main>
+
+</body>
+</html>

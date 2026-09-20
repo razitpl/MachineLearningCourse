@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 1B: Praca z narzędziami Azure Machine Learning</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (polski)</a></div><div class="tresc">
+<a class="pobierz" href="../01b-intro-to-the-azure-ml-sdk.html">Notatnik do tego ćwiczenia</a><h1>Lab 1B: Praca z narzędziami Azure Machine Learning</h1>
+<p>W tym ćwiczeniu poznasz narzędzia, którymi pracuje się z obszarem roboczym Azure Machine Learning.</p>
+<p>Będziesz korzystać z Azure Machine Learning studio, JupyterLab na instancji obliczeniowej, GitHub oraz Azure Machine Learning SDK v2 dla Pythona.</p>
+<h2>Zanim zaczniesz</h2>
+<p>Potrzebujesz obszaru roboczego Azure Machine Learning utworzonego zgodnie z instrukcjami z <a href="lab01a.html">poprzedniego ćwiczenia</a>.</p>
+<p>Potrzebujesz również:</p>
+<ul>
+<li>Subskrypcji Azure z uprawnieniami dostępu do obszaru roboczego Azure Machine Learning.</li>
+<li>Uruchomionej instancji obliczeniowej Azure Machine Learning.</li>
+<li>Dostępu do repozytorium kursu.</li>
+</ul>
+<h2>Krok 1: Użyj Azure ML SDK v2 w instancji obliczeniowej</h2>
+<p>Wieloma zasobami Azure Machine Learning można zarządzać w interfejsie studio. Azure Machine Learning SDK v2 pozwala jednak zrobić to samo z poziomu kodu Pythona i zautomatyzować powtarzalne czynności.</p>
+<ol>
+<li><p>Otwórz <a href="https://ml.azure.com">Azure Machine Learning studio</a>.</p>
+</li>
+<li><p>Wybierz swój obszar roboczy Azure Machine Learning.</p>
+</li>
+<li><p>W menu po lewej stronie wybierz <strong>Compute</strong>.</p>
+</li>
+<li><p>Otwórz kartę <strong>Compute instances</strong>.</p>
+</li>
+<li><p>Uruchom instancję obliczeniową utworzoną w poprzednim ćwiczeniu, jeśli jeszcze nie działa.</p>
+</li>
+<li><p>Poczekaj, aż status instancji obliczeniowej zmieni się na <strong>Running</strong>.</p>
+</li>
+<li><p>Kliknij link <strong>JupyterLab</strong> przy tej instancji obliczeniowej.</p>
+</li>
+<li><p>W JupyterLab utwórz nowy notatnik.</p>
+</li>
+<li><p>W prawym górnym rogu notatnika wybierz aktualny kernel Azure Machine Learning SDK v2. Nazwa kernela może być podobna do:</p>
+<pre><code class="language-text">Python 3.10 - SDK v2
+</code></pre>
+</li>
+<li><p>Uruchom poniższą komórkę z kodem, aby sprawdzić, czy Azure ML SDK v2 jest dostępny:</p>
+<pre><code class="language-python">import sys
+from azure.ai.ml import MLClient
+from azure.identity import DefaultAzureCredential
+
+print(f&quot;Interpreter Pythona: {sys.executable}&quot;)
+print(&quot;Azure Machine Learning SDK v2 jest gotowy.&quot;)
+</code></pre>
+</li>
+<li><p>Jeśli importy zakończą się błędem <code>ModuleNotFoundError</code>, otwórz nowy terminal w JupyterLab i zainstaluj wymagane pakiety:</p>
+<pre><code class="language-bash">python -m pip install --upgrade azure-ai-ml azure-identity
+</code></pre>
+</li>
+<li><p>Po zainstalowaniu pakietów zrestartuj kernel notatnika i uruchom ponownie komórkę weryfikującą.</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>Więcej informacji:</strong> Aktualną dokumentację Azure Machine Learning SDK v2 znajdziesz w <a href="https://learn.microsoft.com/python/api/overview/azure/ai-ml-readme?view=azure-python">dokumentacji Azure ML SDK dla Pythona</a>.</p>
+</blockquote>
+<h2>Krok 2: Sklonuj repozytorium kursu</h2>
+<p>Będziesz korzystać z notatników i plików pomocniczych z repozytorium kursu.</p>
+<ol>
+<li><p>W JupyterLab wybierz <strong>File</strong> &gt; <strong>New</strong> &gt; <strong>Terminal</strong>.</p>
+</li>
+<li><p>Przejdź do swojego katalogu użytkownika Azure Machine Learning, zastępując <code>&lt;your-user-name&gt;</code> nazwą folderu widoczną w sekcji <strong>Users</strong> w przeglądarce plików JupyterLab (bierze się ona z Twojej tożsamości Azure AD, a nie z nazwy użytkownika w systemie Linux):</p>
+<pre><code class="language-bash">cd ~/cloudfiles/code/Users/&lt;your-user-name&gt;
+</code></pre>
+</li>
+<li><p>Sklonuj repozytorium kursu:</p>
+<pre><code class="language-bash">git clone https://github.com/razitpl/MachineLearningCourse.git
+</code></pre>
+</li>
+<li><p>Jeśli repozytorium zostało już wcześniej sklonowane, zamiast tego je zaktualizuj:</p>
+<pre><code class="language-bash">cd ~/cloudfiles/code/Users/&lt;your-user-name&gt;/MachineLearningCourse/materialy/azure-ml/pl
+git pull
+</code></pre>
+</li>
+<li><p>Zamknij kartę terminala.</p>
+</li>
+<li><p>W przeglądarce plików JupyterLab w razie potrzeby odśwież stronę.</p>
+</li>
+<li><p>Otwórz następujący folder:</p>
+<pre><code class="language-text">MachineLearningCourse/materialy/azure-ml/pl
+</code></pre>
+</li>
+<li><p>Znajdź i otwórz notatnik <strong>01B - Intro to the Azure ML SDK.ipynb</strong> do tego ćwiczenia.</p>
+</li>
+<li><p>Upewnij się, że notatnik korzysta z kernela <strong>Python 3.10 - SDK v2</strong> lub innego aktualnego kernela Azure ML SDK v2.</p>
+</li>
+<li><p>Uruchamiaj komórki notatnika pojedynczo i czytaj wyjaśnienia.</p>
+</li>
+</ol>
+<h2>Krok 3: Połącz się z obszarem roboczym Azure ML</h2>
+<p>Azure Machine Learning SDK v2 używa obiektu <code>MLClient</code> do łączenia się z obszarem roboczym Azure Machine Learning i zarządzania nim.</p>
+<p>Możesz się połączyć, podając w kodzie identyfikator subskrypcji, nazwę grupy zasobów i nazwę obszaru roboczego. Możesz też pobrać z portalu Azure plik <code>config.json</code> i użyć go do utworzenia klienta.</p>
+<h3>Pobierz konfigurację obszaru roboczego</h3>
+<ol>
+<li><p>Otwórz <a href="https://portal.azure.com">portal Azure</a> w nowej karcie przeglądarki.</p>
+</li>
+<li><p>Znajdź i otwórz obszar roboczy Azure Machine Learning utworzony w poprzednim ćwiczeniu.</p>
+</li>
+<li><p>Na stronie <strong>Overview</strong> obszaru roboczego wybierz <strong>Download config.json</strong>.</p>
+</li>
+<li><p>Zapisz pobrany plik.</p>
+</li>
+<li><p>W JupyterLab wgraj plik <code>config.json</code> do folderu głównego repozytorium <code>MachineLearningCourse/materialy/azure-ml/pl</code>.</p>
+</li>
+<li><p>Zadbaj o to, żeby plik <code>config.json</code> nie trafił do publicznego repozytorium GitHub - zawiera dane Twojego obszaru roboczego.</p>
+</li>
+<li><p>Jeśli repozytorium nie zawiera jeszcze pliku <code>.gitignore</code>, utwórz go.</p>
+</li>
+<li><p>Dodaj do <code>.gitignore</code> następujący wpis:</p>
+<pre><code class="language-gitignore">config.json
+</code></pre>
+</li>
+</ol>
+<h3>Połącz się za pomocą Azure ML SDK v2</h3>
+<ol>
+<li><p>Otwórz notatnik korzystający z kernela <strong>Python 3.10 - SDK v2</strong>.</p>
+</li>
+<li><p>Uruchom następującą komórkę:</p>
+<pre><code class="language-python">from azure.ai.ml import MLClient
+from azure.identity import DefaultAzureCredential
+
+credential = DefaultAzureCredential()
+
+ml_client = MLClient.from_config(
+    credential=credential
+)
+
+print(f&quot;Połączono z obszarem roboczym: {ml_client.workspace_name}&quot;)
+</code></pre>
+</li>
+<li><p>Jeśli uwierzytelnianie się nie powiedzie, otwórz terminal JupyterLab i zaloguj się do Azure:</p>
+<pre><code class="language-bash">az login
+</code></pre>
+</li>
+<li><p>Dokończ logowanie w przeglądarce.</p>
+</li>
+<li><p>Wróć do notatnika i ponownie uruchom komórkę nawiązującą połączenie.</p>
+</li>
+<li><p>Gdy połączenie się powiedzie, sprawdź, czy wyświetlana jest poprawna nazwa obszaru roboczego Azure Machine Learning.</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>Uwaga:</strong> <code>DefaultAzureCredential</code> może korzystać z wielu metod uwierzytelniania. Przy pracy interaktywnej najprostsze jest zwykle logowanie przez Azure CLI.</p>
+</blockquote>
+<h2>Krok 4: Poznaj zasoby Azure ML za pomocą SDK v2</h2>
+<p>Po połączeniu się z obszarem roboczym możesz użyć <code>MLClient</code> do wyświetlania listy zasobów Azure Machine Learning i zarządzania nimi.</p>
+<ol>
+<li><p>Uruchom poniższy kod, aby wyświetlić listę dostępnych zasobów obliczeniowych:</p>
+<pre><code class="language-python">for compute in ml_client.compute.list():
+    print(f&quot;{compute.name}: {compute.type}&quot;)
+</code></pre>
+</li>
+<li><p>Uruchom poniższy kod, aby wyświetlić listę zarejestrowanych zasobów danych:</p>
+<pre><code class="language-python">for data_asset in ml_client.data.list():
+    print(
+        f&quot;Nazwa: {data_asset.name}, &quot;
+        f&quot;Wersja: {data_asset.version}, &quot;
+        f&quot;Typ: {data_asset.type}&quot;
+    )
+</code></pre>
+</li>
+<li><p>Uruchom poniższy kod, aby wyświetlić listę zarejestrowanych modeli:</p>
+<pre><code class="language-python">for model in ml_client.models.list():
+    print(
+        f&quot;Nazwa: {model.name}, &quot;
+        f&quot;Wersja: {model.version}, &quot;
+        f&quot;Typ: {model.type}&quot;
+    )
+</code></pre>
+</li>
+<li><p>Uruchom poniższy kod, aby wyświetlić listę ostatnich zadań (jobs) Azure Machine Learning:</p>
+<pre><code class="language-python">for job in ml_client.jobs.list():
+    print(
+        f&quot;Nazwa: {job.name}, &quot;
+        f&quot;Status: {job.status}, &quot;
+        f&quot;Nazwa wyświetlana: {job.display_name}&quot;
+    )
+</code></pre>
+</li>
+<li><p>Porównaj zasoby zwrócone przez SDK z zasobami wyświetlanymi w Azure Machine Learning studio.</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>Uwaga:</strong> SDK v2 umożliwia programowe zarządzanie zasobami danych, środowiskami, zasobami obliczeniowymi, zadaniami, modelami i punktami końcowymi (endpoints). Skorzystasz z tych możliwości w kolejnych ćwiczeniach.</p>
+</blockquote>
+<h2>Krok 5: Opcjonalna praca w GitHub Codespaces</h2>
+<p>Z repozytorium można też pracować poza Azure Machine Learning studio - w GitHub Codespaces.</p>
+<p>GitHub Codespaces udostępnia środowisko programistyczne Visual Studio Code działające w przeglądarce.</p>
+<ol>
+<li><p>Otwórz <a href="https://github.com/razitpl/MachineLearningCourse">repozytorium MachineLearningCourse/materialy/azure-ml/pl</a>.</p>
+</li>
+<li><p>Wybierz <strong>Code</strong>.</p>
+</li>
+<li><p>Wybierz kartę <strong>Codespaces</strong>.</p>
+</li>
+<li><p>Wybierz <strong>Create codespace on main</strong>.</p>
+</li>
+<li><p>Poczekaj na uruchomienie Codespace.</p>
+</li>
+<li><p>Otwórz zintegrowany terminal w Visual Studio Code.</p>
+</li>
+<li><p>Utwórz wirtualne środowisko Pythona:</p>
+<pre><code class="language-bash">python -m venv .venv
+</code></pre>
+</li>
+<li><p>Aktywuj wirtualne środowisko:</p>
+<pre><code class="language-bash">source .venv/bin/activate
+</code></pre>
+</li>
+<li><p>Zaktualizuj <code>pip</code> i zainstaluj Azure ML SDK v2:</p>
+<pre><code class="language-bash">python -m pip install --upgrade pip
+python -m pip install azure-ai-ml azure-identity ipykernel
+</code></pre>
+</li>
+<li><p>Zaloguj się do Azure:</p>
+<pre><code class="language-bash">az login
+</code></pre>
+</li>
+<li><p>W Visual Studio Code wybierz interpreter Pythona z wirtualnego środowiska <code>.venv</code>.</p>
+</li>
+<li><p>Otwórz notatnik ćwiczenia i w razie potrzeby wybierz kernel Pythona <code>.venv</code>.</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>Uwaga:</strong> GitHub Codespaces jest opcjonalny. Wszystkie ćwiczenia da się wykonać w JupyterLab na instancji obliczeniowej Azure Machine Learning.</p>
+</blockquote>
+<h2>Sprzątanie</h2>
+<p>Po zakończeniu pracy zatrzymaj instancję obliczeniową, jeśli nie planujesz jej używać w najbliższym czasie.</p>
+<ol>
+<li><p>Wróć do <a href="https://ml.azure.com">Azure Machine Learning studio</a>.</p>
+</li>
+<li><p>Wybierz <strong>Compute</strong>.</p>
+</li>
+<li><p>Otwórz kartę <strong>Compute instances</strong>.</p>
+</li>
+<li><p>Wybierz swoją instancję obliczeniową.</p>
+</li>
+<li><p>Wybierz <strong>Stop</strong>.</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>Uwaga:</strong> Zatrzymanie instancji obliczeniowej zapobiega dalszemu naliczaniu opłat za zasoby obliczeniowe. Możesz ją uruchomić ponownie, gdy wrócisz do kolejnych ćwiczeń.</p>
+</blockquote>
+<nav class="przejscia">
+<a class="wstecz" href="lab01a.html"><span>Poprzednie</span>Lab 1A: Tworzenie obszaru roboczego Azure Machine Learning</a>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<a class="dalej" href="lab02a.html"><span>Następne</span>Lab 2A: Tworzenie potoku treningowego za pomocą Azure ML Designer</a>
+</nav>
+</div></main>
+
+</body>
+</html>

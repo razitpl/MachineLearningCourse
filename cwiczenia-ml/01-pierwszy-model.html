@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenie 1: Twój pierwszy model uczenia maszynowego</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="pobierz/01_pierwszy_model.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=1bcd4c15"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="%C4%86wiczenie-1:-Tw%C3%B3j-pierwszy-model-uczenia-maszynowego">Ćwiczenie 1: Twój pierwszy model uczenia maszynowego<a class="anchor-link" href="#%C4%86wiczenie-1:-Tw%C3%B3j-pierwszy-model-uczenia-maszynowego">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W klasycznym programowaniu <strong>Ty</strong> piszesz reguły: „jeśli poziom glukozy przekracza X, a BMI przekracza Y, zgłoś podejrzenie cukrzycy". Problem w tym, że przy kilkunastu cechach nikt nie jest w stanie takich reguł wymyślić ręcznie - a nawet gdyby, to przestałyby działać na nowych pacjentach.</p>
+<p>W uczeniu maszynowym odwracamy ten kierunek: dajemy algorytmowi <strong>przykłady z odpowiedziami</strong>, a on sam znajduje regułę. Naszą pracą przestaje być pisanie reguł, a staje się:</p>
+<ol>
+<li>przygotowanie danych,</li>
+<li>wybór algorytmu,</li>
+<li><strong>uczciwa ocena</strong>, czy to, co powstało, w ogóle działa.</li>
+</ol>
+<p>Punkt 3 jest najtrudniejszy i najczęściej psuty - dlatego zajmiemy się nim już w pierwszym ćwiczeniu.</p>
+<h2 id="Czego-si%C4%99-nauczysz">Czego się nauczysz<a class="anchor-link" href="#Czego-si%C4%99-nauczysz">¶</a></h2><ol>
+<li>Jak wygląda pełny cykl: dane → podział → model → ocena.</li>
+<li>Dlaczego nie każda kolumna w pliku nadaje się na cechę.</li>
+<li>Dlaczego modelu <strong>nigdy</strong> nie ocenia się na danych, na których się uczył.</li>
+<li>Dlaczego pierwszy model, jaki zbudujesz, powinien być celowo prymitywny.</li>
+<li>Dlaczego sama „skuteczność" (accuracy) potrafi kłamać.</li>
+</ol>
+<blockquote>
+<p><strong>Zanim zaczniesz</strong>: uruchamiaj komórki po kolei (Shift+Enter). Późniejsze korzystają ze zmiennych zdefiniowanych wcześniej.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=82600a0e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Dane">1. Dane<a class="anchor-link" href="#1.-Dane">¶</a></h2><p>Pracujemy na zbiorze <code>dane/diabetes.csv</code>: 10 000 anonimowych kart pacjentów przebadanych pod kątem cukrzycy. Dla każdego pacjenta mamy wyniki badań (glukoza, ciśnienie, BMI, wiek i kilka innych) oraz informację, czy cukrzycę stwierdzono.</p>
+<p>Zadanie, które postawimy modelowi, to <strong>klasyfikacja binarna</strong> (ang. <em>binary classification</em>): na podstawie wyników badań rozstrzygnąć, czy pacjent choruje (<code>Diabetic = 1</code>), czy nie (<code>Diabetic = 0</code>).</p>
+<blockquote>
+<p><strong>Ten sam zbiór wraca w kursie Azure Machine Learning</strong> prowadzonym w tym repozytorium. Tam nacisk pada na uruchamianie treningu w chmurze; tutaj - na samo uczenie maszynowe. Warto zobaczyć te same dane z obu stron.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a6a85703">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">dane</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'dane/diabetes.csv'</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Kształt danych (wiersze, kolumny):"</span><span class="p">,</span> <span class="n">dane</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Braki danych:"</span><span class="p">,</span> <span class="n">dane</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="n">dane</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=79f74120"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Nie-ka%C5%BCda-kolumna-jest-cech%C4%85">Nie każda kolumna jest cechą<a class="anchor-link" href="#Nie-ka%C5%BCda-kolumna-jest-cech%C4%85">¶</a></h3><p>Przyjrzyj się kolumnom. Jest wśród nich <code>PatientID</code> - numer identyfikacyjny pacjenta.</p>
+<p>Czy to jest cecha? <strong>Nie.</strong> To etykietka nadana przez system rejestracji, a nie wynik badania. Numer pacjenta nie ma żadnego związku przyczynowego z chorobą - a mimo to model potrafiłby się go „uczyć": przy 10 000 unikalnych numerów wystarczająco rozbudowane drzewo zapamiętałoby, który numer odpowiada choremu pacjentowi. Na danych uczących wyglądałoby to świetnie, a na nowych pacjentach - tragicznie, bo ich numery model widzi pierwszy raz.</p>
+<p>To jeden z najczęstszych błędów początkujących: <strong>wrzucenie do modelu wszystkiego, co jest w pliku</strong>. W literaturze problem ten opisuje się jako przeciek danych (ang. <em>data leakage</em>). Identyfikatory, daty rejestracji, numery próbek - to trzeba usunąć świadomie.</p>
+<p>Dzielimy więc dane na:</p>
+<ul>
+<li><code>X</code> - <strong>cechy</strong> (ang. <em>features</em>): to, na podstawie czego model przewiduje,</li>
+<li><code>y</code> - <strong>etykietę</strong> (ang. <em>label</em>, czasem <em>target</em>): to, co model ma przewidzieć.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b2002a29">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'PatientID'</span><span class="p">,</span> <span class="s1">'Diabetic'</span><span class="p">])</span>   <span class="c1"># cechy (bez identyfikatora!)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span>                               <span class="c1"># etykieta</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Cechy, z których korzysta model:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">nazwa</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"  -"</span><span class="p">,</span> <span class="n">nazwa</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Liczba cech:"</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=4d878be4"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Jak-rozk%C5%82adaj%C4%85-si%C4%99-klasy?">Jak rozkładają się klasy?<a class="anchor-link" href="#Jak-rozk%C5%82adaj%C4%85-si%C4%99-klasy?">¶</a></h3><p>Zanim zbudujemy jakikolwiek model, sprawdzamy <strong>proporcje klas</strong>. To jedna z tych rzeczy, które zajmują dziesięć sekund, a potrafią uratować przed całkowicie błędnymi wnioskami - za chwilę zobaczysz dlaczego.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a8a82e8a">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">liczebnosc</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+<span class="n">opisy</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">'brak cukrzycy'</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">'cukrzyca'</span><span class="p">}</span>
+
+<span class="k">for</span> <span class="n">klasa</span><span class="p">,</span> <span class="n">liczba</span> <span class="ow">in</span> <span class="n">liczebnosc</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">klasa</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">opisy</span><span class="p">[</span><span class="n">klasa</span><span class="p">]</span><span class="si">:</span><span class="s2">14s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">liczba</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2"> pacjentów (</span><span class="si">{</span><span class="n">liczba</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d8ba878b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Klasy <strong>nie są równoliczne</strong>: około dwie trzecie pacjentów jest zdrowych, jedna trzecia choruje. Zapamiętaj tę liczbę <strong>66,6%</strong> - wróci do nas za moment.</p>
+<h2 id="2.-Podzia%C5%82-na-zbi%C3%B3r-ucz%C4%85cy-(ang.-training-set)-i-testowy-(ang.-test-set)">2. Podział na zbiór uczący (ang. <em>training set</em>) i testowy (ang. <em>test set</em>)<a class="anchor-link" href="#2.-Podzia%C5%82-na-zbi%C3%B3r-ucz%C4%85cy-(ang.-training-set)-i-testowy-(ang.-test-set)">¶</a></h2><p>Teraz najważniejsza zasada całego ćwiczenia:</p>
+<blockquote>
+<p><strong>Modelu nie wolno oceniać na danych, na których się uczył.</strong></p>
+</blockquote>
+<p>Dlaczego? Bo model może po prostu <strong>zapamiętać</strong> przykłady zamiast nauczyć się ogólnej reguły. Model, który zapamiętał odpowiedzi, na znanych danych osiągnie wynik bliski ideału - i będzie bezużyteczny w praktyce, bo prawdziwi pacjenci to zawsze <em>nowe</em> przypadki.</p>
+<p>Dlatego odkładamy część danych <strong>na bok</strong> i nie pokazujemy ich modelowi podczas uczenia. Dopiero na nich mierzymy skuteczność - to symuluje sytuację „model spotyka pacjenta, którego nigdy nie widział".</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9305cf42"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Trzy argumenty, których właśnie użyliśmy, warto rozumieć, bo będą wracać w każdym kolejnym ćwiczeniu:</p>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Co robi</th>
+<th>Co się stanie, jeśli go pominiesz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_size=0.2</code></td>
+<td>odkłada 20% danych na test</td>
+<td>domyślnie odłoży 25% - nic złego, ale warto decydować świadomie</td>
+</tr>
+<tr>
+<td><code>stratify=y</code></td>
+<td>zachowuje proporcje klas w obu częściach</td>
+<td>przy losowym podziale proporcje mogą się rozjechać i wyniki stają się trudne do porównania</td>
+</tr>
+<tr>
+<td><code>random_state=42</code></td>
+<td>ustala ziarno losowości (ang. <em>random seed</em>), więc podział jest powtarzalny</td>
+<td>przy każdym uruchomieniu dostaniesz inny podział i inne wyniki - nie będziesz wiedzieć, czy zmiana wyniku to zasługa modelu, czy przypadku</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3.-Model-odniesienia---celowo-prymitywny">3. Model odniesienia - celowo prymitywny<a class="anchor-link" href="#3.-Model-odniesienia---celowo-prymitywny">¶</a></h2><p>Zanim sięgniemy po prawdziwy algorytm, budujemy <strong>model odniesienia</strong> (ang. <em>baseline</em>): najprostszy możliwy model, jaki da się wymyślić. Tutaj będzie to model, który kompletnie ignoruje wyniki badań i <strong>zawsze odpowiada tą samą, najczęstszą klasą</strong> - czyli „ten pacjent jest zdrowy", niezależnie od tego, kogo dostanie.</p>
+<p>Po co nam coś takiego? Bo wynik modelu sam w sobie nic nie znaczy. Zdanie „model ma 90% skuteczności" jest bez wartości, dopóki nie wiesz, ile miałby model, który nie robi nic. Model odniesienia wyznacza <strong>poprzeczkę</strong> - poniżej niej nie ma o czym rozmawiać.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=8d966e5a">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>        <span class="c1"># 20% odkładamy na test</span>
+    <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>           <span class="c1"># zachowaj proporcje klas w obu częściach</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>      <span class="c1"># ustalone ziarno losowości - powtarzalny podział</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zbiór uczący:  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">)</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2"> pacjentów"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zbiór testowy: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2"> pacjentów"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Udział chorych w zbiorze uczącym: "</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">y_ucz</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Udział chorych w zbiorze testowym:"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">y_test</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=634ead8c">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.dummy</span><span class="w"> </span><span class="kn">import</span> <span class="n">DummyClassifier</span>
+
+<span class="n">model_odniesienia</span> <span class="o">=</span> <span class="n">DummyClassifier</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s2">"most_frequent"</span><span class="p">)</span>
+<span class="n">model_odniesienia</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="n">skutecznosc_odniesienia</span> <span class="o">=</span> <span class="n">model_odniesienia</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność modelu odniesienia: </span><span class="si">{</span><span class="n">skutecznosc_odniesienia</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=81d75c7b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Model, który <strong>nie patrzy na dane w ogóle</strong>, ma około 66,6% skuteczności - dokładnie tyle, ile wynosi udział osób zdrowych w zbiorze.</p>
+<p>Zatrzymaj się tu na chwilę, bo to jest sedno. Ten model <strong>nie wykrył ani jednego chorego pacjenta</strong>. Jest medycznie bezużyteczny, a mimo to jego „skuteczność" brzmi przyzwoicie. Gdyby chorych był 1% zamiast 33%, taki bezmyślny model miałby 99% skuteczności - i nadal przeoczyłby <strong>każdy</strong> przypadek choroby.</p>
+<p>Właśnie dlatego w ćwiczeniu 05 zajmiemy się metrykami, które pokazują to, czego skuteczność nie pokazuje.</p>
+<h2 id="4.-Prawdziwy-model">4. Prawdziwy model<a class="anchor-link" href="#4.-Prawdziwy-model">¶</a></h2><p>Teraz model, który faktycznie korzysta z danych: <strong>regresja logistyczna</strong> (ang. <em>logistic regression</em>). Mimo nazwy służy do klasyfikacji - dla każdego pacjenta wylicza prawdopodobieństwo przynależności do klasy.</p>
+<p>Użyjemy jej wewnątrz <strong>potoku</strong> (<code>Pipeline</code>) razem ze skalowaniem cech. Skalowanie (ang. <em>feature scaling</em>) sprowadza wszystkie cechy do porównywalnego zakresu - bez tego glukoza (wartości rzędu 100) przytłoczyłaby wskaźnik <code>DiabetesPedigree</code> (wartości poniżej 1). Potokami zajmiemy się na poważnie w ćwiczeniu 03; na razie potraktuj to jako „skalowanie i model połączone w jedną całość".</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d4b887d6">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">StandardScaler</span><span class="p">(),</span>
+    <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>   <span class="c1"># uczenie: model szuka reguły w danych uczących</span>
+
+<span class="n">skutecznosc</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność modelu odniesienia:    </span><span class="si">{</span><span class="n">skutecznosc_odniesienia</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność regresji logistycznej: </span><span class="si">{</span><span class="n">skutecznosc</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Poprawa: </span><span class="si">{</span><span class="n">skutecznosc</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">skutecznosc_odniesienia</span><span class="si">:</span><span class="s2">+.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=91129a2d"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="5.-Ocena:-co-model-w%C5%82a%C5%9Bciwie-myli?">5. Ocena: co model właściwie myli?<a class="anchor-link" href="#5.-Ocena:-co-model-w%C5%82a%C5%9Bciwie-myli?">¶</a></h2><p>Jedna liczba (skuteczność) nie mówi, <strong>jakie</strong> błędy popełnia model. A w medycynie rodzaj błędu ma ogromne znaczenie:</p>
+<ul>
+<li>uznanie chorego za zdrowego → pacjent nie trafia na dalszą diagnostykę i nie dostaje leczenia,</li>
+<li>uznanie zdrowego za chorego → niepotrzebny stres i dodatkowe badania.</li>
+</ul>
+<p>Te dwa błędy <strong>nie są równie kosztowne</strong>, więc musimy je widzieć osobno. Służy do tego <strong>macierz pomyłek</strong> (ang. <em>confusion matrix</em>).</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=819ea19b">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfusionMatrixDisplay</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
+<span class="n">ConfusionMatrixDisplay</span><span class="o">.</span><span class="n">from_estimator</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span>
+    <span class="n">display_labels</span><span class="o">=</span><span class="p">[</span><span class="s1">'brak cukrzycy'</span><span class="p">,</span> <span class="s1">'cukrzyca'</span><span class="p">],</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">"Blues"</span><span class="p">,</span>
+    <span class="n">values_format</span><span class="o">=</span><span class="s2">"d"</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Macierz pomyłek - regresja logistyczna"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Przewidziano"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Rzeczywistość"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=65f24984"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Jak to czytać: <strong>wiersze to prawda, kolumny to przewidywanie</strong>. Przekątna (lewy górny → prawy dolny) to trafienia, wszystko poza nią to pomyłki.</p>
+<p>Najważniejsze pole to wiersz <em>cukrzyca</em>, kolumna <em>brak cukrzycy</em>: to pacjenci chorzy, których model uznał za zdrowych. W zastosowaniu medycznym to najgroźniejszy rodzaj błędu - i zwróć uwagę, że <strong>nie widać go w samej skuteczności</strong>.</p>
+<hr/>
+<h2 id="Zajrzyj-do-%C5%9Brodka:-jak-wygl%C4%85da-wytrenowane-drzewo?">Zajrzyj do środka: jak wygląda wytrenowane drzewo?<a class="anchor-link" href="#Zajrzyj-do-%C5%9Brodka:-jak-wygl%C4%85da-wytrenowane-drzewo?">¶</a></h2><p>Drzewo decyzyjne (ang. <em>decision tree</em>) ma rzadką i bardzo cenną cechę: <strong>da się je obejrzeć i zrozumieć</strong>. Nie jest czarną skrzynką - to zestaw zagnieżdżonych pytań typu „czy ta cecha jest mniejsza niż X?".</p>
+<p>Do narysowania drzewa użyjemy funkcji <code>plot_tree</code>, która rysuje zwykłym matplotlibem. Zwróć uwagę na <code>max_depth=3</code>: rysujemy <strong>celowo płytkie</strong> drzewo, bo drzewo bez ograniczeń ma kilkadziesiąt poziomów i na rysunku byłoby zupełnie nieczytelne.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=7b17f73b">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span><span class="p">,</span> <span class="n">plot_tree</span>
+
+<span class="c1"># Płytkie drzewo - tylko po to, żeby dało się je obejrzeć</span>
+<span class="n">drzewo_male</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">drzewo_male</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">plot_tree</span><span class="p">(</span>
+    <span class="n">drzewo_male</span><span class="p">,</span>
+    <span class="n">feature_names</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+    <span class="n">class_names</span><span class="o">=</span><span class="p">[</span><span class="s1">'brak cukrzycy'</span><span class="p">,</span> <span class="s1">'cukrzyca'</span><span class="p">],</span>
+    <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>       <span class="c1"># koloruje węzły według dominującej klasy</span>
+    <span class="n">rounded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Skuteczność tego płytkiego drzewa na zbiorze testowym:"</span><span class="p">,</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">drzewo_male</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b46e1985"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Jak-czyta%C4%87-ten-rysunek">Jak czytać ten rysunek<a class="anchor-link" href="#Jak-czyta%C4%87-ten-rysunek">¶</a></h3><p>Każdy prostokąt to <strong>węzeł</strong> (ang. <em>node</em>) - jedno pytanie zadane danym. W węźle znajdziesz:</p>
+<table>
+<thead>
+<tr>
+<th>Wiersz w węźle</th>
+<th>Co oznacza</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PlasmaGlucose &lt;= 122.5</code></td>
+<td>warunek: jeśli <strong>prawda</strong>, idziesz w lewo; jeśli <strong>fałsz</strong> - w prawo</td>
+</tr>
+<tr>
+<td><code>gini = 0.44</code></td>
+<td>miara „wymieszania" klas: 0 oznacza węzeł czysty (sami chorzy albo sami zdrowi), 0.5 - idealnie pół na pół</td>
+</tr>
+<tr>
+<td><code>samples = 8000</code></td>
+<td>ilu pacjentów ze zbioru uczącego trafiło do tego węzła</td>
+</tr>
+<tr>
+<td><code>value = [5325, 2675]</code></td>
+<td>jak ci pacjenci dzielą się na klasy</td>
+</tr>
+<tr>
+<td><code>class = brak cukrzycy</code></td>
+<td>co model odpowie, jeśli zatrzyma się w tym węźle</td>
+</tr>
+</tbody>
+</table>
+<p>Liście (ang. <em>leaves</em>; węzły na samym dole) to gotowe odpowiedzi. Kolor pokazuje dominującą klasę, a jego intensywność - jak bardzo węzeł jest „czysty".</p>
+<p>Prześledź jedną ścieżkę od korzenia do liścia i przeczytaj ją jak zdanie: <em>„jeśli glukoza ≤ 122,5 oraz BMI ≤ 29,4, to pacjent jest zdrowy"</em>. To właśnie jest reguła, której model nauczył się <strong>sam</strong> - nikt mu jej nie napisał.</p>
+<hr/>
+<h1 id="Zadania">Zadania<a class="anchor-link" href="#Zadania">¶</a></h1><p>Poniższe zadania wykonujesz samodzielnie. Wszystko, czego potrzebujesz, pojawiło się w przykładzie powyżej.</p>
+<h2 id="Zadanie-1:-Inny-model-odniesienia">Zadanie 1: Inny model odniesienia<a class="anchor-link" href="#Zadanie-1:-Inny-model-odniesienia">¶</a></h2><p><code>DummyClassifier</code> ma także strategię <code>"stratified"</code> - zgaduje losowo, ale zgodnie z proporcjami klas w danych uczących.</p>
+<p>Zbuduj taki model, naucz go i sprawdź jego skuteczność na zbiorze testowym. Zastanów się <strong>przed</strong> uruchomieniem: spodziewasz się wyniku wyższego czy niższego niż 66,6%?</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Utwórz <code>DummyClassifier</code> ze strategią <code>"stratified"</code> i ustaw <code>random_state=42</code>.</li>
+<li>Naucz go na zbiorze uczącym.</li>
+<li>Zmierz jego skuteczność na zbiorze testowym.</li>
+<li>Wypisz obok siebie wynik obu strategii: <code>"most_frequent"</code> i <code>"stratified"</code>.</li>
+</ol>
+<blockquote>
+<p><strong>Czym różnią się te dwie strategie</strong>: <code>"most_frequent"</code> zawsze odpowiada tą samą klasą - tą, która w danych uczących występuje najczęściej. <code>"stratified"</code> losuje odpowiedź, ale <strong>zgodnie z proporcjami klas</strong>: skoro chorych jest 33%, to w 33% przypadków zgaduje „chory".</p>
+</blockquote>
+<blockquote>
+<p><strong>Zgadnij przed uruchomieniem.</strong> To nie jest ozdobnik - chodzi o to, żebyś zobaczył różnicę między tym, co intuicja podpowiada, a tym, co wychodzi. Zapamiętaj swoją odpowiedź i sprawdź ją za chwilę.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1-2: model i trenowanie</strong></p>
+<div class="highlight"><pre><span></span><span class="n">model_stratified</span> <span class="o">=</span> <span class="n">DummyClassifier</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s2">"stratified"</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">model_stratified</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+</pre></div>
+<ul>
+<li><code>strategy="stratified"</code> włącza losowanie zgodne z proporcjami klas.</li>
+<li><code>random_state=42</code> jest tu <strong>konieczne</strong>, a nie kosmetyczne. Ta strategia naprawdę losuje, więc bez ustalonego ziarna dostaniesz inny wynik przy każdym uruchomieniu i nie będziesz wiedzieć, czy różnica bierze się ze zmiany w kodzie, czy z losu.</li>
+<li><code>.fit()</code> przy modelu odniesienia nie uczy się niczego o zależnościach - zapamiętuje tylko rozkład klas.</li>
+</ul>
+<p><strong>Krok 3-4: pomiar i porównanie</strong></p>
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strategy='most_frequent': </span><span class="si">{</span><span class="n">DummyClassifier</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">'most_frequent'</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span><span class="w"> </span><span class="n">y_ucz</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strategy='stratified':    </span><span class="si">{</span><span class="n">model_stratified</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+<ul>
+<li><code>.score(X_test, y_test)</code> dla klasyfikatora zwraca <strong>skuteczność</strong> - udział poprawnych odpowiedzi.</li>
+<li><code>:.1%</code> w f-stringu mnoży przez 100 i dokleja znak procenta, więc <code>0.665</code> wypisze się jako <code>66.5%</code>.</li>
+<li>Zapis w jednej linii (<code>DummyClassifier(...).fit(...).score(...)</code>) działa, bo <code>.fit()</code> zwraca sam model. Przy dłuższym kodzie lepiej to rozbić, tutaj chodzi o zestawienie obu liczb obok siebie.</li></ul></details>
+
+
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="n">model_stratified</span> <span class="o">=</span> <span class="n">DummyClassifier</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s2">"stratified"</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">model_stratified</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strategy='most_frequent': </span><span class="si">{</span><span class="n">DummyClassifier</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">'most_frequent'</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span><span class="w"> </span><span class="n">y_ucz</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strategy='stratified':    </span><span class="si">{</span><span class="n">model_stratified</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code>strategy='most_frequent': 66.5%
+strategy='stratified':    54.5%
+</code></pre>
+<p><strong>Jak to czytać:</strong></p>
+<p>Jeśli spodziewałeś się wyniku <strong>wyższego</strong>, jesteś w licznym towarzystwie. Intuicja podpowiada, że model, który „bierze pod uwagę proporcje klas", powinien być mądrzejszy od takiego, który zawsze mówi to samo. Jest odwrotnie - i to o <strong>12 punktów procentowych</strong>.</p>
+<p>Powód: przy dwóch klasach o udziałach 2/3 i 1/3 zgadywanie zgodne z proporcjami trafia średnio w <code>0,666 × 0,666 + 0,334 × 0,334 ≈ 0,55</code>. Odpowiadanie zawsze klasą większościową trafia w <code>0,666</code>. Losowanie dokłada pomyłki po obu stronach.</p>
+<p><strong>Wniosek, który warto zapamiętać</strong>: model odniesienia nie ma być mądry - ma wyznaczać <strong>poprzeczkę</strong>. I bierze się zawsze tę <strong>najwyższą</strong> z rozsądnych, czyli tutaj 66,6%. Gdybyś porównywał swój model do 54,5%, byłoby Ci nieuczciwie łatwo.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=386414dd">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">model_stratified</span> <span class="o">=</span> <span class="n">DummyClassifier</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s2">"stratified"</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">model_stratified</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strategy='most_frequent': </span><span class="si">{</span><span class="n">DummyClassifier</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">'most_frequent'</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span><span class="w"> </span><span class="n">y_ucz</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strategy='stratified':    </span><span class="si">{</span><span class="n">model_stratified</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1baf417d"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-2:-Drzewo-decyzyjne">Zadanie 2: Drzewo decyzyjne<a class="anchor-link" href="#Zadanie-2:-Drzewo-decyzyjne">¶</a></h2><p>Wytrenuj klasyfikator <code>DecisionTreeClassifier</code> (bez ograniczenia głębokości) i porównaj jego skuteczność z regresją logistyczną.</p>
+<p>Pamiętaj o <code>random_state=42</code>, żeby wynik był powtarzalny. Drzewo <strong>nie potrzebuje skalowania</strong> - zastanów się, dlaczego (odpowiedź znajdziesz w pytaniach na końcu).</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Utwórz <code>DecisionTreeClassifier</code> z <code>random_state=42</code>, bez ustawiania <code>max_depth</code>.</li>
+<li>Naucz go na zbiorze uczącym.</li>
+<li>Wypisz obok siebie skuteczność regresji logistycznej i drzewa na zbiorze testowym.</li>
+</ol>
+<blockquote>
+<p><strong>Dlaczego drzewo nie potrzebuje skalowania</strong>: drzewo zadaje pytania w rodzaju „czy <code>BMI</code> jest większe niż 30?". Jeśli przeskalujesz tę cechę, próg też się przeskaluje, a <strong>podział pacjentów na dwie grupy pozostanie dokładnie ten sam</strong>. Regresja logistyczna dodaje cechy do siebie z wagami, więc tam skala zmienia wynik - i dlatego tam <code>StandardScaler</code> jest potrzebny.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1-2: drzewo</strong></p>
+<div class="highlight"><pre><span></span><span class="n">drzewo</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">drzewo</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+</pre></div>
+<p>Brak <code>max_depth</code> oznacza, że drzewo rośnie <strong>bez ograniczeń</strong> - tak długo, aż liście staną się jednorodne albo skończą się dane do podziału. Zapamiętaj to, bo zadanie 3 opiera się właśnie na tym.</p>
+<p>Zwróć uwagę, że podajesz tu <code>X_ucz</code>, a nie dane przeskalowane. Drzewo skalowania nie potrzebuje.</p>
+<p><strong>Krok 3: porównanie</strong></p>
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Regresja logistyczna: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Drzewo decyzyjne:     </span><span class="si">{</span><span class="n">drzewo</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+<p><code>model</code> to potok z regresją logistyczną zbudowany wcześniej w notatniku - nie musisz go tworzyć od nowa. Spacje w drugim napisie wyrównują liczby w pionie, dzięki czemu różnicę widać od razu.</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="n">drzewo</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">drzewo</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Regresja logistyczna: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Drzewo decyzyjne:     </span><span class="si">{</span><span class="n">drzewo</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code>Regresja logistyczna: 78.8%
+Drzewo decyzyjne:     89.0%
+</code></pre>
+<p><strong>Jak to czytać:</strong></p>
+<p>Drzewo wygrywa o ponad <strong>10 punktów procentowych</strong>. To duża różnica i warto wiedzieć, skąd się bierze: regresja logistyczna szuka jednej prostej granicy między klasami, a drzewo może dzielić przestrzeń na dowolnie poszatkowane obszary. Gdy zależność nie jest liniowa, drzewo ma znacznie większe pole manewru.</p>
+<p><strong>Nie wyciągaj stąd wniosku, że drzewa są lepsze od regresji.</strong> W zadaniu 3 zobaczysz drugą stronę tej elastyczności - i będzie to najważniejsza rzecz w całym notatniku.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=82c0db75">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span><span class="p">,</span> <span class="n">plot_tree</span>
+
+<span class="c1"># Płytkie drzewo - tylko po to, żeby dało się je obejrzeć</span>
+<span class="n">drzewo_duze</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">drzewo_duze</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Skuteczność tego płytkiego drzewa na zbiorze testowym:"</span><span class="p">,</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">drzewo_male</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">drzewo_duze</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=83695c06"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-3:-Dow%C3%B3d,-%C5%BCe-ocena-na-danych-ucz%C4%85cych-k%C5%82amie">Zadanie 3: Dowód, że ocena na danych uczących kłamie<a class="anchor-link" href="#Zadanie-3:-Dow%C3%B3d,-%C5%BCe-ocena-na-danych-ucz%C4%85cych-k%C5%82amie">¶</a></h2><p>To najważniejsze zadanie w tym notatniku.</p>
+<ol>
+<li>Weź drzewo wytrenowane w zadaniu 2 (bez ograniczenia głębokości).</li>
+<li>Zmierz jego skuteczność na zbiorze <strong>uczącym</strong> (<code>X_ucz</code>, <code>y_ucz</code>).</li>
+<li>Zmierz jego skuteczność na zbiorze <strong>testowym</strong> (<code>X_test</code>, <code>y_test</code>).</li>
+<li>Wypisz obie liczby obok siebie.</li>
+</ol>
+<p>Różnica, którą zobaczysz, to <strong>przeuczenie</strong> (ang. <em>overfitting</em>) - model nauczył się danych uczących niemal na pamięć, zamiast wychwycić ogólną regułę.</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Weź drzewo wytrenowane w zadaniu 2 - nie twórz nowego.</li>
+<li>Zmierz jego skuteczność na zbiorze <strong>uczącym</strong> (<code>X_ucz</code>, <code>y_ucz</code>).</li>
+<li>Zmierz jego skuteczność na zbiorze <strong>testowym</strong> (<code>X_test</code>, <code>y_test</code>).</li>
+<li>Wypisz obie liczby oraz ich różnicę.</li>
+</ol>
+<blockquote>
+<p><strong>Na czym polega sedno</strong>: zbiór uczący to dane, które model <strong>widział</strong> podczas nauki. Zbiór testowy to dane, których <strong>nie widział</strong>. Porównanie tych dwóch liczb odpowiada na pytanie: czy model nauczył się reguły, czy zapamiętał konkretne przypadki?</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1-3: dwa pomiary</strong></p>
+<div class="highlight"><pre><span></span><span class="n">wynik_ucz</span> <span class="o">=</span> <span class="n">drzewo</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+<span class="n">wynik_test</span> <span class="o">=</span> <span class="n">drzewo</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</pre></div>
+<p>To ta sama metoda <code>.score()</code>, tylko wywołana na dwóch różnych zbiorach. Cała różnica polega na tym, <strong>które dane jej podasz</strong>.</p>
+<p>Zapisujesz wyniki do zmiennych, bo za chwilę policzysz z nich różnicę - i dlatego, że wrócisz do nich w zadaniu 6.</p>
+<p><strong>Krok 4: wypisanie</strong></p>
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność na zbiorze UCZĄCYM:  </span><span class="si">{</span><span class="n">wynik_ucz</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność na zbiorze TESTOWYM: </span><span class="si">{</span><span class="n">wynik_test</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Różnica (przeuczenie):           </span><span class="si">{</span><span class="n">wynik_ucz</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">wynik_test</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+<p>Trzecia linia jest najważniejsza. Sama różnica to liczba, która ma własną nazwę i własne znaczenie - lepiej ją wypisać, niż kazać czytelnikowi odejmować w pamięci.</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="n">wynik_ucz</span> <span class="o">=</span> <span class="n">drzewo</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+<span class="n">wynik_test</span> <span class="o">=</span> <span class="n">drzewo</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność na zbiorze UCZĄCYM:  </span><span class="si">{</span><span class="n">wynik_ucz</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność na zbiorze TESTOWYM: </span><span class="si">{</span><span class="n">wynik_test</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Różnica (przeuczenie):           </span><span class="si">{</span><span class="n">wynik_ucz</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">wynik_test</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code>Skuteczność na zbiorze UCZĄCYM:  100.0%
+Skuteczność na zbiorze TESTOWYM: 89.0%
+Różnica (przeuczenie):           11.0%
+</code></pre>
+<p><strong>Jak to czytać - to jest najważniejszy wynik w całym notatniku:</strong></p>
+<p><strong>100,0% na zbiorze uczącym.</strong> Nie 99,8%. Dokładnie sto procent, czyli ani jednej pomyłki na ośmiu tysiącach pacjentów.</p>
+<p>Żaden model medyczny nie jest bezbłędny. Ta liczba nie mówi więc nic o jakości drzewa - mówi tylko tyle, że <strong>drzewo rosło dopóty, dopóki nie zapamiętało każdego pacjenta z osobna</strong>. Bez ograniczenia głębokości zawsze jest w stanie to zrobić.</p>
+<p>Prawdziwy wynik to <strong>89,0%</strong> - tyle drzewo osiąga na pacjentach, których nie widziało.</p>
+<p><strong>Konsekwencja praktyczna</strong>: gdyby ktoś pokazał Ci model ze skutecznością 100% i nie powiedział, na jakich danych ją zmierzył, pierwsze pytanie brzmi: <em>„na uczących czy testowych?"</em>. Wynik na danych uczących nie jest wynikiem modelu - jest miarą jego pamięci.</p>
+<p>Różnica 11 punktów to <strong>przeuczenie</strong> (ang. <em>overfitting</em>). W zadaniu 4 zobaczysz, jak je zmniejszyć.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5ae2ebce">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span><span class="p">,</span> <span class="n">plot_tree</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Skuteczność tego płytkiego drzewa na zbiorze testowym:"</span><span class="p">,</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">drzewo_duze</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span><span class="w"> </span><span class="n">y_ucz</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">drzewo_duze</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=5052ef7d"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-4:-Ograniczenie-z%C5%82o%C5%BCono%C5%9Bci-drzewa">Zadanie 4: Ograniczenie złożoności drzewa<a class="anchor-link" href="#Zadanie-4:-Ograniczenie-z%C5%82o%C5%BCono%C5%9Bci-drzewa">¶</a></h2><p>Drzewo z zadania 3 rozrastało się bez ograniczeń. Ogranicz jego głębokość parametrem <code>max_depth</code>.</p>
+<p>Sprawdź wartości <code>max_depth</code> od 1 do 15 i dla każdej wypisz skuteczność na zbiorze uczącym oraz testowym. Znajdź wartość, przy której wynik testowy jest najlepszy.</p>
+<p>Zauważ, co się dzieje: wynik na danych uczących rośnie z głębokością niemal zawsze, ale wynik testowy w pewnym momencie <strong>przestaje rosnąć i zaczyna spadać</strong>. To jest moment, w którym model przestaje uczyć się reguł, a zaczyna zapamiętywać szum.</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Przygotuj pustą listę na wyniki.</li>
+<li>W pętli po wartościach <code>max_depth</code> od 1 do 15 zbuduj i naucz drzewo o takiej głębokości.</li>
+<li>Dla każdego zapisz głębokość oraz obie skuteczności - uczącą i testową.</li>
+<li>Zamień listę na tabelę i znajdź wiersz o najlepszym wyniku testowym.</li>
+<li>Narysuj obie krzywe na jednym wykresie.</li>
+</ol>
+<blockquote>
+<p><strong>Czym jest <code>max_depth</code></strong>: maksymalna liczba pytań, jakie drzewo może zadać po drodze od korzenia do decyzji. <code>max_depth=1</code> to jedno pytanie, <code>max_depth=15</code> to co najwyżej piętnaście. Im więcej pytań, tym drobniejsze różnice model potrafi wychwycić - i tym łatwiej zapamiętuje przypadki zamiast reguł.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1-3: pętla po głębokościach</strong></p>
+<div class="highlight"><pre><span></span><span class="n">wyniki</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">glebokosc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">glebokosc</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+    <span class="n">wyniki</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">'max_depth'</span><span class="p">:</span> <span class="n">glebokosc</span><span class="p">,</span>
+        <span class="s1">'uczacy'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">),</span>
+        <span class="s1">'testowy'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">),</span>
+    <span class="p">})</span>
+</pre></div>
+<ul>
+<li><code>range(1, 16)</code> daje liczby od 1 do <strong>15</strong> - w Pythonie prawy kraniec nie należy do zakresu.</li>
+<li>W każdym obrocie pętli powstaje <strong>nowe</strong> drzewo. Nie da się zmienić <code>max_depth</code> w już wytrenowanym modelu.</li>
+<li>Zbierasz słowniki do listy, a tabelę zbudujesz raz na końcu. Doklejanie wierszy do <code>DataFrame</code> w pętli jest wolne i mniej czytelne.</li>
+</ul>
+<p><strong>Krok 4: tabela i najlepszy wiersz</strong></p>
+<div class="highlight"><pre><span></span><span class="n">tabela</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wyniki</span><span class="p">)</span>
+<span class="n">najlepszy</span> <span class="o">=</span> <span class="n">tabela</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'testowy'</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()]</span>
+</pre></div>
+<ul>
+<li><code>.idxmax()</code> zwraca <strong>indeks wiersza</strong> o największej wartości, a nie samą wartość.</li>
+<li><code>tabela.loc[indeks]</code> wyciąga cały ten wiersz, więc masz od razu i głębokość, i oba wyniki.</li>
+</ul>
+<p><strong>Krok 5: wykres</strong></p>
+<div class="highlight"><pre><span></span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">],</span> <span class="n">tabela</span><span class="p">[</span><span class="s1">'uczacy'</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'zbiór uczący'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">],</span> <span class="n">tabela</span><span class="p">[</span><span class="s1">'testowy'</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'s'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'zbiór testowy'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">najlepszy</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+<p><code>axvline</code> rysuje pionową linię w miejscu optimum. Bez niej trzeba szukać wzrokiem, gdzie krzywa testowa ma szczyt.</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="n">wyniki</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">glebokosc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">glebokosc</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+    <span class="n">wyniki</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">'max_depth'</span><span class="p">:</span> <span class="n">glebokosc</span><span class="p">,</span>
+        <span class="s1">'uczacy'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">),</span>
+        <span class="s1">'testowy'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">),</span>
+    <span class="p">})</span>
+
+<span class="n">tabela</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wyniki</span><span class="p">)</span>
+<span class="n">najlepszy</span> <span class="o">=</span> <span class="n">tabela</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'testowy'</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">tabela</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Najlepszy wynik testowy przy max_depth = </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">najlepszy</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Wykres - bardzo dobrze pokazuje moment, w ktorym model zaczyna sie przeuczac</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">],</span> <span class="n">tabela</span><span class="p">[</span><span class="s1">'uczacy'</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'zbiór uczący'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">],</span> <span class="n">tabela</span><span class="p">[</span><span class="s1">'testowy'</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'s'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'zbiór testowy'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">najlepszy</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'max_depth (głębokość drzewa)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'skuteczność'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Im głębsze drzewo, tym lepiej? Nie na danych testowych.'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code> max_depth  uczacy  testowy
+         1   0.776    0.780
+         2   0.852    0.843
+         3   0.869    0.876
+         4   0.888    0.893
+         5   0.901    0.897
+         6   0.914    0.900
+         7   0.932    0.910
+         8   0.942    0.917
+         9   0.950    0.907
+        10   0.963    0.904
+        11   0.971    0.902
+        12   0.980    0.904
+        13   0.987    0.898
+        14   0.991    0.900
+        15   0.995    0.893
+
+Najlepszy wynik testowy przy max_depth = 8
+</code></pre>
+<p><strong>Jak to czytać:</strong></p>
+<p>Prześledź obie kolumny z góry na dół. <strong><code>uczacy</code> rośnie praktycznie zawsze</strong> - z 0,776 do 0,995. Z punktu widzenia danych uczących każde dodatkowe pytanie to poprawa.</p>
+<p><strong><code>testowy</code> zachowuje się inaczej</strong>: rośnie do <code>max_depth=8</code> (0,917), a potem <strong>zaczyna spadać</strong> - przy 15 wynosi już tylko 0,893, czyli mniej niż przy głębokości 4.</p>
+<p>To jest przeuczenie zobaczone w ruchu. Do ósmego pytania drzewo uczy się reguł, które działają także na nowych pacjentach. Od dziewiątego zaczyna dopasowywać się do przypadkowych szczegółów zbioru uczącego - szczegółów, których u nowych pacjentów nie ma.</p>
+<p>Na wykresie obie krzywe najpierw idą razem, a potem się rozchodzą. <strong>Rosnąca przepaść między nimi to dokładnie ta sama wielkość, którą zmierzyłeś w zadaniu 3.</strong></p>
+<blockquote>
+<p><strong>Uwaga praktyczna</strong>: wybór <code>max_depth = 8</code> jest tu dokonany <strong>na zbiorze testowym</strong> - i to jest błąd metodologiczny, który popełniamy tu celowo, żeby pokazać zjawisko. Poprawnie robi się to walidacją krzyżową na zbiorze uczącym; wrócisz do tego w ćwiczeniu 06.</p>
+</blockquote></details>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=78fcfb88">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">wyniki</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">glebokosc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">glebokosc</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+    <span class="n">wyniki</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">'max_depth'</span><span class="p">:</span> <span class="n">glebokosc</span><span class="p">,</span>
+        <span class="s1">'uczacy'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">),</span>
+        <span class="s1">'testowy'</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">),</span>
+    <span class="p">})</span>
+
+<span class="n">tabela</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wyniki</span><span class="p">)</span>
+<span class="n">najlepszy</span> <span class="o">=</span> <span class="n">tabela</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'testowy'</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">tabela</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Najlepszy wynik testowy przy max_depth = </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">najlepszy</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="c1"># Wykres - bardzo dobrze pokazuje moment, w ktorym model zaczyna sie przeuczac</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">],</span> <span class="n">tabela</span><span class="p">[</span><span class="s1">'uczacy'</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'zbiór uczący'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tabela</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">],</span> <span class="n">tabela</span><span class="p">[</span><span class="s1">'testowy'</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'s'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'zbiór testowy'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">najlepszy</span><span class="p">[</span><span class="s1">'max_depth'</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'max_depth (głębokość drzewa)'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'skuteczność'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Im głębsze drzewo, tym lepiej? Nie na danych testowych.'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8f3fefea"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-5:-Czytelno%C5%9B%C4%87-kontra-dok%C5%82adno%C5%9B%C4%87">Zadanie 5: Czytelność kontra dokładność<a class="anchor-link" href="#Zadanie-5:-Czytelno%C5%9B%C4%87-kontra-dok%C5%82adno%C5%9B%C4%87">¶</a></h2><ol>
+<li>Narysuj drzewo z <code>max_depth=1</code> (tzw. <em>pień decyzyjny</em>). Jaką ma skuteczność? Która cecha okazała się na tyle silna, że model wybrał ją jako jedyne pytanie?</li>
+<li>Spróbuj narysować drzewo <strong>bez</strong> ograniczenia głębokości. Da się cokolwiek z tego rysunku odczytać?</li>
+<li>Odpowiedz sobie: gdyby trzeba było wytłumaczyć decyzję modelu lekarzowi, które drzewo byś wybrał i dlaczego?</li>
+</ol>
+<p>To napięcie - <strong>model dokładniejszy kontra model zrozumiały</strong> - wraca w uczeniu maszynowym nieustannie. W ćwiczeniu 07 zobaczysz jego skrajny przypadek: las losowy bywa wyraźnie skuteczniejszy od pojedynczego drzewa, ale nie da się go już narysować na jednej kartce.</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Zbuduj drzewo z <code>max_depth=1</code> i naucz je.</li>
+<li>Narysuj je przy użyciu <code>plot_tree</code>, podając nazwy cech i nazwy klas.</li>
+<li>Wypisz jego skuteczność na zbiorze testowym.</li>
+<li>Sprawdź, którą cechę model wybrał jako jedyne pytanie - wykorzystaj <code>feature_importances_</code>.</li>
+<li>Spróbuj narysować drzewo bez ograniczenia głębokości i zobacz, co z tego wyjdzie.</li>
+</ol>
+<blockquote>
+<p><strong>Czym jest pień decyzyjny</strong> (ang. <em>decision stump</em>): drzewo o jednym pytaniu. To najprostszy możliwy model tego typu - dzieli pacjentów na dwie grupy na podstawie jednej cechy i jednego progu.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1: pień</strong></p>
+<div class="highlight"><pre><span></span><span class="n">pien</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">pien</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+</pre></div>
+<p><strong>Krok 2: rysunek</strong></p>
+<div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plot_tree</span><span class="p">(</span><span class="n">pien</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">class_names</span><span class="o">=</span><span class="p">[</span><span class="s1">'brak cukrzycy'</span><span class="p">,</span> <span class="s1">'cukrzyca'</span><span class="p">],</span>
+          <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rounded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+<ul>
+<li><code>feature_names=X.columns</code> sprawia, że w węzłach zobaczysz nazwy cech zamiast <code>X[3]</code>. Bez tego rysunek jest prawie nieczytelny.</li>
+<li><code>class_names=[...]</code> podpisuje klasy słowami zamiast <code>0</code> i <code>1</code>. Kolejność musi odpowiadać wartościom etykiety: najpierw 0, potem 1.</li>
+<li><code>filled=True</code> koloruje węzły według przeważającej klasy - od razu widać, która strona podziału to chorzy.</li>
+<li><code>ax=ax</code> kieruje rysunek na przygotowaną oś, dzięki czemu działa <code>figsize</code>.</li>
+</ul>
+<p><strong>Krok 4: która cecha</strong></p>
+<div class="highlight"><pre><span></span><span class="n">waznosc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pien</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">waznosc</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+<p><code>feature_importances_</code> to tablica liczb - po jednej na cechę, w tej samej kolejności co kolumny. Opakowanie jej w <code>pd.Series</code> z indeksem <code>X.columns</code> <strong>przypisuje liczby do nazw</strong>; bez tego masz osiem liczb i musisz sam pamiętać, która jest która.</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="n">pien</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">pien</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plot_tree</span><span class="p">(</span><span class="n">pien</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">class_names</span><span class="o">=</span><span class="p">[</span><span class="s1">'brak cukrzycy'</span><span class="p">,</span> <span class="s1">'cukrzyca'</span><span class="p">],</span>
+          <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rounded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Pień decyzyjny - jedno pytanie'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność pnia decyzyjnego: </span><span class="si">{</span><span class="n">pien</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="n">waznosc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pien</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Cecha wybrana przez model jako jedyne pytanie:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">waznosc</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code>Skuteczność pnia decyzyjnego: 78.0%
+
+Cecha wybrana przez model jako jedyne pytanie:
+Pregnancies               1.0
+PlasmaGlucose             0.0
+DiastolicBloodPressure    0.0
+</code></pre>
+<p><strong>Jak to czytać:</strong></p>
+<ul>
+<li>Model zadający <strong>jedno pytanie</strong> osiąga <strong>78,0%</strong>. Przypomnij sobie regresję logistyczną z ośmioma cechami: 78,8%. Różnica wynosi 0,8 punktu procentowego.</li>
+<li>Wszystkie ważności poza <code>Pregnancies</code> wynoszą dokładnie <strong>0,0</strong>. To nie zaokrąglenie - drzewo o jednym pytaniu <strong>fizycznie nie może</strong> użyć drugiej cechy.</li>
+<li><code>Pregnancies</code> to ta sama cecha, która wygrała ranking korelacji w ćwiczeniu 02. Dwie różne metody, ten sam wynik.</li>
+</ul>
+<p><strong>Odpowiedź na pytanie 3 z zadania:</strong> jeśli różnica w skuteczności wynosi niecały punkt procentowy, a jeden model da się wytłumaczyć lekarzowi jednym zdaniem, wybór jest oczywisty. <strong>Model, którego nikt nie rozumie, bywa nie do wdrożenia</strong> - nie dlatego, że jest gorszy, tylko dlatego, że nikt nie weźmie za niego odpowiedzialności.</p>
+<p>Przy drzewie bez ograniczenia głębokości rysunek zamienia się w nieczytelną plamę - to ma setki węzłów. I to jest właśnie odpowiedź na pytanie 2.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=9eed4ded">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span><span class="p">,</span> <span class="n">plot_tree</span>
+
+<span class="c1"># Płytkie drzewo - tylko po to, żeby dało się je obejrzeć</span>
+<span class="n">drzewo_male</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">drzewo_male</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">plot_tree</span><span class="p">(</span>
+    <span class="n">drzewo_male</span><span class="p">,</span>
+    <span class="n">feature_names</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+    <span class="n">class_names</span><span class="o">=</span><span class="p">[</span><span class="s1">'brak cukrzycy'</span><span class="p">,</span> <span class="s1">'cukrzyca'</span><span class="p">],</span>
+    <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>       <span class="c1"># koloruje węzły według dominującej klasy</span>
+    <span class="n">rounded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Skuteczność tego płytkiego drzewa na zbiorze testowym:"</span><span class="p">,</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">drzewo_male</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=f2edc42f"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-6:-Co-si%C4%99-stanie,-gdy-zostawimy-PatientID?">Zadanie 6: Co się stanie, gdy zostawimy <code>PatientID</code>?<a class="anchor-link" href="#Zadanie-6:-Co-si%C4%99-stanie,-gdy-zostawimy-PatientID?">¶</a></h2><p>Sprawdź empirycznie, dlaczego usunęliśmy identyfikator pacjenta.</p>
+<ol>
+<li>Zbuduj <code>X_zle = dane.drop(columns=['Diabetic'])</code> - czyli cechy <strong>razem z</strong> <code>PatientID</code>.</li>
+<li>Podziel dane tak samo jak wcześniej (<code>test_size=0.2</code>, <code>stratify=y</code>, <code>random_state=42</code>).</li>
+<li>Wytrenuj <code>DecisionTreeClassifier(random_state=42)</code> bez ograniczenia głębokości.</li>
+<li>Porównaj skuteczność na zbiorze <strong>uczącym</strong> i <strong>testowym</strong> z wynikami z zadania 3.</li>
+</ol>
+<p>Zastanów się nad wynikiem: czy model z identyfikatorem wypadł lepiej, czy gorzej? Co to mówi o pokusie „wrzućmy wszystkie kolumny, model sobie poradzi"?</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Zbuduj <code>X_zle</code>, usuwając z danych <strong>tylko</strong> kolumnę <code>Diabetic</code> - czyli zostawiając <code>PatientID</code>.</li>
+<li>Podziel dane dokładnie tak samo jak wcześniej.</li>
+<li>Wytrenuj drzewo bez ograniczenia głębokości.</li>
+<li>Wypisz jego skuteczność uczącą i testową obok wyników z zadania 3.</li>
+<li>Sprawdź, na którym miejscu w rankingu ważności wylądował <code>PatientID</code>.</li>
+</ol>
+<blockquote>
+<p><strong>Dlaczego to w ogóle sprawdzamy</strong>: <code>PatientID</code> to numer nadany przy rejestracji. Nie jest wynikiem badania i nie niesie żadnej informacji o zdrowiu. Model o tym nie wie - dla niego to po prostu kolejna kolumna z liczbami.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1: dane z identyfikatorem</strong></p>
+<div class="highlight"><pre><span></span><span class="n">X_zle</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">])</span>   <span class="c1"># zostawiamy PatientID jako "cechę"</span>
+</pre></div>
+<p>Usuwasz <strong>tylko</strong> etykietę. W poprawnej wersji usuwałeś dwie kolumny: <code>PatientID</code> i <code>Diabetic</code>.</p>
+<p><strong>Krok 2: ten sam podział</strong></p>
+<div class="highlight"><pre><span></span><span class="n">X_zle_ucz</span><span class="p">,</span> <span class="n">X_zle_test</span><span class="p">,</span> <span class="n">y_zle_ucz</span><span class="p">,</span> <span class="n">y_zle_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X_zle</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>
+</pre></div>
+<p><code>random_state=42</code> jest tu kluczowe: chcesz, żeby <strong>dokładnie ci sami pacjenci</strong> trafili do zbioru testowego co poprzednio. Inaczej porównywałbyś dwie rzeczy naraz - wpływ identyfikatora i wpływ innego losowania.</p>
+<p><strong>Krok 5: ranking ważności</strong></p>
+<div class="highlight"><pre><span></span><span class="n">waznosc_zle</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">drzewo_zle</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X_zle</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">waznosc_zle</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+<p>Wypisujesz <strong>cały</strong> ranking, nie <code>head(3)</code> - chodzi o to, żeby zobaczyć, gdzie dokładnie znalazł się <code>PatientID</code>.</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="n">X_zle</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">])</span>   <span class="c1"># zostawiamy PatientID jako "cechę"</span>
+
+<span class="n">X_zle_ucz</span><span class="p">,</span> <span class="n">X_zle_test</span><span class="p">,</span> <span class="n">y_zle_ucz</span><span class="p">,</span> <span class="n">y_zle_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X_zle</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>
+
+<span class="n">drzewo_zle</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">drzewo_zle</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_zle_ucz</span><span class="p">,</span> <span class="n">y_zle_ucz</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Z identyfikatorem PatientID:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  uczący:  </span><span class="si">{</span><span class="n">drzewo_zle</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_zle_ucz</span><span class="p">,</span><span class="w"> </span><span class="n">y_zle_ucz</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  testowy: </span><span class="si">{</span><span class="n">drzewo_zle</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_zle_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_zle_test</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Bez identyfikatora (zadanie 3):"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  uczący:  </span><span class="si">{</span><span class="n">wynik_ucz</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  testowy: </span><span class="si">{</span><span class="n">wynik_test</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="n">waznosc_zle</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">drzewo_zle</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X_zle</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Ważność cech - na którym miejscu wylądował PatientID?"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">waznosc_zle</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code>Z identyfikatorem PatientID:
+  uczący:  100.0%
+  testowy: 89.2%
+
+Bez identyfikatora (zadanie 3):
+  uczący:  100.0%
+  testowy: 89.0%
+
+Ważność cech - na którym miejscu wylądował PatientID?
+Pregnancies               0.393510
+BMI                       0.192674
+Age                       0.126940
+SerumInsulin              0.094342
+PlasmaGlucose             0.072622
+TricepsThickness          0.033841
+PatientID                 0.030420
+DiastolicBloodPressure    0.029382
+DiabetesPedigree          0.026269
+</code></pre>
+<p><strong>Jak to czytać - uwaga, wynik jest inny, niż podpowiada intuicja:</strong></p>
+<p>Model z identyfikatorem wypadł <strong>odrobinę lepiej</strong>: 89,2% wobec 89,0%. Jeśli spodziewałeś się katastrofy, to jej nie ma. I właśnie <strong>to</strong> jest tu lekcją.</p>
+<p>Dwie rzeczy, które trzeba z tego wyciągnąć:</p>
+<p><strong>1. <code>PatientID</code> dostał ważność 0,030 - czyli model go użył.</strong> Nie zignorował go. Trzy procent decyzji tego drzewa opiera się na <strong>numerze z rejestracji</strong>, który nie ma nic wspólnego z cukrzycą. Wyprzedził nawet <code>DiastolicBloodPressure</code>, czyli prawdziwy pomiar medyczny.</p>
+<p><strong>2. Różnica 0,2 punktu procentowego to szum, nie poprawa.</strong> Przy 2000 pacjentów w zbiorze testowym to cztery osoby. Gdybyś zmienił <code>random_state</code>, równie dobrze mogłoby wyjść o 0,2 punktu gorzej.</p>
+<p><strong>Odpowiedź na pytanie o pokusę „wrzućmy wszystkie kolumny, model sobie poradzi":</strong></p>
+<p>Tutaj akurat poradził sobie prawie tak samo - ale to <strong>szczęście, nie zasada</strong>. Identyfikatory w prawdziwych zbiorach często są nadawane w kolejności zgłoszeń, a ta bywa skorelowana z czymś istotnym: pacjenci z jednego szpitala dostają numery z jednego zakresu, a pacjenci badani później mają inne rozpoznania. Wtedy model uczy się numeru zamiast medycyny i zawodzi dokładnie w momencie, gdy dostanie pacjenta z nowej puli numerów.</p>
+<p><strong>Nie wolno tego sprawdzać eksperymentem.</strong> Kolumny, które nie są pomiarem, usuwa się dlatego, że <strong>wiadomo, czym są</strong> - a nie dlatego, że akurat zaszkodziły w tym jednym uruchomieniu.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e86ac304">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span><span class="p">,</span> <span class="n">plot_tree</span>
+
+<span class="n">X_zle</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">])</span>
+<span class="n">y_zle</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span>                               <span class="c1"># etykieta</span>
+
+<span class="n">X_zle</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e3424b50-f71d-4b51-a7fa-18b9c11d56c6">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="n">X_ucz_zle</span><span class="p">,</span> <span class="n">X_test_zle</span><span class="p">,</span> <span class="n">y_ucz_zle</span><span class="p">,</span> <span class="n">y_test_zle</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X_zle</span><span class="p">,</span> <span class="n">y_zle</span><span class="p">,</span>
+    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>        <span class="c1"># 20% odkładamy na test</span>
+    <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>           <span class="c1"># zachowaj proporcje klas w obu częściach</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>      <span class="c1"># ustalone ziarno losowości - powtarzalny podział</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=362b79e5-8bda-44fc-9377-43471c522b77">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Płytkie drzewo - tylko po to, żeby dało się je obejrzeć</span>
+<span class="n">drzewo_zle</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">drzewo_zle</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz_zle</span><span class="p">,</span> <span class="n">y_ucz_zle</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Skuteczność tego płytkiego drzewa na zbiorze testowym:"</span><span class="p">,</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">drzewo_zle</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test_zle</span><span class="p">,</span><span class="w"> </span><span class="n">y_test_zle</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=11cdffc0-18e7-484c-bdb9-a60563f9ae68">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">plot_tree</span><span class="p">(</span>
+    <span class="n">drzewo_zle</span><span class="p">,</span>
+    <span class="n">feature_names</span><span class="o">=</span><span class="n">X_zle</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+    <span class="n">class_names</span><span class="o">=</span><span class="p">[</span><span class="s1">'brak cukrzycy'</span><span class="p">,</span> <span class="s1">'cukrzyca'</span><span class="p">],</span>
+    <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>       <span class="c1"># koloruje węzły według dominującej klasy</span>
+    <span class="n">rounded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2f4ea2a7"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-7-(trudniejsze):-Ile-kosztuje-brak-stratyfikacji?">Zadanie 7 (trudniejsze): Ile kosztuje brak stratyfikacji?<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Ile-kosztuje-brak-stratyfikacji?">¶</a></h2><p>Sprawdź empirycznie, czy <code>stratify=y</code> ma znaczenie.</p>
+<ol>
+<li>Wykonaj podział danych <strong>bez</strong> <code>stratify</code> dla 10 różnych wartości <code>random_state</code> (np. od 0 do 9).</li>
+<li>Za każdym razem wytrenuj regresję logistyczną i zanotuj skuteczność testową.</li>
+<li>Powtórz to samo <strong>ze</strong> <code>stratify=y</code>.</li>
+<li>Porównaj <strong>rozrzut</strong> wyników (np. <code>np.std(...)</code>) w obu przypadkach.</li>
+</ol>
+<p>Pytanie, na które odpowiadasz: czy stratyfikacja sprawia, że wyniki są stabilniejsze? Zastanów się też, czy przy 10 000 wierszy efekt jest równie wyraźny, jak byłby przy 200 wierszach.</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Napisz funkcję, która przyjmuje informację, czy stosować stratyfikację.</li>
+<li>W środku, dla dziesięciu wartości <code>random_state</code> od 0 do 9: podziel dane, wytrenuj model, zanotuj skuteczność testową.</li>
+<li>Zwróć zebrane wyniki jako tablicę <code>numpy</code>.</li>
+<li>Wywołaj funkcję dwa razy - z stratyfikacją i bez.</li>
+<li>Porównaj średnią, odchylenie standardowe i rozstęp obu serii.</li>
+</ol>
+<blockquote>
+<p><strong>Co robi <code>stratify=y</code></strong>: pilnuje, żeby proporcja chorych do zdrowych była <strong>taka sama</strong> w zbiorze uczącym i testowym, jak w całych danych. Bez tego podział jest czysto losowy i proporcje mogą się rozjechać.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego dziesięć razy, a nie raz</strong>: jedno uruchomienie nie odpowie na pytanie o <strong>stabilność</strong>. Pytasz nie o to, który podział jest lepszy, tylko o to, jak bardzo wynik skacze w zależności od losu.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1-3: funkcja</strong></p>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">sprawdz</span><span class="p">(</span><span class="n">stratyfikacja</span><span class="p">):</span>
+    <span class="n">wyniki</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ziarno</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">Xu</span><span class="p">,</span> <span class="n">Xt</span><span class="p">,</span> <span class="n">yu</span><span class="p">,</span> <span class="n">yt</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+            <span class="n">stratify</span><span class="o">=</span><span class="n">y</span> <span class="k">if</span> <span class="n">stratyfikacja</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="n">ziarno</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">))</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xu</span><span class="p">,</span> <span class="n">yu</span><span class="p">)</span>
+        <span class="n">wyniki</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">Xt</span><span class="p">,</span> <span class="n">yt</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wyniki</span><span class="p">)</span>
+</pre></div>
+<ul>
+<li><code>stratify=y if stratyfikacja else None</code> to wyrażenie warunkowe: wstawia <code>y</code>, gdy chcemy stratyfikacji, i <code>None</code>, gdy nie. Dzięki temu jedna funkcja obsługuje oba warianty.</li>
+<li><code>random_state=ziarno</code> zmienia się co obrót - i <strong>o to właśnie chodzi</strong>. To jedyne źródło różnic między przebiegami.</li>
+<li><code>random_state=42</code> w modelu zostaje stałe. Losowość ma pochodzić <strong>wyłącznie</strong> z podziału danych, inaczej nie wiedziałbyś, co mierzysz.</li>
+<li><code>np.array(...)</code> zamienia listę na tablicę, na której od razu działają <code>.mean()</code>, <code>.std()</code>, <code>.min()</code>.</li>
+</ul>
+<p><strong>Krok 4-5: porównanie</strong></p>
+<div class="highlight"><pre><span></span><span class="n">bez</span> <span class="o">=</span> <span class="n">sprawdz</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ze</span> <span class="o">=</span> <span class="n">sprawdz</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"BEZ stratyfikacji: średnia </span><span class="si">{</span><span class="n">bez</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | odchylenie std </span><span class="si">{</span><span class="n">bez</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | rozstęp </span><span class="si">{</span><span class="n">bez</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bez</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+<p><strong>Rozstęp</strong> (różnica między najlepszym a najgorszym wynikiem) jest tu czytelniejszy od odchylenia standardowego, bo mówi wprost: „między najlepszym a najgorszym losem jest tyle a tyle".</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">sprawdz</span><span class="p">(</span><span class="n">stratyfikacja</span><span class="p">):</span>
+    <span class="n">wyniki</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ziarno</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">Xu</span><span class="p">,</span> <span class="n">Xt</span><span class="p">,</span> <span class="n">yu</span><span class="p">,</span> <span class="n">yt</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+            <span class="n">stratify</span><span class="o">=</span><span class="n">y</span> <span class="k">if</span> <span class="n">stratyfikacja</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="n">ziarno</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">))</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xu</span><span class="p">,</span> <span class="n">yu</span><span class="p">)</span>
+        <span class="n">wyniki</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">Xt</span><span class="p">,</span> <span class="n">yt</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wyniki</span><span class="p">)</span>
+
+<span class="n">bez</span> <span class="o">=</span> <span class="n">sprawdz</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ze</span> <span class="o">=</span> <span class="n">sprawdz</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"BEZ stratyfikacji: średnia </span><span class="si">{</span><span class="n">bez</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | odchylenie std </span><span class="si">{</span><span class="n">bez</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | rozstęp </span><span class="si">{</span><span class="n">bez</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bez</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ZE stratyfikacją:  średnia </span><span class="si">{</span><span class="n">ze</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | odchylenie std </span><span class="si">{</span><span class="n">ze</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | rozstęp </span><span class="si">{</span><span class="n">ze</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ze</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code>BEZ stratyfikacji: średnia 0.7811 | odchylenie std 0.0092 | rozstęp 0.0380
+ZE stratyfikacją:  średnia 0.7855 | odchylenie std 0.0046 | rozstęp 0.0135
+</code></pre>
+<p><strong>Jak to czytać:</strong></p>
+<ul>
+<li><strong>Średnie są prawie identyczne</strong> (0,7811 wobec 0,7855). Stratyfikacja nie sprawia, że model jest lepszy - i nie ma takiego zadania.</li>
+<li><strong>Odchylenie standardowe jest dwa razy mniejsze</strong> ze stratyfikacją: 0,0046 wobec 0,0092.</li>
+<li><strong>Rozstęp jest niemal trzy razy mniejszy</strong>: 1,35 punktu procentowego wobec 3,80.</li>
+</ul>
+<p>Ostatnia liczba jest najważniejsza w praktyce. Bez stratyfikacji sama zmiana <code>random_state</code> przesuwa wynik o <strong>prawie cztery punkty procentowe</strong>. Gdybyś porównywał dwa modele różniące się o dwa punkty, nie wiedziałbyś, czy patrzysz na różnicę między modelami, czy na różnicę między losami.</p>
+<p><strong>Odpowiedź na drugie pytanie z zadania</strong> - czy przy 200 wierszach efekt byłby równie wyraźny? <strong>Byłby znacznie silniejszy.</strong> Przy 10 000 wierszy losowy podział i tak trafia w proporcje blisko prawdziwych, bo działa prawo wielkich liczb. Przy 200 wierszach zbiór testowy liczy 40 osób i łatwo o podział, w którym chorych jest 25% albo 45% zamiast 33%.</p>
+<p>To dlatego w ćwiczeniu 09, gdzie zbiór ma niecałe dwieście wierszy, stratyfikacja przestaje być kosmetyką.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f63378b1">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="n">X_ucz_test</span><span class="p">,</span> <span class="n">X_test_test</span><span class="p">,</span> <span class="n">y_ucz_test</span><span class="p">,</span> <span class="n">y_test_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>        <span class="c1"># 20% odkładamy na test</span>
+    <span class="c1">#stratify=n,           # zachowaj proporcje klas w obu częściach</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>      <span class="c1"># ustalone ziarno losowości - powtarzalny podział</span>
+<span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">StandardScaler</span><span class="p">(),</span>
+    <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>   <span class="c1"># uczenie: model szuka reguły w danych uczących</span>
+
+<span class="n">skutecznosc</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność modelu odniesienia:    </span><span class="si">{</span><span class="n">skutecznosc_odniesienia</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skuteczność regresji logistycznej: </span><span class="si">{</span><span class="n">skutecznosc</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Poprawa: </span><span class="si">{</span><span class="n">skutecznosc</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">skutecznosc_odniesienia</span><span class="si">:</span><span class="s2">+.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=661cb987"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Pytania-do-przemy%C5%9Blenia">Pytania do przemyślenia<a class="anchor-link" href="#Pytania-do-przemy%C5%9Blenia">¶</a></h1><p>Na te pytania odpowiadasz słowami, nie kodem. Jeśli potrafisz odpowiedzieć na wszystkie, ćwiczenie spełniło swoje zadanie.</p>
+<ol>
+<li>Model osiąga 97% skuteczności. Czy to dobry wynik? <strong>Od czego zależy odpowiedź?</strong></li>
+<li>Dlaczego drzewo decyzyjne nie wymaga skalowania cech, a regresja logistyczna na skalowaniu zyskuje?</li>
+<li>W zadaniu 3 drzewo osiągnęło na danych uczących wynik bliski 100%. Dlaczego nie jest to powód do radości?</li>
+<li>Model odniesienia nie wykrył ani jednego chorego pacjenta, a ma 66,6% skuteczności. Jakiej miary użyłbyś zamiast skuteczności, żeby ten problem było widać?</li>
+<li>Dlaczego ustawiamy <code>random_state</code>? Co byłoby nie tak z porównywaniem dwóch modeli bez ustalonego ziarna losowości?</li>
+<li>Poza <code>PatientID</code> - jakie inne rodzaje kolumn należałoby usunąć z danych medycznych przed trenowaniem modelu? Pomyśl o dacie przyjęcia albo numerze oddziału.</li>
+</ol>
+<h1 id="Chcesz-wiedzie%C4%87-wi%C4%99cej">Chcesz wiedzieć więcej<a class="anchor-link" href="#Chcesz-wiedzie%C4%87-wi%C4%99cej">¶</a></h1><ul>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html">Dokumentacja <code>train_test_split</code></a> - zwróć uwagę na argument <code>shuffle</code>.</li>
+<li><a href="https://scikit-learn.org/stable/modules/model_evaluation.html#dummy-estimators">Po co model odniesienia</a> - sekcja o estymatorach „atrapach".</li>
+<li><a href="https://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics">Przewodnik po metrykach klasyfikacji</a> - wrócimy do niego w ćwiczeniu 05.</li>
+</ul>
+<p>W kolejnym ćwiczeniu (<strong>02 - Poznaj swoje dane</strong>) cofniemy się o krok: zanim cokolwiek wytrenujemy, nauczysz się badać dane - rozkłady, korelacje, wartości odstające i podejrzane zera. Bo w praktyce to tam kryje się większość problemów, a nie w wyborze algorytmu.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5eada7bd-879a-484e-a317-d16f9c715025">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="00-sprawdz-srodowisko.html"><span>Poprzednie</span>Ćwiczenie 0: Sprawdź swoje środowisko</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="02-poznaj-swoje-dane.html"><span>Następne</span>Ćwiczenie 2: Poznaj swoje dane (EDA)</a>
+</nav>
+</div></main>
+
+</body>
+</html>

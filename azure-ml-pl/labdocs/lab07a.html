@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 7A: Tworzenie usługi wnioskowania w czasie rzeczywistym</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (polski)</a></div><div class="tresc">
+<a class="pobierz" href="../07a-creating-a-real-time-inferencing-service.html">Notatnik do tego ćwiczenia</a><h1>Lab 7A: Tworzenie usługi wnioskowania w czasie rzeczywistym</h1>
+<h2>Po co jest to ćwiczenie?</h2>
+<p>Do tej pory model kończył swoje życie w obszarze roboczym: trenowanie, zapis, rejestracja. To dopiero połowa drogi. Model, do którego nie da się wysłać nowych danych i dostać odpowiedzi, nie przynosi nikomu pożytku - wiedza siedzi w pliku, do którego nikt nie ma dostępu.</p>
+<p>To ćwiczenie zamyka tę lukę. Zarejestrowany model udostępnisz jako <strong>punkt końcowy (endpoint)</strong> czasu rzeczywistego, czyli adres HTTP, pod który dowolna aplikacja wysyła dane pacjenta i natychmiast dostaje przewidywanie. Taka usługa działa w trybie „pytanie - odpowiedź w ułamku sekundy&quot; i sprawdza się wszędzie tam, gdzie ktoś czeka na wynik: w formularzu w gabinecie lekarskim, w aplikacji mobilnej, w systemie rejestracji pacjentów.</p>
+<p>To moment, w którym uczenie maszynowe przestaje być eksperymentem, a staje się usługą. Reszta kursu dotyczy już tego, jak taką usługę obserwować i rozumieć.</p>
+<blockquote>
+<p><strong>Dwa sposoby wnioskowania</strong>: <em>wnioskowanie (inferencing)</em> to po prostu uzyskiwanie przewidywań z gotowego modelu. Robi się je na dwa sposoby - w czasie rzeczywistym (pojedyncze zapytania, odpowiedź od razu) albo wsadowo (duża paczka danych przetwarzana naraz). To ćwiczenie dotyczy pierwszego sposobu, <a href="lab07b.html">Lab 7B</a> - drugiego.</p>
+</blockquote>
+<h2>Czego się nauczysz</h2>
+<ol>
+<li>Czym jest punkt końcowy czasu rzeczywistego (<em>managed online endpoint</em>) i czym różni się od zwykłego zadania.</li>
+<li>Jak napisać <strong>skrypt scoringowy</strong> - kod, który ładuje model i zamienia przychodzące dane na przewidywania.</li>
+<li>Jak zdefiniować środowisko kontenera, w którym ten skrypt się wykonuje.</li>
+<li>Jak wdrożyć model, skierować na wdrożenie ruch i sprawdzić, czy wdrożenie się powiodło.</li>
+<li>Jak wywołać gotowy endpoint - z poziomu SDK oraz zwykłym zapytaniem HTTP, tak jak zrobiłaby to aplikacja kliencka.</li>
+<li>Jak usunąć endpoint, gdy przestaje być potrzebny, żeby nie generował kosztów.</li>
+</ol>
+<h2>Zanim zaczniesz</h2>
+<p>Upewnij się, że masz ukończone ćwiczenia <a href="lab01a.html">Lab 1A</a> i <a href="lab01b.html">Lab 1B</a> - powstaje w nich obszar roboczy Azure Machine Learning oraz pozostałe zasoby używane w tym ćwiczeniu.</p>
+<h2>Krok 1: Wdrożenie modelu jako punktu końcowego czasu rzeczywistego</h2>
+<ol>
+<li><p>W <a href="https://ml.azure.com">Azure Machine Learning studio</a> przejdź do strony <strong>Compute</strong> swojego obszaru roboczego, a na karcie <strong>Compute instances</strong> upewnij się, że instancja obliczeniowa (<code>mymachine</code>) jest uruchomiona. Jeśli nie, uruchom ją.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: instancja obliczeniowa jest maszyną, na której działa notatnik i z której zlecasz wdrożenie. Sam endpoint powstanie na osobnych, zarządzanych przez Azure maszynach - instancja obliczeniowa tylko wydaje polecenia i nie jest potrzebna, żeby gotowa usługa działała.</p>
+</blockquote>
+</li>
+<li><p>Gdy instancja obliczeniowa jest uruchomiona, kliknij przy niej link <strong>JupyterLab</strong>, aby otworzyć JupyterLab w nowej karcie przeglądarki.</p>
+</li>
+<li><p>W przeglądarce plików JupyterLab otwórz folder <code>MachineLearningCourse/materialy/azure-ml/pl</code> sklonowany w <a href="lab01b.html">Lab 1B</a>, a w nim notatnik <strong>07A - Creating a Real-time Inferencing Service.ipynb</strong>. Upewnij się, że korzysta on z kernela <strong>Python 3.10 - SDK v2</strong>, a następnie czytaj komentarze w notatniku, uruchamiając kolejno każdą komórkę kodu.</p>
+<blockquote>
+<p><strong>Dlaczego kernel jest ważny</strong>: kernel decyduje, które środowisko Pythona wykonuje kod. Tylko kernel z SDK v2 ma zainstalowany pakiet <code>azure-ai-ml</code> - w innym pierwszy import zakończy się błędem <code>ModuleNotFoundError</code>.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Krok 2: Na co zwrócić uwagę w notatniku</h2>
+<p>Notatnik prowadzi przez pełną ścieżkę wdrożenia. Warto wiedzieć, po co jest każdy jej etap.</p>
+<h3>Trenowanie i rejestracja modelu na początku</h3>
+<p>Pierwsza część notatnika trenuje drzewo decyzyjne i rejestruje je jako <code>diabetes_model</code>. <strong>Ten fragment wykonujesz zawsze</strong>, niezależnie od tego, które wcześniejsze ćwiczenia masz za sobą.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: skrypt scoringowy z tego ćwiczenia wczytuje model funkcją <code>joblib.load</code> z pliku <code>diabetes_model.pkl</code>, czyli oczekuje zwykłego modelu scikit-learn zarejestrowanego jako zasób typu <code>CUSTOM_MODEL</code>. Wcześniejsze ćwiczenia (3B, 6A) rejestrują <code>diabetes_model</code> w formacie MLflow, który ma inną strukturę katalogów. Uruchomienie tej komórki gwarantuje, że w obszarze roboczym jest wersja modelu w formacie, którego skrypt się spodziewa.</p>
+</blockquote>
+<h3>Skrypt scoringowy</h3>
+<p><code>score_diabetes.py</code> to <strong>skrypt scoringowy</strong> (ang. <em>scoring script</em>, nazywany też <em>entry script</em>) - kod, który uruchamia się wewnątrz kontenera endpointu. Ma dokładnie dwie funkcje:</p>
+<table>
+<thead>
+<tr>
+  <th>Funkcja</th>
+  <th>Kiedy się wykonuje</th>
+  <th>Co robi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>init()</code></td>
+  <td>raz, przy starcie wdrożenia</td>
+  <td>wczytuje model do pamięci ze ścieżki ze zmiennej <code>AZUREML_MODEL_DIR</code></td>
+</tr>
+<tr>
+  <td><code>run(raw_data)</code></td>
+  <td>przy każdym zapytaniu</td>
+  <td>zamienia JSON na tablicę, wywołuje <code>model.predict</code> i zwraca wynik</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Dlaczego akurat taki podział</strong>: wczytanie modelu z dysku trwa. Gdyby działo się przy każdym zapytaniu, usługa byłaby wolna. <code>init()</code> płaci ten koszt raz, a <code>run()</code> korzysta z modelu trzymanego w pamięci - dlatego odpowiedź przychodzi w ułamku sekundy.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego skrypt zwraca nazwy klas, a nie liczby</strong>: model zwraca 0 albo 1. Aplikacja kliencka nie ma obowiązku wiedzieć, co te liczby znaczą, więc skrypt tłumaczy je na <code>not-diabetic</code> i <code>diabetic</code>. Zamiana surowego wyniku modelu na coś zrozumiałego dla odbiorcy to typowe zadanie skryptu scoringowego.</p>
+</blockquote>
+<h3>Plik środowiska</h3>
+<p>Notatnik tworzy plik conda <code>diabetes_env.yml</code> z listą pakietów (<code>scikit-learn</code>, <code>numpy</code>, <code>azureml-inference-server-http</code>).</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: endpoint działa w kontenerze, który powstaje od zera - nie ma w nim nic poza tym, co wymienisz. Bez <code>scikit-learn</code> model się nie wczyta, bez <code>azureml-inference-server-http</code> nie zadziała serwer przyjmujący zapytania HTTP. Ten plik jest zarazem zapisem tego, na czym usługa działa, więc za pół roku da się ją odtworzyć w identycznej postaci.</p>
+</blockquote>
+<h3>Samo wdrożenie</h3>
+<p>Notatnik tworzy endpoint <code>diabetes-endpoint</code> i w nim jedno wdrożenie o nazwie <code>blue</code>, a potem kieruje na nie 100% ruchu.</p>
+<blockquote>
+<p><strong>Dlaczego endpoint i wdrożenie to dwie różne rzeczy</strong>: endpoint jest stabilnym adresem, który znają aplikacje klienckie. <strong>Wdrożenie</strong> to konkretna wersja modelu, kodu i środowiska ukryta za tym adresem. Rozdzielenie ich pozwala wystawić obok wdrożenia <code>blue</code> drugie, z nowszym modelem, przekierować na nie najpierw 10% ruchu, sprawdzić wyniki i dopiero potem przełączyć całość - wszystko bez zmiany adresu po stronie klienta. Stąd nazwa <code>blue</code>: to konwencja wdrożeń typu „blue-green&quot;.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga o czasie</strong>: wdrożenie trwa kilkanaście minut, bo Azure musi zbudować obraz kontenera ze środowiska i uruchomić na nim maszynę. Gdy się powiedzie, stan wdrożenia (<code>provisioning_state</code>) ma wartość <code>Succeeded</code>. Jeśli nie - kolejna komórka pobiera logi kontenera; to pierwsze miejsce, w którym szuka się przyczyny błędu.</p>
+</blockquote>
+<h3>Wywołanie endpointu</h3>
+<p>Notatnik korzysta z endpointu dwoma drogami: przez metodę <code>invoke</code> z SDK oraz przez zwykłe zapytanie <code>POST</code> biblioteką <code>requests</code>.</p>
+<blockquote>
+<p><strong>Dlaczego pokazujemy obie</strong>: pierwsza jest wygodna do testów z poziomu Pythona. Druga pokazuje, jak wygląda to naprawdę w produkcji - aplikacja biznesowa nie ma zainstalowanego SDK Azure ML, wysyła po prostu JSON pod adres endpointu. Ponieważ endpoint powstał z <code>auth_mode=&quot;key&quot;</code>, zapytanie musi zawierać nagłówek <strong>Authorization</strong> z kluczem; bez niego Azure odrzuci je jako nieuwierzytelnione.</p>
+</blockquote>
+<h3>Sprzątanie</h3>
+<p>Na końcu notatnika jest zakomentowana komórka usuwająca endpoint.</p>
+<blockquote>
+<p><strong>Dlaczego to ważne</strong>: endpoint czasu rzeczywistego utrzymuje uruchomioną maszynę, żeby móc odpowiedzieć w każdej chwili - i nalicza koszt przez cały ten czas, nawet gdy nie przychodzi ani jedno zapytanie. To zasadnicza różnica wobec zadań i punktów końcowych wsadowych, które płacą tylko za czas obliczeń. Jeśli endpoint nie jest już potrzebny, usuń go.</p>
+</blockquote>
+<p>Możesz też obejrzeć efekt w interfejsie: w Azure Machine Learning studio otwórz stronę <strong>Endpoints</strong>, gdzie widać wdrożone punkty końcowe obszaru roboczego.</p>
+<blockquote>
+<p><strong>Uwaga</strong>: Jeśli zamierzasz od razu przejść do <a href="lab07b.html">kolejnego ćwiczenia</a>, zostaw instancję obliczeniową uruchomioną. Jeśli robisz przerwę, warto zamknąć wszystkie karty JupyterLab i zatrzymać instancję obliczeniową przyciskiem <strong>Stop</strong>, aby uniknąć niepotrzebnych kosztów.</p>
+</blockquote>
+<h2>Co dalej</h2>
+<p>W <a href="lab07b.html">Lab 7B</a> rozwiążesz ten sam problem - udostępnienie modelu - ale w drugim wariancie: zamiast odpowiadać na pojedyncze zapytania, model przetworzy naraz setki plików z danymi pacjentów. Zobaczysz przy tym, że skrypt scoringowy i wdrożenie wyglądają podobnie, a różni je przede wszystkim to, skąd biorą się dane i dokąd trafiają wyniki.</p>
+<nav class="przejscia">
+<a class="wstecz" href="lab06b.html"><span>Poprzednie</span>Lab 6B: Publikowanie potoku</a>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<a class="dalej" href="lab07b.html"><span>Następne</span>Lab 7B: Tworzenie usługi wnioskowania wsadowego</a>
+</nav>
+</div></main>
+
+</body>
+</html>

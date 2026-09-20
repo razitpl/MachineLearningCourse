@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 2A: Tworzenie potoku treningowego za pomocą Azure ML Designer</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (polski)</a></div><div class="tresc">
+<h1>Lab 2A: Tworzenie potoku treningowego za pomocą Azure ML Designer</h1>
+<p><em>Designer</em> to interfejs typu „przeciągnij i upuść&quot; (drag &amp; drop), w którym składasz model uczenia maszynowego z gotowych klocków: pozyskania danych, ich transformacji i trenowania. Cały taki przepływ pracy nazywamy <em>potokiem</em> (pipeline). Gotowy potok można potem wdrożyć jako punkt końcowy czasu rzeczywistego, z którego aplikacje klienckie korzystają do <em>wnioskowania</em>, czyli generowania predykcji dla nowych danych.</p>
+<h2>Zanim zaczniesz</h2>
+<p>Upewnij się, że masz ukończone ćwiczenia <a href="lab01a.html">Lab 1A</a> i <a href="lab01b.html">Lab 1B</a> - powstaje w nich obszar roboczy Azure Machine Learning oraz pozostałe zasoby używane tutaj.</p>
+<h2>Krok 1: Tworzenie potoku w Designerze i eksploracja danych</h2>
+<p>Pracę z Designerem zaczyna się od utworzenia potoku i dodania do niego danych, na których chcesz pracować.</p>
+<ol>
+<li>W <a href="https://ml.azure.com">Azure Machine Learning studio</a>, w swoim obszarze roboczym, przejdź na stronę <strong>Designer</strong> i utwórz nowy potok.</li>
+<li>W panelu <strong>Settings</strong> zmień domyślną nazwę potoku (<strong>Pipeline-Created-on-<em>data</em></strong>) na <strong>Visual Diabetes Training</strong> (jeśli panel <strong>Settings</strong> nie jest widoczny, kliknij ikonę <strong>⚙</strong> obok nazwy potoku u góry).</li>
+<li>Zwróć uwagę, że trzeba wskazać środowisko obliczeniowe, na którym potok będzie uruchamiany. W panelu <strong>Settings</strong> kliknij <strong>Select compute target</strong> i wybierz klaster <strong>aml-cluster</strong> utworzony w Lab 1A.</li>
+<li>Po lewej stronie Designera rozwiń sekcję <strong>Data</strong> i przeciągnij na kanwę zasób danych <strong>diabetes_dataset</strong> zarejestrowany w Lab 1A.</li>
+<li>Zaznacz moduł <strong>diabetes_dataset</strong> na kanwie i przejrzyj jego ustawienia. Następnie na karcie <strong>outputs</strong> kliknij ikonę <strong>Visualize</strong> (wygląda jak wykres kolumnowy).</li>
+<li>Przejrzyj schemat danych, zwracając uwagę, że możesz zobaczyć rozkłady poszczególnych kolumn w postaci histogramów. Następnie zamknij wizualizację.</li>
+</ol>
+<h2>Krok 2: Dodawanie transformacji</h2>
+<p>Zanim wytrenujesz model, dane zwykle trzeba wstępnie przetworzyć.</p>
+<ol>
+<li><p>W panelu po lewej stronie rozwiń sekcję <strong>Data Transformation</strong>, która zawiera szeroki wybór modułów służących do transformowania i wstępnego przetwarzania danych przed trenowaniem modelu. Przeciągnij na kanwę moduł <strong>Normalize Data</strong>, poniżej modułu <strong>diabetes_dataset</strong>. Następnie połącz wyjście modułu <strong>diabetes_dataset</strong> z wejściem modułu <strong>Normalize Data</strong>.</p>
+</li>
+<li><p>Zaznacz moduł <strong>Normalize Data</strong> i przejrzyj jego ustawienia, zwracając uwagę, że wymaga on wskazania metody transformacji oraz kolumn, które mają zostać przekształcone. Zostaw metodę <strong>ZScore</strong> i ustaw listę kolumn tak, żeby zawierała:</p>
+<ul>
+<li>PlasmaGlucose</li>
+<li>DiastolicBloodPressure</li>
+<li>TricepsThickness</li>
+<li>SerumInsulin</li>
+<li>BMI</li>
+<li>DiabetesPedigree</li>
+</ul>
+<p><strong>Uwaga</strong>: Normalizujemy kolumny liczbowe, aby sprowadzić je do tej samej skali i uniknąć sytuacji, w której kolumny o dużych wartościach dominują w trenowaniu modelu. W prawdziwym projekcie stosuje się zwykle cały zestaw takich przekształceń, ale w tym ćwiczeniu zostajemy przy jednym, najprostszym.</p>
+</li>
+<li><p>Teraz możemy podzielić dane na osobne zestawy do trenowania i walidacji. W panelu po lewej stronie, w sekcji <strong>Data Transformations</strong>, przeciągnij na kanwę moduł <strong>Split Data</strong>, pod modułem <strong>Normalize Data</strong>. Następnie połącz lewe wyjście <em>Transformed Dataset</em> modułu <strong>Normalize Data</strong> z wejściem modułu <strong>Split Data</strong>.</p>
+</li>
+<li><p>Zaznacz moduł <strong>Split Data</strong> i skonfiguruj jego ustawienia w następujący sposób:</p>
+<ul>
+<li><strong>Splitting mode</strong>: Split Rows</li>
+<li><strong>Fraction of rows in the first output dataset</strong>: 0.7</li>
+<li><strong>Random seed</strong>: 123</li>
+<li><strong>Stratified split</strong>: False</li>
+</ul>
+</li>
+</ol>
+<h2>Krok 3: Dodawanie modułów trenowania modelu</h2>
+<p>Po przygotowaniu danych i podzieleniu ich na zestawy treningowe i walidacyjne możesz skonfigurować potok tak, aby trenował i oceniał model.</p>
+<ol>
+<li>Rozwiń sekcję <strong>Model Training</strong> w panelu po lewej stronie i przeciągnij na kanwę moduł <strong>Train Model</strong>, pod modułem <strong>Split Data</strong>. Następnie połącz lewe wyjście <em>Result dataset1</em> modułu <strong>Split Data</strong> z prawym wejściem <em>Dataset</em> modułu <strong>Train Model</strong>.</li>
+<li>Model będzie przewidywał wartość <strong>Diabetic</strong>, więc zaznacz moduł <strong>Train Model</strong> i zmodyfikuj jego ustawienia, ustawiając <strong>Label column</strong> na <strong>Diabetic</strong> (dokładnie zgodnie z wielkością liter i pisownią!).</li>
+<li>Etykieta <strong>Diabetic</strong>, którą model ma przewidywać, jest kolumną binarną (1 dla pacjentów chorych na cukrzycę, 0 dla pacjentów zdrowych), więc musimy wytrenować model za pomocą algorytmu <em>klasyfikacji</em>. Rozwiń sekcję <strong>Machine Learning Algorithms</strong> i w podsekcji <strong>Classification</strong> przeciągnij na kanwę moduł <strong>Two-Class Logistic Regression</strong>, na lewo od modułu <strong>Split Data</strong> i powyżej modułu <strong>Train Model</strong>. Następnie połącz jego wyjście z lewym wejściem <strong>Untrained model</strong> modułu <strong>Train Model</strong>.</li>
+<li>Aby przetestować wytrenowany model, musimy użyć go do oceny zestawu walidacyjnego, który odłożyliśmy na bok podczas podziału oryginalnych danych. Rozwiń sekcję <strong>Model Scoring &amp; Evaluation</strong> i przeciągnij na kanwę moduł <strong>Score Model</strong>, poniżej modułu <strong>Train Model</strong>. Następnie połącz wyjście modułu <strong>Train Model</strong> z lewym wejściem <strong>Trained model</strong> modułu <strong>Score Model</strong>, a prawe wyjście <strong>Results dataset2</strong> modułu <strong>Split Data</strong> przeciągnij do prawego wejścia <strong>Dataset</strong> modułu <strong>Score Model</strong>.</li>
+<li>Aby ocenić, jak dobrze działa model, musimy przyjrzeć się metrykom wygenerowanym podczas oceny zestawu walidacyjnego. Z sekcji <strong>Model Scoring &amp; Evaluation</strong> przeciągnij na kanwę moduł <strong>Evaluate Model</strong>, pod modułem <strong>Score Model</strong>, i połącz wyjście modułu <strong>Score Model</strong> z lewym wejściem <strong>Score dataset</strong> modułu <strong>Evaluate Model</strong>.</li>
+</ol>
+<h2>Krok 4: Uruchamianie potoku treningowego</h2>
+<p>Po zdefiniowaniu kroków przepływu danych możesz teraz uruchomić potok treningowy i wytrenować model.</p>
+<ol>
+<li><p>Sprawdź, czy Twój potok wygląda podobnie do poniższego (na obrazku każdy moduł ma komentarz opisujący, co robi - w prawdziwym projekcie warto tak robić):</p>
+<p><img src="images/visual-training.jpg" alt="Wizualny potok treningowy" /></p>
+</li>
+<li><p>W prawym górnym rogu kliknij <strong>Run</strong>. Gdy pojawi się pytanie o eksperyment, utwórz nowy <em>eksperyment</em> o nazwie <strong>visual-training</strong> i uruchom go. Azure najpierw uruchomi klaster, a dopiero potem sam potok, więc całość może potrwać 10 minut lub dłużej. Status widać w prawym górnym rogu, nad kanwą.</p>
+<p><strong>Wskazówka</strong>: W trakcie działania potoku możesz go śledzić na stronie <strong>Jobs</strong> - każde uruchomienie potoku figuruje tam jako zadanie, pogrupowane w ramach eksperymentu <strong>visual-training</strong>. Po zakończeniu wróć do potoku <strong>Visual Diabetes Training</strong> na stronie <strong>Designer</strong>.</p>
+</li>
+<li><p>Po zakończeniu działania modułu <strong>Normalize Data</strong> (sygnalizowanym ikoną ✅) zaznacz go i w panelu <strong>Settings</strong>, na karcie <strong>Outputs</strong>, w sekcji <strong>Transformed dataset</strong>, kliknij ikonę <strong>Visualize</strong> - zobaczysz statystyki i rozkłady przekształconych kolumn.</p>
+</li>
+<li><p>Zamknij wizualizacje modułu <strong>Normalize Data</strong> i poczekaj na zakończenie działania pozostałych modułów. Następnie zwizualizuj moduł <strong>Evaluate Model</strong>, aby zobaczyć metryki jakości modelu.</p>
+<p><strong>Uwaga</strong>: Ten model nie radzi sobie zbyt dobrze - częściowo dlatego, że przygotowanie danych ograniczyliśmy do minimum. Możesz spróbować różnych algorytmów klasyfikacji i porównać wyniki (możesz połączyć wyjścia modułu <strong>Split Data</strong> z wieloma modułami <strong>Train Model</strong> i <strong>Score Model</strong>, a także podłączyć drugi oceniony model do modułu <strong>Evaluate Model</strong>, żeby porównać oba wyniki obok siebie). Celem tego ćwiczenia jest po prostu zapoznanie Cię z interfejsem Designera, a nie wytrenowanie idealnego modelu!</p>
+</li>
+</ol>
+<nav class="przejscia">
+<a class="wstecz" href="lab01b.html"><span>Poprzednie</span>Lab 1B: Praca z narzędziami Azure Machine Learning</a>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<a class="dalej" href="lab02b.html"><span>Następne</span>Lab 2B: Wdrażanie punktu końcowego czasu rzeczywistego za pomocą Azure ML Designer</a>
+</nav>
+</div></main>
+
+</body>
+</html>

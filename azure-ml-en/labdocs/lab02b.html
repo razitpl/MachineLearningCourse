@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 2B: Deploying a Real-Time Endpoint with the Azure ML Designer</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (English)</a></div><div class="tresc">
+<a class="pobierz" href="../02b-using-the-visual-designer.html">Notatnik do tego ćwiczenia</a><h1>Lab 2B: Deploying a Real-Time Endpoint with the Azure ML Designer</h1>
+<p>Now that you have a trained model, you can take the training pipeline and use it to create an inference pipeline for scoring new data.</p>
+<h2>Before You Start</h2>
+<p>Before you start this lab, ensure that you have completed <a href="lab01a.html">Lab 1A</a> and <a href="lab01b.html">Lab 1B</a>, which include tasks to create the Azure Machine Learning workspace and other resources used in this lab. You must also complete <a href="lab02a.html">Lab 2A</a>, which includes tasks to create the Designer training pipeline used in this lab.</p>
+<h2>Task 1: Review Compute</h2>
+<blockquote>
+<p><strong>Important - how Designer deployment differs from the rest of this course</strong>: the Designer pipeline you built in Lab 2A uses <em>classic prebuilt modules</em> (Normalize Data, Train Model, Score Model, and so on). Pipelines built from these classic modules can only be deployed to <strong>Azure Container Instances (ACI)</strong> or an <strong>Azure Kubernetes Service (AKS)</strong> inference cluster - the <strong>Compute type</strong> drop-down in the deployment dialog offers exactly those two options and nothing else.</p>
+<p>Managed online endpoints - the modern SDK v2 deployment target you'll use in <a href="lab07a.html">Lab 7A</a> - are <em>not</em> available for classic Designer pipelines. They're used when you deploy a registered model with the SDK/CLI v2, or when you build a Designer pipeline from custom (v2) components.</p>
+<p>In this lab you'll deploy to <strong>Azure Container Instance</strong>, because it requires no compute to be created in advance. ACI is intended for development and testing scenarios like this one, not for production workloads.</p>
+</blockquote>
+<ol>
+<li><p>In <a href="https://ml.azure.com">Azure Machine Learning studio</a>, on the <strong>Compute</strong> page for your workspace, review the existing compute targets under each tab. These should include:</p>
+<ul>
+<li><strong>Compute Instances</strong>: The compute instance you created in a previous lab.</li>
+<li><strong>Compute Clusters</strong>: The <strong>aml-cluster</strong> compute target you created in a previous lab.</li>
+<li><strong>Kubernetes clusters</strong>: None - you don't need one, because you'll deploy to ACI rather than AKS.</li>
+<li><strong>Attached Compute</strong>: None (this is where you could attach a virtual machine or Databricks cluster that exists outside of your workspace)</li>
+</ul>
+</li>
+<li><p>In the <strong>Compute Instances</strong> tab, if your compute instance is not already running, start it - you will use it later in this lab.</p>
+</li>
+</ol>
+<h2>Task 2: Create an Inference Pipeline</h2>
+<p>With your training pipeline run complete, you can prepare the inference pipeline for deployment.</p>
+<ol>
+<li><p>On the <strong>Designer</strong> page, open the <strong>Visual Diabetes Training</strong> pipeline you created in the previous lab.</p>
+</li>
+<li><p>In the <strong>Create inference pipeline</strong> drop-down list, click <strong>Real-time inference pipeline</strong>. After a few seconds, a new version of your pipeline named <strong>Visual Diabetes Training-real time inference</strong> will be opened.</p>
+</li>
+<li><p>Rename the new pipeline to <strong>Predict Diabetes</strong>, and then review the new pipeline. Note that some of the transformations and training steps have been encapsulated in this pipeline so that the statistics from your training data will be used to normalize any new data values, and the trained model will be used to score the new data.</p>
+</li>
+<li><p>The inference pipeline assumes that new data will match the schema of the original training data, so the <strong>diabetes_dataset</strong> module from the training pipeline is included. However, this input data includes the <strong>Diabetic</strong> label that the model predicts, which is unintuitive to include in new patient data for which a diabetes prediction has not yet been made. Delete this module and replace it with an <strong>Enter Data Manually</strong> module from the <strong>Data Input and Output</strong> section, connected to the same <strong>dataset</strong> input of the <strong>Apply Transformation</strong> module as the <strong>Web Service Input</strong>. Then modify the settings of the <strong>Enter Data Manually</strong> module to use the following CSV input, which includes feature values without labels for three new patient observations:</p>
+<pre><code class="language-CSV">PatientID,Pregnancies,PlasmaGlucose,DiastolicBloodPressure,TricepsThickness,SerumInsulin,BMI,DiabetesPedigree,Age
+1882185,9,104,51,7,24,27.36983156,1.350472047,43
+1662484,6,73,61,35,24,18.74367404,1.074147566,75
+1228510,4,115,50,29,243,34.69215364,0.741159926,59
+</code></pre>
+</li>
+<li><p>The inference pipeline includes the <strong>Evaluate Model</strong> module, which is not useful when predicting from new data, so delete this module.</p>
+</li>
+<li><p>The ouput from the <strong>Score Model</strong> module includes all of the input features as well as the predicted label and probability score. To limit the output to only the prediction and probability, delete the connection between the <strong>Score Model</strong> module and the <strong>Web Service Output</strong>, add an <strong>Apply SQL Transformation</strong> module from the <strong>Data Transformations</strong> section, connect the output from the <strong>Score Model</strong> module to the <strong>t1</strong> (left-most) input of the <strong>Apply SQL Transformation</strong>, and connect the output of the <strong>Apply SQL Transformation</strong> module to the <strong>Web Service Output</strong>. Then modify the settings of the <strong>Apply SQL Transformation</strong> module to use the following SQL query script:</p>
+<pre><code class="language-SQL">SELECT PatientID,
+       [Scored Labels] AS DiabetesPrediction,
+       [Scored Probabilities] AS Probability
+FROM t1
+</code></pre>
+</li>
+<li><p>Verify that your pipeline looks similar to the following:</p>
+<p><img src="images/visual-inference.jpg" alt="Visual Inference Pipeline" /></p>
+</li>
+<li><p>Run the pipeline as a new experiment named <strong>predict-diabetes</strong> on the <strong>aml-cluster</strong> compute target you used for training. This may take a while!</p>
+</li>
+</ol>
+<h2>Task 3: Deploy a Real-Time Endpoint</h2>
+<p>Now you have an inference pipeline for real-time inferencing, which you can deploy as a real-time endpoint for client applications to use.</p>
+<ol>
+<li><p>Switch back to the <strong>Designer</strong> tab and reopen your <strong>Predict Diabetes</strong> inference pipeline. If it has not yet finished running, await it's completion. Then visualize the output of the <strong>Apply SQL Transformation</strong> module to see the predicted labels and probabilties for the three patient observations in the input data.</p>
+</li>
+<li><p>At the top right, click <strong>Deploy</strong>. In the <strong>Set up real-time endpoint</strong> dialog:</p>
+<ul>
+<li>Select <strong>Deploy new real-time endpoint</strong>.</li>
+<li><strong>Name</strong>: predict-diabetes</li>
+<li><strong>Compute type</strong>: <strong>Azure Container Instance</strong></li>
+</ul>
+<blockquote>
+<p><strong>Note</strong>: The <strong>Compute type</strong> list contains only <strong>AksCompute</strong> and <strong>Azure Container Instance</strong> - these are the only targets classic Designer pipelines support. Choose <strong>Azure Container Instance</strong>: it's provisioned on demand, so you don't need an AKS inference cluster. Selecting <strong>AksCompute</strong> would require you to create and pay for a Kubernetes cluster first.</p>
+<p>You can expand <strong>Advanced</strong> to adjust the CPU and memory reserved for the container, or the authentication settings. The defaults are fine for this lab.</p>
+</blockquote>
+</li>
+<li><p>Wait for the endpoint to be deployed - this can take several minutes. The deployment status is shown at the top left of the Designer interface.</p>
+<blockquote>
+<p><strong>Tip</strong>: While you're waiting for your endpoint to be deployed, why not spend some time reviewing the Azure Machine Learning Designer documentation at <a href="https://learn.microsoft.com/azure/machine-learning/concept-designer">https://learn.microsoft.com/azure/machine-learning/concept-designer</a>?</p>
+</blockquote>
+</li>
+</ol>
+<h2>Task 4: Test the Endpoint</h2>
+<p>Now you can test your deployed endpoint from a client application - in this case, you'll use a notebook on your compute instance.</p>
+<ol>
+<li>On the <strong>Endpoints</strong> page, open the <strong>predict-diabetes</strong> real-time endpoint.</li>
+<li>When the <strong>predict-diabetes</strong> endpoint opens, on the <strong>Test</strong> page, note the default test input parameters and then click <strong>Test</strong> to submit them to the deployed endpoint and generate a prediction.</li>
+<li>On the <strong>Consume</strong> tab, note the endpoint's <strong>REST endpoint</strong> (scoring) URI and authentication key, and view the sample code that is provided for <strong>Python</strong>. Copy the entire Python sample script to the clipboard.</li>
+<li>On the <strong>Compute</strong> page, if your compute instance is not yet running, wait for it to start. Then click its <strong>JupyterLab</strong> link.</li>
+<li>In JupyterLab, in the <code>~/cloudfiles/code/Users/&lt;your-user-name&gt;/MachineLearningCourse/materialy/azure-ml/en</code> folder, open <strong>02B - Using the Visual Designer.ipynb</strong>.</li>
+<li>In the notebook, paste the code you copied into the empty code cell. The sample code sends a request to the endpoint's scoring URI, authenticating with the endpoint's key.</li>
+<li>Run the code cell and view the output returned by your endpoint.</li>
+</ol>
+<h2>Task 5: Delete the Endpoint</h2>
+<p>An Azure Container Instance deployment runs (and bills) for as long as the endpoint exists, so delete it once you're finished. Because you deployed to ACI rather than AKS, there's no separate inference cluster left behind - deleting the endpoint removes the container that was provisioned for it.</p>
+<ol>
+<li>In the <em>Studio</em> web interface for your Azure ML workspace, on the <strong>Endpoints</strong> page, select the <strong>predict-diabetes</strong> endpoint. Then click the <strong>Delete</strong> (🗑) button and confirm that you want to delete the endpoint.</li>
+</ol>
+<blockquote>
+<p><strong>Note</strong>: If you intend to continue straight to the <a href="lab03a.html">next exercise</a>, leave your compute instance running. If you're taking a break, you might want to close the Jupyter tabs and <strong>Stop</strong> your compute instance to avoid incurring unnecessary costs.</p>
+</blockquote>
+<nav class="przejscia">
+<a class="wstecz" href="lab02a.html"><span>Poprzednie</span>Lab 2A: Creating a Training Pipeline with the Azure ML Designer</a>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<a class="dalej" href="lab03a.html"><span>Następne</span>Lab 3A: Running Experiments</a>
+</nav>
+</div></main>
+
+</body>
+</html>

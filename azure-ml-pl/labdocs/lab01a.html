@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 1A: Tworzenie obszaru roboczego Azure Machine Learning</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (polski)</a></div><div class="tresc">
+<h1>Lab 1A: Tworzenie obszaru roboczego Azure Machine Learning</h1>
+<h2>Po co jest to ćwiczenie?</h2>
+<p>Zanim wytrenujesz jakikolwiek model, potrzebujesz miejsca, w którym będzie mieszkać cała praca: dane, moc obliczeniowa, historia eksperymentów, gotowe modele i ich wdrożenia. W Azure Machine Learning tym miejscem jest <strong>obszar roboczy (workspace)</strong>.</p>
+<p>Bez niego każdy element żyłby osobno: dane na jakimś dysku, model na czyimś laptopie, wyniki eksperymentów w notatkach. Obszar roboczy spina to w jedną, wersjonowaną całość, do której ma dostęp cały zespół - i to on jest punktem odniesienia dla każdego kolejnego ćwiczenia w tym kursie.</p>
+<p>W tym ćwiczeniu zbudujesz fundament, z którego będziesz korzystać do końca kursu: obszar roboczy, dwa rodzaje zasobów obliczeniowych i pierwszy zasób danych.</p>
+<h2>Czego się nauczysz</h2>
+<ol>
+<li>Czym jest obszar roboczy Azure ML i jakie zasoby Azure powstają razem z nim.</li>
+<li>Jaka jest różnica między <strong>instancją obliczeniową</strong> a <strong>klastrem obliczeniowym</strong> i kiedy używa się której.</li>
+<li>Jak zarejestrować dane jako <strong>zasób danych</strong>, żeby dało się ich używać w zadaniach bez podawania ścieżek do plików.</li>
+</ol>
+<h2>Zanim zaczniesz</h2>
+<p>Azure Machine Learning (Azure ML) to usługa Microsoft Azure do uruchamiania w chmurze, na dużą skalę, zadań z obszaru analizy danych i uczenia maszynowego. Potrzebujesz subskrypcji Azure - skorzystaj z subskrypcji studenckiej.</p>
+<h2>Krok 1: Utwórz obszar roboczy Azure ML</h2>
+<p>Obszar roboczy to scentralizowane miejsce zarządzania wszystkimi zasobami Azure ML potrzebnymi w projekcie uczenia maszynowego.</p>
+<ol>
+<li><p>Zaloguj się do <a href="https://portal.azure.com">portalu Azure</a> i utwórz nowy zasób <strong>Machine Learning</strong>:</p>
+<ul>
+<li><strong>Workspace name</strong>: dowolna unikalna nazwa (np. <code>ml-kurs-&lt;twoje-inicjaly&gt;</code>)</li>
+<li><strong>Resource group</strong>: utwórz nową (np. <code>rg-ml-kurs</code>)</li>
+<li><strong>Region</strong>: wybierz region blisko siebie, np. <strong>West Europe</strong></li>
+</ul>
+<blockquote>
+<p><strong>Co to jest grupa zasobów</strong>: to „teczka&quot; na powiązane ze sobą zasoby Azure. Wszystko, co powstanie w tym kursie, wyląduje w jednej grupie - dzięki temu na koniec możesz usunąć jedną grupę i mieć pewność, że nic nie zostało i nic nie generuje kosztów.</p>
+<p><strong>Uwaga o regionie</strong>: region decyduje, w którym fizycznie centrum danych stoją Twoje maszyny. Bliższy region to niższe opóźnienia. Jeśli przy tworzeniu maszyn w kolejnym kroku okaże się, że w Twojej subskrypcji brakuje limitu (<em>quota</em>) na wybrany rozmiar maszyny w tym regionie, załóż obszar roboczy w innym regionie.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: tworząc obszar roboczy, Azure zakłada w tle kilka powiązanych zasobów, których nie musisz konfigurować ręcznie:</p>
+<ul>
+<li><strong>konto magazynu (Storage account)</strong> - tu trafiają Twoje notatniki, pliki danych i wyniki zadań,</li>
+<li><strong>Key Vault</strong> - sejf na hasła i klucze dostępu, żeby nie trzymać ich w kodzie,</li>
+<li><strong>Application Insights</strong> - zbiera telemetrię z wdrożonych modeli (użyjesz tego w Lab 10A),</li>
+<li><strong>Container Registry</strong> - przechowuje obrazy kontenerów budowane przy definiowaniu środowisk (Lab 5A).</li>
+</ul>
+<p>Zobaczysz je wszystkie w grupie zasobów i to one - a nie sam obszar roboczy - generują większość kosztów.</p>
+</blockquote>
+</li>
+<li><p>Gdy obszar roboczy i powiązane z nim zasoby zostaną utworzone, wyświetl obszar roboczy w portalu.</p>
+</li>
+</ol>
+<h2>Krok 2: Poznaj interfejs Azure ML studio</h2>
+<p>Zasobami obszaru roboczego można zarządzać w portalu Azure, ale dla osoby pracującej z danymi portal jest zaśmiecony - pełno w nim ustawień dotyczących ogólnej administracji Azure. Dlatego Azure ML ma własny interfejs internetowy.</p>
+<blockquote>
+<p><strong>Uwaga</strong>: Interfejs webowy Azure ML nazywa się <em>Azure Machine Learning studio</em>. Bywa to mylące, bo istniał też osobny, starszy produkt <em>Azure Machine Learning Studio</em> (classic) do budowania modeli wizualnym projektantem.</p>
+</blockquote>
+<ol>
+<li><p>Na stronie obszaru roboczego w portalu Azure kliknij link uruchamiający <strong>Azure Machine Learning studio</strong>; alternatywnie otwórz w nowej karcie <a href="https://ml.azure.com">https://ml.azure.com</a>. W razie potrzeby zaloguj się kontem Microsoft użytym w poprzednim kroku i wybierz swoją subskrypcję oraz obszar roboczy.</p>
+</li>
+<li><p>Rozejrzyj się po interfejsie - stąd zarządzasz wszystkimi zasobami obszaru roboczego.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: przez resztę kursu będziesz się przełączać między kodem (SDK) a tym interfejsem. Wszystko, co zrobisz kodem, natychmiast widać w studio - i odwrotnie. Warto od początku wiedzieć, gdzie szukać: <strong>Jobs</strong> (historia zadań), <strong>Data</strong> (zasoby danych), <strong>Compute</strong>, <strong>Models</strong>, <strong>Endpoints</strong>.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Krok 3: Utwórz zasoby obliczeniowe</h2>
+<p>Jedną z głównych zalet Azure ML jest to, że moc obliczeniowa jest „na żądanie&quot; - płacisz za nią tylko wtedy, gdy faktycznie liczy.</p>
+<p>Utworzysz teraz dwa różne rodzaje zasobów obliczeniowych, bo służą do zupełnie różnych celów:</p>
+<table>
+<thead>
+<tr>
+  <th>Zasób</th>
+  <th>Do czego służy</th>
+  <th>Jak się rozlicza</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><strong>Instancja obliczeniowa</strong> (<code>mymachine</code>)</td>
+  <td>Twoja osobista maszyna deweloperska w chmurze - tu działa JupyterLab i z niej zlecasz zadania.</td>
+  <td>Kosztuje, dopóki jest <strong>uruchomiona</strong> - dlatego włącza się automatyczne wyłączanie.</td>
+</tr>
+<tr>
+  <td><strong>Klaster obliczeniowy</strong> (<code>aml-cluster</code>)</td>
+  <td>Maszyny do wykonywania zadań treningowych; Azure włącza je na czas zadania i gasi po nim.</td>
+  <td>Kosztuje tylko w trakcie zadania; przy zerze węzłów minimalnych - nic.</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><p>W Azure Machine Learning studio przejdź na stronę <strong>Compute</strong>. Tutaj zarządzasz wszystkimi środowiskami obliczeniowymi.</p>
+</li>
+<li><p>Na karcie <strong>Compute instances</strong> dodaj nową instancję obliczeniową z następującymi ustawieniami. Tej maszyny użyjesz do uruchomienia JupyterLab i notatników SDK v2 w kolejnym ćwiczeniu.</p>
+<ul>
+<li><strong>Compute name</strong>: mymachine</li>
+<li><strong>Virtual Machine size</strong>: Standard_D2as_v4</li>
+<li><strong>Enable idle shutdown</strong>: 30 minut (lub mniej)</li>
+</ul>
+<blockquote>
+<p><strong>Dlaczego ustawiamy automatyczne wyłączanie</strong>: to najczęstsza przyczyna niespodziewanych rachunków na kursach - zapomniana, działająca przez weekend instancja. Automatyczne wyłączanie po okresie bezczynności to zabezpieczenie przed tym.</p>
+</blockquote>
+</li>
+<li><p>Kiedy instancja się tworzy, przejdź na kartę <strong>Compute clusters</strong> i dodaj nowy klaster z następującymi ustawieniami:</p>
+<ul>
+<li><strong>Compute name</strong>: aml-cluster</li>
+<li><strong>Virtual Machine size</strong>: Standard_D2as_v4</li>
+<li><strong>Minimum number of nodes</strong>: 0</li>
+<li><strong>Maximum number of nodes</strong>: zależnie od limitu (quota) - zwykle wystarczą 2-3 węzły</li>
+<li><strong>Idle seconds before scale down</strong>: 300</li>
+</ul>
+<blockquote>
+<p><strong>Co to jest węzeł (node)</strong>: pojedyncza maszyna wirtualna w klastrze. Klaster o maksymalnie 3 węzłach może wykonywać do trzech zadań (albo trzech prób tego samego zadania) równolegle.</p>
+<p><strong>Dlaczego minimum wynosi 0</strong>: przy zerze klaster po zakończeniu zadania gasi wszystkie węzły i przestaje generować koszt. Ceną za to jest kilka minut oczekiwania na starcie kolejnego zadania (węzeł musi się dopiero podnieść) - w warunkach kursu to bardzo dobry kompromis.</p>
+<p><strong>Dlaczego 300 sekund, a nie mniej</strong>: to czas, przez jaki klaster czeka <em>po</em> zakończeniu zadania, zanim wyłączy węzły. Gdyby ustawić np. 30 sekund, węzeł gasłby niemal natychmiast i <strong>każde</strong> kolejne zadanie zaczynałoby się od kilkuminutowego rozruchu maszyny. Przy 300 sekundach (5 minut) zadania uruchamiane jedno po drugim - a tak właśnie pracujesz w trakcie ćwiczenia - trafiają na wciąż działający węzeł i ruszają od razu. Po skończonej pracy klaster i tak się wygasi, więc nie płacisz za bezczynność dłużej niż te 5 minut.</p>
+<p><strong>Co oznacza <code>Standard_D2as_v4</code></strong>: to nazwa rozmiaru maszyny wirtualnej w Azure - w tym przypadku 2 rdzenie procesora i 8 GB pamięci RAM. Do danych o wielkości kilku megabajtów, jakich używamy w kursie, to w zupełności wystarczy. Większe maszyny (i te z kartą GPU) kosztują odpowiednio więcej.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Krok 4: Utwórz zasób danych</h2>
+<p>Masz już na czym liczyć - teraz potrzebujesz danych, na których będziesz liczyć.</p>
+<ol>
+<li><p>W studio przejdź na stronę <strong>Data</strong>. Twój obszar roboczy ma już kilka <strong>magazynów danych (datastores)</strong> opartych na koncie Azure Storage utworzonym razem z obszarem roboczym. Służą one do przechowywania notatników, plików konfiguracyjnych i danych.</p>
+<blockquote>
+<p><strong>Dlaczego magazyn danych to nie to samo co zasób danych</strong>: magazyn danych (datastore) to <em>połączenie</em> do miejsca, gdzie leżą dane - wraz z uprawnieniami. Zasób danych (data asset) to <em>konkretne dane</em> pod nazwą i wersją. Dzięki temu w kodzie piszesz <code>diabetes_dataset</code> zamiast pełnej ścieżki i klucza dostępu do storage.</p>
+<p>W prawdziwym projekcie dodaje się własne magazyny wskazujące na firmowe źródła - kontenery Azure Blob, Azure Data Lake, bazy Azure SQL. Wrócisz do tego w dalszej części kursu.</p>
+</blockquote>
+</li>
+<li><p>Przejdź na kartę <strong>Data assets</strong>. Zasoby danych reprezentują konkretne pliki lub tabele, z których będziesz korzystać w Azure ML.</p>
+</li>
+<li><p>Pobierz na swój komputer plik <a href="https://raw.githubusercontent.com/razitpl/MachineLearningCourse/master/materialy/azure-ml/pl/data/diabetes.csv">diabetes.csv</a> - w kolejnym kroku go wgrasz.</p>
+</li>
+<li><p>Utwórz nowy zasób danych z plików lokalnych, z następującymi ustawieniami:</p>
+<ul>
+<li><strong>Name</strong>: diabetes_dataset (<em>zwróć uwagę na wielkość liter i znak podkreślenia</em>)</li>
+<li><strong>Dataset type</strong>: Tabular</li>
+<li><strong>Description</strong>: Diabetes data</li>
+<li><strong>Destination storage type</strong>: Azure Blob Storage (prawdopodobnie workspaceblobstore)</li>
+<li><strong>Settings and preview</strong>: przejrzyj automatycznie wykryte ustawienia.</li>
+<li><strong>Schema</strong>: przejrzyj domyślnie wybrane kolumny i typy danych.</li>
+</ul>
+<blockquote>
+<p><strong>Dlaczego typ „Tabular&quot; ma znaczenie</strong>: wybranie <strong>Tabular</strong> rejestruje dane jako typ <code>mltable</code> - czyli definicję <em>tabeli</em> (jak odczytać pliki, jaki separator, jakie kolumny), a nie sam plik. Tego typu wymagają później AutoML (Lab 8B), pulpit Responsible AI (Lab 9) i monitorowanie modelu (Lab 10). Gdyby wybrać typ plikowy, te ćwiczenia by nie zadziałały.</p>
+</blockquote>
+</li>
+<li><p>Po utworzeniu zasobu danych otwórz go i przejdź na kartę <strong>Explore</strong>, aby zobaczyć próbkę danych.</p>
+<blockquote>
+<p><strong>Co jest w tych danych</strong>: każdy wiersz to jeden pacjent. Osiem kolumn to <strong>cechy</strong> (ang. <em>features</em>), na podstawie których model będzie przewidywał: liczba ciąż (<code>Pregnancies</code>), poziom glukozy (<code>PlasmaGlucose</code>), ciśnienie rozkurczowe (<code>DiastolicBloodPressure</code>), grubość fałdu skórnego (<code>TricepsThickness</code>), poziom insuliny (<code>SerumInsulin</code>), BMI, wskaźnik obciążenia rodzinnego cukrzycą (<code>DiabetesPedigree</code>) i wiek (<code>Age</code>).</p>
+<p>Dziewiąta kolumna, <code>Diabetic</code>, to <strong>etykieta</strong> (ang. <em>label</em>) - wartość 0 lub 1 mówiąca, czy u pacjenta stwierdzono cukrzycę. To właśnie ją model będzie przewidywał. Takie zadanie - przewidywanie jednej z dwóch możliwych wartości - nazywamy <strong>klasyfikacją binarną</strong>.</p>
+<p>Z tych danych będziesz korzystać w większości kolejnych ćwiczeń, więc warto teraz przez chwilę na nie popatrzeć.</p>
+</blockquote>
+<blockquote>
+<p><strong>Uwaga</strong>: Możesz opcjonalnie wygenerować <em>profil</em> danych, żeby szybko ocenić ich strukturę i jakość: liczbę wierszy i kolumn, wykryte typy, braki, wartości unikalne i podstawowe statystyki kolumn liczbowych.</p>
+<p>Profilowanie niczego nie zmienia w danych ani nie trenuje modelu - pomaga tylko wcześnie wykryć problemy z jakością danych. Wrócisz do tego tematu w dalszej części kursu.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Co dalej</h2>
+<p>W <a href="lab01b.html">Lab 1B</a> połączysz się z tym obszarem roboczym z poziomu kodu Pythona (SDK v2) i sprawdzisz, że widzisz z niego dokładnie te zasoby, które przed chwilą powstały z klikania w interfejsie.</p>
+<nav class="przejscia">
+<span></span>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<a class="dalej" href="lab01b.html"><span>Następne</span>Lab 1B: Praca z narzędziami Azure Machine Learning</a>
+</nav>
+</div></main>
+
+</body>
+</html>

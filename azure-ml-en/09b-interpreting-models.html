@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interpreting Models</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Azure ML (English)</a></div><div class="tresc">
+<a class="pobierz" href="labdocs/lab09b.html">Instrukcja do tego ćwiczenia</a><a class="pobierz" href="pobierz/09B%20-%20Interpreting%20Models.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Interpreting-Models">Interpreting Models<a class="anchor-link" href="#Interpreting-Models">¶</a></h1><p>You can use Azure Machine Learning to interpret a model by using an <em>explainer</em> that quantifies the amount of influence each feature contributes to the predicted label. There are many common explainers, each suitable for different kinds of modeling algorithm; but the basic approach to using them is the same.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Explain-a-Model">Explain a Model<a class="anchor-link" href="#Explain-a-Model">¶</a></h2><p>Let's start with a model that is trained outside of Azure Machine Learning - Run the cell below to train a decision tree classification model.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_curve</span>
+
+<span class="c1"># load the diabetes dataset</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Loading Data..."</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'data/diabetes.csv'</span><span class="p">)</span>
+
+<span class="c1"># Separate features and labels</span>
+<span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Pregnancies'</span><span class="p">,</span><span class="s1">'PlasmaGlucose'</span><span class="p">,</span><span class="s1">'DiastolicBloodPressure'</span><span class="p">,</span><span class="s1">'TricepsThickness'</span><span class="p">,</span><span class="s1">'SerumInsulin'</span><span class="p">,</span><span class="s1">'BMI'</span><span class="p">,</span><span class="s1">'DiabetesPedigree'</span><span class="p">,</span><span class="s1">'Age'</span><span class="p">]</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'not-diabetic'</span><span class="p">,</span> <span class="s1">'diabetic'</span><span class="p">]</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">features</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># Split data into training set and test set</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Train a decision tree model</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Training a decision tree model'</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># calculate accuracy</span>
+<span class="n">y_hat</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y_hat</span> <span class="o">==</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Accuracy:'</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+
+<span class="c1"># calculate AUC</span>
+<span class="n">y_scores</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">auc</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_scores</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'AUC: '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">auc</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Model trained.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The training process generated some model evaluation metrics based on a hold-back validation dataset, so you have an idea of how accurately it predicts; but how do the features in the data influence the prediction?</p>
+<h3 id="Install-the-Interpretability-Library">Install the Interpretability Library<a class="anchor-link" href="#Install-the-Interpretability-Library">¶</a></h3><p>To find out, first install the open-source <code>interpret-community</code> library. You can use this to interpret many typical kinds of model - purely locally, without any connection to Azure Machine Learning - even if they haven't been trained in an Azure ML job or registered in an Azure ML workspace.</p>
+<blockquote>
+<p><strong>Pip may warn about a <code>semver</code> conflict</strong> with the <code>responsibleai</code> package. That package is not used here - the responsible AI dashboard is built by components running in the cloud, not by this kernel. The warning can be ignored.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># The shap version must match interpret-community - we pin the highest supported one.</span>
+<span class="c1"># If an older shap was already imported in this kernel, restart the notebook kernel.</span>
+<span class="o">%</span><span class="k">pip</span> install -q --upgrade interpret-community "shap==0.46.0"
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Get-an-Explainer-for-our-Model">Get an Explainer for our Model<a class="anchor-link" href="#Get-an-Explainer-for-our-Model">¶</a></h3><p>Now that you have the library installed, let's get a suitable explainer for the model. There are many kinds of explainer. In this example you'll use a <em>Tabular Explainer</em>, which is a "black box" explainer that can be used to explain many kinds of model by invoking an appropriate <a href="https://github.com/slundberg/shap">SHAP</a> model explainer.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">interpret.ext.blackbox</span><span class="w"> </span><span class="kn">import</span> <span class="n">TabularExplainer</span>
+
+<span class="c1"># "features" and "classes" fields are optional</span>
+<span class="n">tab_explainer</span> <span class="o">=</span> <span class="n">TabularExplainer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> 
+                             <span class="n">X_train</span><span class="p">,</span> 
+                             <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> 
+                             <span class="n">classes</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tab_explainer</span><span class="p">,</span> <span class="s2">"ready!"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Get-Global-Feature-Importance">Get Global Feature Importance<a class="anchor-link" href="#Get-Global-Feature-Importance">¶</a></h3><p>The first thing to do is try to explain the model by evaluating the overall <em>feature importance</em> - in other words, quantifying the extent to which each feature influences the prediction based on the whole training dataset.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># you can use the training data or the test data here</span>
+<span class="n">global_tab_explanation</span> <span class="o">=</span> <span class="n">tab_explainer</span><span class="o">.</span><span class="n">explain_global</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+
+<span class="c1"># Get the top features by importance</span>
+<span class="n">global_tab_feature_importance</span> <span class="o">=</span> <span class="n">global_tab_explanation</span><span class="o">.</span><span class="n">get_feature_importance_dict</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">feature</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">global_tab_feature_importance</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">feature</span><span class="p">,</span><span class="s2">":"</span><span class="p">,</span> <span class="n">importance</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The feature importance is ranked, with the most important feature listed first.</p>
+<h3 id="Get-Local-Feature-Importance">Get Local Feature Importance<a class="anchor-link" href="#Get-Local-Feature-Importance">¶</a></h3><p>So you have an overall view, but what about explaining individual observations? Let's generate <em>local</em> explanations for individual predictions, quantifying the extent to which each feature influenced the decision to predict each of the possible label values. In this case, it's a binary model, so there are two possible labels (non-diabetic and diabetic); and you can quantify the influence of each feature for each of these label values for individual observations in a dataset. You'll just evaluate the first two cases in the test dataset.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Get the observations we want to explain (the first two)</span>
+<span class="n">X_explain</span> <span class="o">=</span> <span class="n">X_test</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="c1"># Get predictions</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_explain</span><span class="p">)</span>
+
+<span class="c1"># Get local explanations</span>
+<span class="n">local_tab_explanation</span> <span class="o">=</span> <span class="n">tab_explainer</span><span class="o">.</span><span class="n">explain_local</span><span class="p">(</span><span class="n">X_explain</span><span class="p">)</span>
+
+<span class="c1"># Get feature names and importance for each possible label</span>
+<span class="n">local_tab_features</span> <span class="o">=</span> <span class="n">local_tab_explanation</span><span class="o">.</span><span class="n">get_ranked_local_names</span><span class="p">()</span>
+<span class="n">local_tab_importance</span> <span class="o">=</span> <span class="n">local_tab_explanation</span><span class="o">.</span><span class="n">get_ranked_local_values</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">local_tab_features</span><span class="p">)):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Support for'</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="n">l</span><span class="p">])</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">local_tab_features</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">label</span><span class="p">)):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">Observation"</span><span class="p">,</span> <span class="n">o</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">feature_list</span> <span class="o">=</span> <span class="n">label</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+        <span class="n">total_support</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">feature_list</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\t\t</span><span class="s2">"</span><span class="p">,</span> <span class="n">feature_list</span><span class="p">[</span><span class="n">f</span><span class="p">],</span> <span class="s1">':'</span><span class="p">,</span> <span class="n">local_tab_importance</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="n">o</span><span class="p">][</span><span class="n">f</span><span class="p">])</span>
+            <span class="n">total_support</span> <span class="o">+=</span> <span class="n">local_tab_importance</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="n">o</span><span class="p">][</span><span class="n">f</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\t\t</span><span class="s2"> ----------</span><span class="se">\n\t\t</span><span class="s2"> Total:"</span><span class="p">,</span> <span class="n">total_support</span><span class="p">,</span> <span class="s2">"Prediction:"</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="n">predictions</span><span class="p">[</span><span class="n">o</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="A-Responsible-AI-Dashboard-for-a-Registered-Model">A Responsible AI Dashboard for a Registered Model<a class="anchor-link" href="#A-Responsible-AI-Dashboard-for-a-Registered-Model">¶</a></h2><p>As you've seen, explanations for a model trained outside Azure ML can be generated with <code>interpret-community</code> directly in the notebook.</p>
+<p>To attach explanations to a model <strong>registered in the workspace</strong>, you use a <strong>Responsible AI dashboard</strong>. It offers more than feature importance alone: error analysis, counterfactual "what if" examples, and causal analysis.</p>
+<p>The dashboard is produced by a pipeline job built from ready-made components. You'll create it with the <strong>wizard in Azure Machine Learning studio</strong> - by clicking, without writing code. The wizard runs exactly that pipeline underneath.</p>
+<blockquote>
+<p><strong>Why not from the SDK</strong>: the dashboard components are published in Microsoft's <code>azureml</code> registry and are not available in every workspace - fetching them with <code>registry_client.components.get()</code> then fails with <code>Could not find component with name</code>. The studio wizard is unaffected.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+
+<span class="n">credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
+<span class="n">ml_client</span> <span class="o">=</span> <span class="n">MLClient</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">credential</span><span class="p">)</span>
+
+<span class="c1"># The wizard needs a registered MLflow model and data in mltable format</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_model"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"latest"</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_mltable"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"latest"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Model: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, version </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">, type </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Data:  </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, version </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">, type </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Build-the-Dashboard-in-Studio">Build the Dashboard in Studio<a class="anchor-link" href="#Build-the-Dashboard-in-Studio">¶</a></h3><p>Open <a href="https://ml.azure.com">Azure Machine Learning studio</a> and follow the steps below. The cell above printed the names and versions you'll need.</p>
+<ol>
+<li>In the left menu select <strong>Models</strong>, then the <strong>diabetes_model</strong> model.</li>
+<li>On the <strong>Details</strong> tab select <strong>Create Responsible AI dashboard (preview)</strong>.</li>
+<li><strong>Training dataset</strong>: choose <strong>diabetes_mltable</strong>. The wizard accepts only data in <code>mltable</code> format - which is exactly why that asset was created in <a href="labdocs/lab04b.html">Lab 4B</a>.</li>
+<li><strong>Test dataset</strong>: choose the same asset. In a real project this would be a separate set, but here the point is to learn the tool.</li>
+<li><strong>Modeling task</strong>: choose <strong>Classification</strong>.</li>
+<li><strong>Dashboard components</strong>: choose the <strong>Model debugging</strong> profile - it covers error analysis, counterfactual examples and model explanations.</li>
+<li><strong>Component parameters</strong>: set <strong>Target feature</strong> to <strong>Diabetic</strong> and make sure <strong>Generate explanations</strong> is on.</li>
+<li><strong>Experiment configuration</strong>: give the dashboard a name, pick an experiment and the <strong>aml-cluster</strong> compute, then select <strong>Create</strong>.</li>
+</ol>
+<p>The job takes some fifteen minutes. You can follow its progress on the experiment page.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Review-the-Explanations">Review the Explanations<a class="anchor-link" href="#Review-the-Explanations">¶</a></h3><p>When the job finishes, go back to the <strong>diabetes_model</strong> model and open its <strong>Responsible AI</strong> tab. Select the dashboard you created, and in it:</p>
+<ol>
+<li>Look at the <strong>Aggregate feature importance</strong> chart - the global feature importance.</li>
+<li>Switch to <strong>Individual feature importance</strong> and pick a single data point to see what drove that one prediction.</li>
+<li>Open the <strong>Error analysis</strong> section - it shows which subgroups of the data the model gets wrong most often.</li>
+</ol>
+<blockquote>
+<p><strong>Compare with the results from the start of this lab</strong>: the ranking of features should be close to the one <code>interpret-community</code> produced in the notebook. It's the same method, just run in the cloud and attached to a registered model.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>More information</strong>: read about the dashboard wizard in <a href="https://learn.microsoft.com/azure/machine-learning/how-to-responsible-ai-insights-ui">Generate Responsible AI insights in the studio UI</a>, about building it from the SDK in <a href="https://learn.microsoft.com/azure/machine-learning/how-to-responsible-ai-insights-sdk-cli">Generate Responsible AI insights with YAML and Python</a>, and about reading the dashboard in <a href="https://learn.microsoft.com/azure/machine-learning/how-to-responsible-ai-dashboard">Use the Responsible AI dashboard</a>.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="09a-reviewing-automated-machine-learning-explanations.html"><span>Poprzednie</span>Reviewing Automated Machine Learning Explanations</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="10a-monitoring-a-model.html"><span>Następne</span>Monitoring a Model</a>
+</nav>
+</div></main>
+
+</body>
+</html>

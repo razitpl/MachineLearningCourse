@@ -1,0 +1,1736 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenie 2: Poznaj swoje dane (EDA)</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="pobierz/02_poznaj_swoje_dane.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=68027e1b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="%C4%86wiczenie-2:-Poznaj-swoje-dane-(EDA)">Ćwiczenie 2: Poznaj swoje dane (EDA)<a class="anchor-link" href="#%C4%86wiczenie-2:-Poznaj-swoje-dane-(EDA)">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>W ćwiczeniu 01 zbudowaliśmy model, prawie nie patrząc na dane. Zadziałało - bo zbiór <code>diabetes.csv</code> jest wyjątkowo grzeczny: same liczby, żadnej pustej komórki, sensowne zakresy. W prawdziwym projekcie tak nie będzie.</p>
+<blockquote>
+<p><strong>EDA</strong> = <strong>analiza eksploracyjna danych</strong> (ang. <em>exploratory data analysis</em>). Ten skrót wraca w całym ćwiczeniu, więc warto go zapamiętać od razu.</p>
+</blockquote>
+<p>EDA to etap, na którym <strong>oglądasz dane, zanim cokolwiek wytrenujesz</strong>. Studenci często traktują go jak ozdobnik: „narysuję kilka histogramów, żeby było ładnie w sprawozdaniu". To nieporozumienie. EDA jest etapem <strong>diagnostycznym</strong> - szukasz problemów, które w przeciwnym razie cicho zniszczą model:</p>
+<ul>
+<li>kolumna, w której 40% wartości to zakamuflowane braki danych,</li>
+<li>cecha (ang. <em>feature</em>) skorelowana z etykietą tak silnie, że aż podejrzanie (przeciek danych),</li>
+<li>wartości odstające, które przeciągną model w swoją stronę,</li>
+<li>klasa mniejszościowa tak rzadka, że skuteczność przestaje cokolwiek znaczyć.</li>
+</ul>
+<p>Żadnego z tych problemów nie zobaczysz w wyniku <code>model.score()</code>. Zobaczysz je tylko, jeśli spojrzysz na dane.</p>
+<blockquote>
+<p><strong>Reguła, którą warto zapamiętać</strong>: godzina spędzona na EDA oszczędza dzień debugowania modelu, którego wyników nie da się wytłumaczyć.</p>
+</blockquote>
+<h2 id="Czego-si%C4%99-nauczysz">Czego się nauczysz<a class="anchor-link" href="#Czego-si%C4%99-nauczysz">¶</a></h2><ol>
+<li>Jak w kilku poleceniach zrobić przegląd nowego zbioru danych (<code>shape</code>, <code>info</code>, <code>describe</code>).</li>
+<li>Jak czytać histogram rozkładu cechy i co ci mówi jego kształt.</li>
+<li>Jak liczyć i czytać <strong>macierz korelacji</strong> - oraz dlaczego korelacja to nie przyczynowość.</li>
+<li>Jak sprawdzić, czy cecha w ogóle <strong>rozróżnia klasy</strong> (wykresy pudełkowe według etykiety).</li>
+<li>Jak wykrywać <strong>wartości odstające</strong> regułą rozstępu międzykwartylowego (IQR).</li>
+<li>Jak rozpoznać <strong>podejrzane zera</strong> - czyli braki danych udające poprawne pomiary.</li>
+</ol>
+<blockquote>
+<p><strong>Zanim zaczniesz</strong>: uruchamiaj komórki po kolei (Shift+Enter). Późniejsze korzystają ze zmiennych zdefiniowanych wcześniej.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=729803e7"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Pierwszy-rzut-oka">1. Pierwszy rzut oka<a class="anchor-link" href="#1.-Pierwszy-rzut-oka">¶</a></h2><p>Pracujemy na tym samym zbiorze co poprzednio: <code>dane/diabetes.csv</code> - 10 000 kart pacjentów przebadanych pod kątem cukrzycy.</p>
+<p>Przy każdym <strong>nowym</strong> zbiorze danych zaczynaj od tych samych czterech pytań:</p>
+<table>
+<thead>
+<tr>
+<th>Pytanie</th>
+<th>Polecenie</th>
+<th>Czego szukasz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ile mam danych?</td>
+<td><code>dane.shape</code></td>
+<td>czy 200 wierszy, czy 2 miliony - to zmienia dobór metod</td>
+</tr>
+<tr>
+<td>Jak wyglądają?</td>
+<td><code>dane.head()</code></td>
+<td>czy kolumny są tym, czym się wydają</td>
+</tr>
+<tr>
+<td>Jakie mam typy?</td>
+<td><code>dane.info()</code></td>
+<td>liczba udająca tekst to klasyczna pułapka</td>
+</tr>
+<tr>
+<td>Czy są braki?</td>
+<td><code>dane.isna().sum()</code></td>
+<td>które kolumny są dziurawe i jak bardzo</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1f6ede2b">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">dane</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'dane/diabetes.csv'</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Kształt (wiersze, kolumny):"</span><span class="p">,</span> <span class="n">dane</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="n">dane</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e09a82cc">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># Typy kolumn i liczba wartosci niepustych</span>
+<span class="n">dane</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Braki danych w poszczególnych kolumnach:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dane</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a74373f3"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Wynik <code>isna().sum()</code> pokazuje <strong>same zera</strong> - w tym pliku nie ma ani jednej pustej komórki. Zapamiętaj to, bo w sekcji 6 pokażemy, że <em>brak pustych komórek</em> i <em>brak braków danych</em> to dwie zupełnie różne rzeczy.</p>
+<p>Zwróć też uwagę, że wszystkie kolumny są liczbowe. Nie ma tu ani jednej kolumny tekstowej - to sytuacja komfortowa i rzadka. Zmiennymi kategorycznymi zajmiemy się w ćwiczeniu 03.</p>
+<h2 id="2.-Statystyki-opisowe:-describe()">2. Statystyki opisowe: <code>describe()</code><a class="anchor-link" href="#2.-Statystyki-opisowe:-describe()">¶</a></h2><p><code>describe()</code> to najtańszy sposób na wychwycenie rzeczy niemożliwych. Jedno wywołanie i już wiesz, czy w kolumnie „wiek" nie siedzi wartość -3 albo 999.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=da99038e">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># .T (transpozycja) - cechy w wierszach, statystyki w kolumnach. Znacznie czytelniej.</span>
+<span class="n">dane</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d6320d1c"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Jak-to-czyta%C4%87">Jak to czytać<a class="anchor-link" href="#Jak-to-czyta%C4%87">¶</a></h3><table>
+<thead>
+<tr>
+<th>Wiersz</th>
+<th>Znaczenie</th>
+<th>Na co patrzeć</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>count</code></td>
+<td>liczba wartości niepustych</td>
+<td>wartość mniejsza niż liczba wierszy = są braki</td>
+</tr>
+<tr>
+<td><code>mean</code> / <code>std</code></td>
+<td>średnia i odchylenie standardowe</td>
+<td><code>std</code> bliskie zeru = cecha prawie stała, czyli bezużyteczna</td>
+</tr>
+<tr>
+<td><code>min</code> / <code>max</code></td>
+<td>skrajne wartości</td>
+<td>tu wychodzą wartości fizycznie niemożliwe</td>
+</tr>
+<tr>
+<td><code>25%</code> / <code>50%</code> / <code>75%</code></td>
+<td>kwartyle; <code>50%</code> to <strong>mediana</strong></td>
+<td>duża różnica mediany i średniej = rozkład jest skośny</td>
+</tr>
+</tbody>
+</table>
+<p>Dwie obserwacje z tej tabeli, które od razu wpływają na dalsze decyzje:</p>
+<ol>
+<li><strong>Skale cech są dramatycznie różne.</strong> <code>DiabetesPedigree</code> mieści się poniżej 3, <code>SerumInsulin</code> sięga setek, a <code>PatientID</code> - milionów. Dla drzewa decyzyjnego to bez znaczenia, ale dla regresji logistycznej, k najbliższych sąsiadów czy sieci neuronowej to problem. Dlatego w ćwiczeniu 01 użyliśmy <code>StandardScaler</code>, a w ćwiczeniu 03 zajmiemy się skalowaniem na poważnie.</li>
+<li><strong><code>PatientID</code> ma statystyki</strong>, choć nie ma to najmniejszego sensu - średni numer pacjenta to pojęcie puste. To dobre przypomnienie, że pandas policzy średnią ze wszystkiego, co jest liczbą. Myślenie pozostaje po Twojej stronie.</li>
+</ol>
+<p>Odseparujmy więc identyfikator i etykietę od właściwych cech.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=29a091f5">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">ETYKIETA</span> <span class="o">=</span> <span class="s1">'Diabetic'</span>
+<span class="n">IDENTYFIKATOR</span> <span class="o">=</span> <span class="s1">'PatientID'</span>
+
+<span class="n">cechy</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dane</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ETYKIETA</span><span class="p">,</span> <span class="n">IDENTYFIKATOR</span><span class="p">)]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Cechy (</span><span class="si">%d</span><span class="s2">):"</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">cechy</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">cechy</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"  -"</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9409ffef"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="3.-Rozk%C5%82ad-etykiety">3. Rozkład etykiety<a class="anchor-link" href="#3.-Rozk%C5%82ad-etykiety">¶</a></h2><p>Zanim spojrzymy na cechy, sprawdzamy <strong>etykietę</strong> (ang. <em>label</em>). To pytanie: „czego ja właściwie uczę model?".</p>
+<p>Jeśli klasy są mocno niezrównoważone (ang. <em>class imbalance</em>), zmienia się wszystko: dobór metryki, sposób podziału danych, czasem sam algorytm.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a5d6a99f">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">liczebnosc</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+<span class="n">udzial</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+<span class="n">opisy</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">'brak cukrzycy'</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">'cukrzyca'</span><span class="p">}</span>
+
+<span class="k">for</span> <span class="n">klasa</span> <span class="ow">in</span> <span class="n">liczebnosc</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">klasa</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">opisy</span><span class="p">[</span><span class="n">klasa</span><span class="p">]</span><span class="si">:</span><span class="s2">14s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">liczebnosc</span><span class="p">[</span><span class="n">klasa</span><span class="p">]</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2"> pacjentów (</span><span class="si">{</span><span class="n">udzial</span><span class="p">[</span><span class="n">klasa</span><span class="p">]</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">([</span><span class="n">opisy</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">liczebnosc</span><span class="o">.</span><span class="n">index</span><span class="p">],</span> <span class="n">liczebnosc</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">'#4C72B0'</span><span class="p">,</span> <span class="s1">'#C44E52'</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'liczba pacjentów'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Rozkład etykiety'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">liczebnosc</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'bottom'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'y'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c129acff"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Proporcja mniej więcej dwa do jednego. To <strong>umiarkowane</strong> niezrównoważenie - nieprzyjemne, ale nie dramatyczne. Dla porównania: w wykrywaniu oszustw kartowych klasa pozytywna to często 0,1% danych i tam problem jest zupełnie innego kalibru.</p>
+<p>Praktyczna konsekwencja, którą znasz już z ćwiczenia 01: model zawsze odpowiadający klasą większościową osiąga tu skuteczność równą udziałowi tej klasy. <strong>Udział klasy większościowej to Twoja poprzeczka.</strong></p>
+<h2 id="4.-Rozk%C5%82ady-cech---histogramy">4. Rozkłady cech - histogramy<a class="anchor-link" href="#4.-Rozk%C5%82ady-cech---histogramy">¶</a></h2><p>Histogram (ang. <em>histogram</em>) dzieli zakres wartości cechy na przedziały (ang. <em>bins</em>) i pokazuje, ile obserwacji wpada do każdego. Odpowiada na pytania, których <code>describe()</code> nie obejmuje: czy rozkład ma jeden szczyt czy kilka, czy jest symetryczny, czy nie ma dziwnych skupisk przy krańcach.</p>
+<p>Rysujemy wszystkie cechy naraz, w siatce podwykresów.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a806b6f8">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">osie</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">kolumna</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">osie</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">cechy</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="n">kolumna</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#4C72B0'</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#C44E52'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'średnia'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#55A868'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">':'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'mediana'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">kolumna</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">osie</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">'Rozkłady cech'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9746a698"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Co-wida%C4%87-i-co-z-tego-wynika">Co widać i co z tego wynika<a class="anchor-link" href="#Co-wida%C4%87-i-co-z-tego-wynika">¶</a></h3><p>Przejdź po wykresach i nazwij kształt każdego rozkładu. Trzy wzorce, które warto umieć rozpoznać:</p>
+<table>
+<thead>
+<tr>
+<th>Kształt</th>
+<th>Jak wygląda</th>
+<th>Co oznacza dla modelu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>symetryczny</strong> (zbliżony do normalnego)</td>
+<td>jeden szczyt pośrodku, średnia ≈ mediana</td>
+<td>sytuacja komfortowa, standaryzacja działa bez zastrzeżeń</td>
+</tr>
+<tr>
+<td><strong>prawoskośny</strong> (ang. <em>right-skewed</em>)</td>
+<td>szczyt po lewej, długi ogon w prawo, <strong>średnia &gt; mediana</strong></td>
+<td>średnia jest zawyżana przez ogon; do uzupełniania braków lepsza jest mediana; czasem pomaga logarytm</td>
+</tr>
+<tr>
+<td><strong>ucięty / skupiony przy krańcu</strong></td>
+<td>słupek przyklejony do zera albo do maksimum</td>
+<td>podejrzenie, że wartości były przycinane albo że zero to zakamuflowany brak</td>
+</tr>
+</tbody>
+</table>
+<p>Zwróć uwagę na <strong><code>Age</code> i <code>SerumInsulin</code></strong> - to wyraźnie rozkłady prawoskośne: większość pacjentów jest młoda, a pojedyncze osoby mają wiek dużo wyższy od reszty. Porównaj w każdym podwykresie położenie czerwonej linii (średnia) i zielonej (mediana): im bardziej się rozjeżdżają, tym rozkład bardziej skośny.</p>
+<p>Zwróć też uwagę na <strong><code>Pregnancies</code></strong>: to cecha o wartościach całkowitych z wyraźnym słupkiem w zerze. Zero jest tu w pełni sensowne - to kobieta, która nie była w ciąży. Zapamiętaj ten przypadek, bo w sekcji 6 zestawimy go z zerem, które sensu nie ma.</p>
+<h2 id="5.-Korelacje">5. Korelacje<a class="anchor-link" href="#5.-Korelacje">¶</a></h2><p><strong>Korelacja</strong> (ang. <em>correlation</em>, dokładniej współczynnik Pearsona) mierzy siłę <strong>liniowego</strong> związku między dwiema zmiennymi. Przyjmuje wartości od -1 do +1:</p>
+<ul>
+<li><strong>+1</strong> - gdy jedna rośnie, druga rośnie idealnie proporcjonalnie,</li>
+<li><strong>0</strong> - brak związku liniowego,</li>
+<li><strong>-1</strong> - gdy jedna rośnie, druga maleje.</li>
+</ul>
+<p>Interesują nas dwie rzeczy naraz:</p>
+<ol>
+<li><strong>korelacja cechy z etykietą</strong> - czy ta cecha w ogóle niesie informację o chorobie,</li>
+<li><strong>korelacja cech między sobą</strong> - czy dwie cechy nie mówią tego samego (ang. <em>collinearity</em>, współliniowość).</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f4651cec">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># Liczymy korelacje BEZ identyfikatora - korelacja numeru pacjenta z czymkolwiek</span>
+<span class="c1"># jest przypadkowym szumem i tylko zaciemnia obraz.</span>
+<span class="n">macierz</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="n">cechy</span> <span class="o">+</span> <span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">8.5</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">obraz</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">macierz</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'RdBu_r'</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">macierz</span><span class="o">.</span><span class="n">columns</span><span class="p">)))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">macierz</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'right'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">macierz</span><span class="o">.</span><span class="n">columns</span><span class="p">)))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">macierz</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="c1"># Wpisujemy wartosci w komorki - macierz bez liczb czyta sie duzo gorzej</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">macierz</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">macierz</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">macierz</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">w</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s1">'white'</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.55</span> <span class="k">else</span> <span class="s1">'black'</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">obraz</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'współczynnik korelacji'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Macierz korelacji'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=277cd066">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># Sam ranking korelacji z etykieta - czyta sie szybciej niz cala macierz</span>
+<span class="n">ranking</span> <span class="o">=</span> <span class="n">macierz</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">ETYKIETA</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Korelacja cechy z etykietą (od najsilniejszej):"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ranking</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=2985ded5"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Jak-to-interpretowa%C4%87">Jak to interpretować<a class="anchor-link" href="#Jak-to-interpretowa%C4%87">¶</a></h3><p>Trzy pułapki, w które łatwo wpaść przy czytaniu macierzy korelacji:</p>
+<p><strong>Pułapka 1: korelacja to nie przyczynowość.</strong> Zdanie „ta cecha jest najsilniej skorelowana z chorobą" <strong>nie znaczy</strong> „ta cecha wywołuje chorobę". Może być odwrotnie (choroba wpływa na wynik badania), może istnieć trzeci czynnik wpływający na oba, może to być przypadek.</p>
+<p><strong>Pułapka 2: niska korelacja nie znaczy „cecha bezużyteczna".</strong> Pearson widzi <strong>tylko związki liniowe</strong>. Cecha, dla której chorują osoby zarówno bardzo młode, jak i bardzo stare, będzie miała korelację bliską zeru, a mimo to model drzewiasty świetnie ją wykorzysta. Dlatego cech <strong>nie usuwamy na podstawie samej korelacji</strong>.</p>
+<p><strong>Pułapka 3: korelacja bardzo wysoka jest podejrzana, a nie wymarzona.</strong> Gdyby któraś cecha miała z etykietą korelację rzędu 0,95, pierwszą reakcją powinno być nie „świetnie, mamy model", tylko „skąd ta kolumna pochodzi?". Zwykle okazuje się, że powstała <strong>po</strong> postawieniu diagnozy - czyli jest przeciekiem danych (ang. <em>data leakage</em>), o którym mówiliśmy w ćwiczeniu 01.</p>
+<p>Popatrz też na korelacje <strong>między cechami</strong> (poza ostatnim wierszem i kolumną). Jeśli dwie cechy są skorelowane na poziomie powyżej 0,9, niosą praktycznie tę samą informację - dla modelu liniowego to problem, bo współczynniki stają się niestabilne i nie da się ich sensownie interpretować.</p>
+<h2 id="6.-Czy-cecha-rozr%C3%B3%C5%BCnia-klasy?-Wykresy-pude%C5%82kowe">6. Czy cecha rozróżnia klasy? Wykresy pudełkowe<a class="anchor-link" href="#6.-Czy-cecha-rozr%C3%B3%C5%BCnia-klasy?-Wykresy-pude%C5%82kowe">¶</a></h2><p>Korelacja ściska całą zależność do jednej liczby. Wykres pudełkowy (ang. <em>box plot</em>) pokazuje <strong>cały rozkład cechy osobno dla chorych i osobno dla zdrowych</strong> - a to znacznie więcej informacji.</p>
+<p>Jak czytać pudełko: linia w środku to <strong>mediana</strong>, krawędzie pudełka to pierwszy i trzeci <strong>kwartyl</strong> (czyli 25% i 75% obserwacji), wąsy sięgają do 1,5 rozstępu międzykwartylowego, a kropki poza wąsami to kandydaci na wartości odstające.</p>
+<p><strong>Kluczowe pytanie przy oglądaniu</strong>: czy pudełka dla obu klas leżą wyraźnie w innych miejscach? Jeśli tak - cecha rozróżnia klasy. Jeśli nakładają się niemal całkowicie - ta cecha sama z siebie niewiele wnosi.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=80873bc9">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">osie</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">kolumna</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">osie</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">cechy</span><span class="p">):</span>
+    <span class="n">grupy</span> <span class="o">=</span> <span class="p">[</span><span class="n">dane</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dane</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">kolumna</span><span class="p">],</span>
+             <span class="n">dane</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dane</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">kolumna</span><span class="p">]]</span>
+    <span class="c1"># set_xticklabels zamiast argumentu labels= : ten drugi zmienil nazwe</span>
+    <span class="c1"># na tick_labels w Matplotlib 3.9 i wypisuje ostrzezenie o wycofaniu</span>
+    <span class="n">pudelka</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">grupy</span><span class="p">,</span> <span class="n">patch_artist</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">'zdrowi'</span><span class="p">,</span> <span class="s1">'chorzy'</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">latka</span><span class="p">,</span> <span class="n">kolor</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pudelka</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">],</span> <span class="p">[</span><span class="s1">'#4C72B0'</span><span class="p">,</span> <span class="s1">'#C44E52'</span><span class="p">]):</span>
+        <span class="n">latka</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">kolor</span><span class="p">)</span>
+        <span class="n">latka</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.65</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">kolumna</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'y'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">'Rozkład każdej cechy osobno dla chorych i zdrowych'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=cd002350">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># Ta sama informacja liczbowo: srednia w grupie chorych i zdrowych</span>
+<span class="n">zestawienie</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">ETYKIETA</span><span class="p">)[</span><span class="n">cechy</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+<span class="n">zestawienie</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'zdrowi (0)'</span><span class="p">,</span> <span class="s1">'chorzy (1)'</span><span class="p">]</span>
+<span class="n">zestawienie</span><span class="p">[</span><span class="s1">'różnica'</span><span class="p">]</span> <span class="o">=</span> <span class="n">zestawienie</span><span class="p">[</span><span class="s1">'chorzy (1)'</span><span class="p">]</span> <span class="o">-</span> <span class="n">zestawienie</span><span class="p">[</span><span class="s1">'zdrowi (0)'</span><span class="p">]</span>
+
+<span class="c1"># Roznica surowa nie da sie porownywac miedzy cechami o roznych skalach,</span>
+<span class="c1"># wiec wyrazamy ja w odchyleniach standardowych calej cechy.</span>
+<span class="n">zestawienie</span><span class="p">[</span><span class="s1">'różnica w odch. std'</span><span class="p">]</span> <span class="o">=</span> <span class="n">zestawienie</span><span class="p">[</span><span class="s1">'różnica'</span><span class="p">]</span> <span class="o">/</span> <span class="n">dane</span><span class="p">[</span><span class="n">cechy</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+
+<span class="n">zestawienie</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'różnica w odch. std'</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">abs</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=9096a086"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Ostatnia kolumna to <strong>znormalizowana różnica średnich</strong> - różnica wyrażona w odchyleniach standardowych cechy. Dzięki temu da się porównywać cechy o zupełnie różnych skalach: różnica 40 jednostek w <code>SerumInsulin</code> i różnica 3 lata w <code>Age</code> przestają być nieporównywalne.</p>
+<p>Porównaj ten ranking z rankingiem korelacji z sekcji 5. <strong>Kolejność cech jest identyczna</strong> - co do jednej pozycji.</p>
+<p>Same liczby jednak się różnią i to jest w porządku: <code>Pregnancies</code> ma korelację <code>+0,405</code>, a znormalizowaną różnicę <code>+0,859</code>, czyli ponad dwa razy większą. To <strong>nie jest błąd</strong> - to dwie miary tego samego zjawiska wyrażone w różnych skalach.</p>
+<p>Dla etykiety zero-jedynkowej łączy je dokładna zależność:</p>
+<pre><code>korelacja = znormalizowana różnica × √(p · q)
+</code></pre>
+<p>gdzie <code>p</code> to udział klasy 1, a <code>q</code> udział klasy 0. W naszym zbiorze <code>p = 0,334</code>, <code>q = 0,666</code>, więc <code>√(p·q) = 0,472</code>. Sprawdź na dowolnym wierszu tabeli:</p>
+<pre><code>Pregnancies:   0,859 × 0,472 = 0,405   ✔
+Age:           0,756 × 0,472 = 0,357   ✔
+SerumInsulin:  0,519 × 0,472 = 0,245   ✔
+</code></pre>
+<p>Wniosek praktyczny: <strong>do ustalania kolejności cech obie miary są wymienne</strong>. Różnią się interpretacją - korelacja mówi „jak silny jest związek w skali od −1 do 1", a znormalizowana różnica mówi „o ile odchyleń standardowych różnią się obie grupy pacjentów". Ta druga jest zwykle czytelniejsza dla lekarza.</p>
+<h2 id="7.-Warto%C5%9Bci-odstaj%C4%85ce---regu%C5%82a-IQR">7. Wartości odstające - reguła IQR<a class="anchor-link" href="#7.-Warto%C5%9Bci-odstaj%C4%85ce---regu%C5%82a-IQR">¶</a></h2><p><strong>Wartość odstająca</strong> (ang. <em>outlier</em>) to obserwacja wyraźnie oddalona od reszty. Najpopularniejsze kryterium korzysta z <strong>rozstępu międzykwartylowego</strong> (ang. <em>interquartile range</em>, IQR):</p>
+<pre><code>IQR = Q3 - Q1
+dolna granica = Q1 - 1,5 * IQR
+górna granica = Q3 + 1,5 * IQR
+</code></pre>
+<p>Wszystko poza granicami uznajemy za odstające. Dokładnie tę regułę rysują wąsy wykresu pudełkowego, który właśnie oglądałeś.</p>
+<blockquote>
+<p><strong>Zanim sięgniesz po usuwanie</strong>: wartość odstająca to <strong>nie to samo</strong> co błąd. Odstający wynik insuliny u ciężko chorego pacjenta jest prawdziwy i niesie najwięcej informacji w całym zbiorze. Usuwanie odstających „dla porządku" potrafi wyciąć dokładnie ten sygnał, którego model potrzebuje.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=84894979">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">granice_iqr</span><span class="p">(</span><span class="n">seria</span><span class="p">,</span> <span class="n">mnoznik</span><span class="o">=</span><span class="mf">1.5</span><span class="p">):</span>
+    <span class="c1"># Zwraca (dolna, gorna) granice reguly IQR dla podanej kolumny.</span>
+    <span class="n">q1</span> <span class="o">=</span> <span class="n">seria</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
+    <span class="n">q3</span> <span class="o">=</span> <span class="n">seria</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
+    <span class="n">iqr</span> <span class="o">=</span> <span class="n">q3</span> <span class="o">-</span> <span class="n">q1</span>
+    <span class="k">return</span> <span class="n">q1</span> <span class="o">-</span> <span class="n">mnoznik</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">,</span> <span class="n">q3</span> <span class="o">+</span> <span class="n">mnoznik</span> <span class="o">*</span> <span class="n">iqr</span>
+
+
+<span class="n">raport</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">kolumna</span> <span class="ow">in</span> <span class="n">cechy</span><span class="p">:</span>
+    <span class="n">dol</span><span class="p">,</span> <span class="n">gora</span> <span class="o">=</span> <span class="n">granice_iqr</span><span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="n">kolumna</span><span class="p">])</span>
+    <span class="n">odstajace</span> <span class="o">=</span> <span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dol</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">gora</span><span class="p">)</span>
+    <span class="n">raport</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">'cecha'</span><span class="p">:</span> <span class="n">kolumna</span><span class="p">,</span>
+        <span class="s1">'dolna granica'</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">dol</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s1">'górna granica'</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">gora</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s1">'liczba odstających'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">odstajace</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+        <span class="s1">'udział'</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">odstajace</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+    <span class="p">})</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">raport</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'cecha'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d4f7c743"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Teraz najciekawsze pytanie, jakie można zadać o wartości odstające: <strong>kim są ci pacjenci?</strong> Jeśli okaże się, że odstający to w większości osoby chore, usunięcie ich byłoby usunięciem sygnału, a nie szumu.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5ea380e7">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">dol</span><span class="p">,</span> <span class="n">gora</span> <span class="o">=</span> <span class="n">granice_iqr</span><span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">])</span>
+<span class="n">odstajace</span> <span class="o">=</span> <span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dol</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">gora</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SerumInsulin - granice reguły IQR: [</span><span class="si">{</span><span class="n">dol</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">gora</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Pacjentów odstających: </span><span class="si">{</span><span class="n">odstajace</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">odstajace</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2"> zbioru)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Udział chorych wśród odstających:     </span><span class="si">{</span><span class="n">dane</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">odstajace</span><span class="p">,</span><span class="w"> </span><span class="n">ETYKIETA</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Udział chorych wśród pozostałych:     </span><span class="si">{</span><span class="n">dane</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">odstajace</span><span class="p">,</span><span class="w"> </span><span class="n">ETYKIETA</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Udział chorych w całym zbiorze:       </span><span class="si">{</span><span class="n">dane</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=b1523a52"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Porównaj te trzy liczby. Jeśli udział chorych wśród odstających wyraźnie różni się od udziału w całym zbiorze, to znaczy, że <strong>fakt bycia wartością odstającą sam w sobie niesie informację o chorobie</strong>. W takiej sytuacji usunięcie odstających to usunięcie sygnału.</p>
+<p><strong>Wniosek praktyczny</strong>: zanim usuniesz wartości odstające, sprawdź, kim są. Sensowne strategie, w kolejności od najbezpieczniejszej:</p>
+<table>
+<thead>
+<tr>
+<th>Strategia</th>
+<th>Kiedy stosować</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>zostawić bez zmian</td>
+<td>wartości są prawdziwe, a model jest odporny (drzewa, lasy)</td>
+</tr>
+<tr>
+<td>przyciąć do granic (ang. <em>winsorization</em>)</td>
+<td>wartości są prawdziwe, ale model jest wrażliwy (regresja liniowa)</td>
+</tr>
+<tr>
+<td>oznaczyć dodatkową kolumną 0/1</td>
+<td>sama „nietypowość" niesie informację</td>
+</tr>
+<tr>
+<td>usunąć wiersz</td>
+<td>wartość jest <strong>fizycznie niemożliwa</strong>, czyli to błąd pomiaru lub zapisu</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8.-Podejrzane-zera---braki-danych-w-przebraniu">8. Podejrzane zera - braki danych w przebraniu<a class="anchor-link" href="#8.-Podejrzane-zera---braki-danych-w-przebraniu">¶</a></h2><p>To najważniejsza sekcja tego ćwiczenia.</p>
+<p>Wywołanie <code>isna().sum()</code> z sekcji 1 pokazało same zera - „brak braków danych". Problem w tym, że <code>isna()</code> widzi wyłącznie <strong>puste komórki</strong>. Nie widzi braku, który ktoś po drodze zapisał jako liczbę.</p>
+<p>Tak dzieje się wyjątkowo często. Systemy eksportujące dane do CSV nagminnie wstawiają <code>0</code> w miejsce wartości nieznanej, bo kolumna jest zadeklarowana jako liczbowa i nie przyjmuje pustej wartości. Efekt: „grubość fałdu skórnego = 0 mm" albo „poziom insuliny = 0" - <strong>wartości fizycznie niemożliwe u żywego pacjenta</strong>.</p>
+<p>Nasz plik jest akurat czysty. Żeby móc ten problem zobaczyć i przećwiczyć, <strong>wytworzymy go sami</strong>: zrobimy kopię danych i zasymulujemy taki wadliwy eksport. To nie jest sztuczka na potrzeby zajęć - dokładnie tak wygląda oryginalny, powszechnie używany zbiór <em>Pima Indians Diabetes</em>, na którym uczą się tysiące osób, często nie zauważając problemu.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e757a323">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># Symulujemy wadliwy eksport: system zapisal brak wartosci jako 0.</span>
+<span class="n">losowy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">dane_surowe</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">kolumna</span><span class="p">,</span> <span class="n">udzial_brakow</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">'SerumInsulin'</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">),</span> <span class="p">(</span><span class="s1">'TricepsThickness'</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">),</span>
+                               <span class="p">(</span><span class="s1">'DiastolicBloodPressure'</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)]:</span>
+    <span class="n">maska</span> <span class="o">=</span> <span class="n">losowy</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dane_surowe</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">udzial_brakow</span>
+    <span class="n">dane_surowe</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">maska</span><span class="p">,</span> <span class="n">kolumna</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Czy pandas widzi tu jakiekolwiek braki danych?"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dane_surowe</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Suma braków według pandas:"</span><span class="p">,</span> <span class="n">dane_surowe</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=6d537e18"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Zero braków. Dane wyglądają na nienaganne - a jedna trzecia kolumny <code>SerumInsulin</code> została właśnie zniszczona.</p>
+<p>Jak to wykryć? <strong>Policz zera w każdej kolumnie i zastanów się, czy zero jest tam fizycznie możliwe.</strong> To pytanie do dziedziny, nie do kodu - i dlatego jest tak często pomijane.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1d6f05e4">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Liczba zer w każdej kolumnie:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'kolumna'</span><span class="si">:</span><span class="s2">&lt;26</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'liczba zer'</span><span class="si">:</span><span class="s2">&gt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'udział'</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">   zero jest sensowne?"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"-"</span> <span class="o">*</span> <span class="mi">78</span><span class="p">)</span>
+
+<span class="n">komentarze</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'Pregnancies'</span><span class="p">:</span> <span class="s1">'TAK - kobieta, która nie była w ciąży'</span><span class="p">,</span>
+    <span class="s1">'PlasmaGlucose'</span><span class="p">:</span> <span class="s1">'NIE - pacjent bez glukozy we krwi nie żyje'</span><span class="p">,</span>
+    <span class="s1">'DiastolicBloodPressure'</span><span class="p">:</span> <span class="s1">'NIE - ciśnienie rozkurczowe 0 oznacza brak krążenia'</span><span class="p">,</span>
+    <span class="s1">'TricepsThickness'</span><span class="p">:</span> <span class="s1">'NIE - fałd skórny zawsze ma jakąś grubość'</span><span class="p">,</span>
+    <span class="s1">'SerumInsulin'</span><span class="p">:</span> <span class="s1">'NIE - zerowa insulina to wartość niespotykana'</span><span class="p">,</span>
+    <span class="s1">'BMI'</span><span class="p">:</span> <span class="s1">'NIE - masa ciała nie może być zerowa'</span><span class="p">,</span>
+    <span class="s1">'DiabetesPedigree'</span><span class="p">:</span> <span class="s1">'NIE - wskaźnik z definicji dodatni'</span><span class="p">,</span>
+    <span class="s1">'Age'</span><span class="p">:</span> <span class="s1">'NIE - w tym zbiorze są sami dorośli'</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">kolumna</span> <span class="ow">in</span> <span class="n">cechy</span><span class="p">:</span>
+    <span class="n">zera</span> <span class="o">=</span> <span class="p">(</span><span class="n">dane_surowe</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kolumna</span><span class="si">:</span><span class="s2">&lt;26</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">zera</span><span class="si">:</span><span class="s2">&gt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">zera</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">dane_surowe</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;8.1%</span><span class="si">}</span><span class="s2">   </span><span class="si">{</span><span class="n">komentarze</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=f137eb6e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Teraz obraz jest jednoznaczny. <code>Pregnancies</code> ma mnóstwo zer i <strong>tak ma być</strong>. Ale zera w <code>SerumInsulin</code>, <code>TricepsThickness</code> i <code>DiastolicBloodPressure</code> nie mogą być prawdziwymi pomiarami - to braki danych w przebraniu.</p>
+<p>Zobaczmy, co takie zera robią ze statystykami cechy.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1c4475fc">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">kolumna</span> <span class="o">=</span> <span class="s1">'SerumInsulin'</span>
+<span class="n">prawdziwe</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span>
+<span class="n">zepsute</span> <span class="o">=</span> <span class="n">dane_surowe</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span>
+<span class="n">bez_zer</span> <span class="o">=</span> <span class="n">zepsute</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+<span class="n">porownanie</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">'dane prawdziwe'</span><span class="p">:</span> <span class="n">prawdziwe</span><span class="o">.</span><span class="n">describe</span><span class="p">(),</span>
+    <span class="s1">'z zerami (tak jak wczytano)'</span><span class="p">:</span> <span class="n">zepsute</span><span class="o">.</span><span class="n">describe</span><span class="p">(),</span>
+    <span class="s1">'po zamianie 0 na NaN'</span><span class="p">:</span> <span class="n">bez_zer</span><span class="o">.</span><span class="n">describe</span><span class="p">(),</span>
+<span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">porownanie</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">zepsute</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#C44E52'</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Z zerami - zwróć uwagę na słupek przy 0'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bez_zer</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span> <span class="n">bins</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#4C72B0'</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Po zamianie zer na NaN'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">kolumna</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'liczba pacjentów'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=927b1c65"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Dlaczego-to-jest-gro%C5%BAne">Dlaczego to jest groźne<a class="anchor-link" href="#Dlaczego-to-jest-gro%C5%BAne">¶</a></h3><p>Popatrz na tabelę i na lewy histogram. Sztuczne zera:</p>
+<ol>
+<li><strong>zaniżają średnią</strong> - im więcej zer, tym bardziej średnia odjeżdża od prawdy,</li>
+<li><strong>zawyżają odchylenie standardowe</strong> - rozkład ma teraz dwa skupiska zamiast jednego,</li>
+<li><strong>rozbijają rozkład na dwa garby</strong> - a wiele metod statystycznych zakłada jeden,</li>
+<li><strong>psują skalowanie</strong> - <code>StandardScaler</code> liczy średnią i odchylenie, czyli obie zatrute statystyki,</li>
+<li><strong>uczą model fałszywej reguły</strong> - „niska insulina" zaczyna oznaczać „nie zmierzono", a nie stan pacjenta.</li>
+</ol>
+<p>Punkt 5 jest najgorszy, bo model <strong>nadal osiąga niezłe wyniki</strong>. Jeśli brak pomiaru nie jest przypadkowy (a rzadko bywa - pomiaru często nie robi się pacjentom w lepszym stanie), zero staje się użyteczną cechą i model będzie się go trzymał. Model uczy się wtedy <strong>procedury szpitalnej, a nie fizjologii</strong>. W innym szpitalu, z inną procedurą, przestanie działać - a nikt nie będzie wiedział dlaczego.</p>
+<p><strong>Właściwa reakcja</strong> to zamiana takich zer na <code>NaN</code>, czyli przywrócenie im statusu braku danych:</p>
+<div class="highlight"><pre><span></span><span class="n">dane_surowe</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span> <span class="o">=</span> <span class="n">dane_surowe</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+</pre></div>
+<p>Co zrobić z brakami dalej - uzupełnić je i czym - to już temat <strong>ćwiczenia 03</strong>.</p>
+<hr/>
+<h2 id="Puenta">Puenta<a class="anchor-link" href="#Puenta">¶</a></h2><p>EDA nie jest etapem „na ładne obrazki do sprawozdania". Każda z sekcji tego notatnika odpowiadała na pytanie, którego model za Ciebie nie zada:</p>
+<table>
+<thead>
+<tr>
+<th>Sekcja</th>
+<th>Pytanie diagnostyczne</th>
+<th>Konsekwencja dla modelu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>describe()</code></td>
+<td>czy są wartości niemożliwe? czy skale są porównywalne?</td>
+<td>potrzeba skalowania, czyszczenia</td>
+</tr>
+<tr>
+<td>rozkład etykiety</td>
+<td>jaka jest poprzeczka?</td>
+<td>dobór metryki i stratyfikacji</td>
+</tr>
+<tr>
+<td>histogramy</td>
+<td>czy rozkład jest skośny? czy ucięty?</td>
+<td>średnia czy mediana przy uzupełnianiu braków</td>
+</tr>
+<tr>
+<td>korelacje</td>
+<td>co niesie sygnał? co jest podejrzanie silne?</td>
+<td>wykrycie przecieku danych</td>
+</tr>
+<tr>
+<td>wykresy pudełkowe</td>
+<td>czy cecha rozróżnia klasy?</td>
+<td>oczekiwania wobec wyniku</td>
+</tr>
+<tr>
+<td>reguła IQR</td>
+<td>ile jest odstających i kim oni są?</td>
+<td>decyzja o przycięciu lub zostawieniu</td>
+</tr>
+<tr>
+<td>podejrzane zera</td>
+<td>czy „brak braków" to prawda?</td>
+<td>uratowanie modelu przed nauką bzdur</td>
+</tr>
+</tbody>
+</table>
+<p>Model nie powie Ci, że jedna trzecia kolumny to zakamuflowane braki. Po prostu nauczy się na tym i zwróci wynik, który będzie wyglądał wiarygodnie.</p>
+<hr/>
+<h1 id="Zadania">Zadania<a class="anchor-link" href="#Zadania">¶</a></h1><p>Wszystko, czego potrzebujesz, pojawiło się w przykładzie powyżej. Korzystaj z gotowych zmiennych: <code>dane</code>, <code>dane_surowe</code>, <code>cechy</code>, <code>ETYKIETA</code>, funkcji <code>granice_iqr</code>.</p>
+<h2 id="Zadanie-1:-Portret-statystyczny-chorego-i-zdrowego-pacjenta">Zadanie 1: Portret statystyczny chorego i zdrowego pacjenta<a class="anchor-link" href="#Zadanie-1:-Portret-statystyczny-chorego-i-zdrowego-pacjenta">¶</a></h2><p>Policz <code>describe()</code> <strong>osobno</strong> dla pacjentów chorych i zdrowych, a następnie porównaj mediany obu grup dla wszystkich cech.</p>
+<p>Wskazówka: <code>dane[dane[ETYKIETA] == 1][cechy].describe()</code> albo krócej <code>dane.groupby(ETYKIETA)[cechy].median()</code>.</p>
+<p>Odpowiedz sobie: dla której cechy różnica median jest największa proporcjonalnie do jej wartości?</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Pogrupuj wiersze według kolumny <code>Diabetic</code> - chcesz osobno zdrowych (0) i chorych (1).</li>
+<li>Dla każdej grupy policz <strong>medianę</strong> wszystkich cech.</li>
+<li>Odwróć tabelę, żeby cechy były w wierszach, a grupy w kolumnach - tak się to czyta o wiele łatwiej.</li>
+<li>Dodaj kolumnę z różnicą median między grupami.</li>
+<li>Dodaj kolumnę z różnicą <strong>względną</strong>, czyli różnicą podzieloną przez medianę zdrowych.</li>
+<li>Posortuj tabelę malejąco według różnicy względnej.</li>
+</ol>
+<blockquote>
+<p><strong>Dlaczego mediana, a nie średnia</strong>: mediana to wartość środkowa - połowa pacjentów ma mniej, połowa więcej. W odróżnieniu od średniej nie daje się zaburzyć pojedynczym skrajnym wynikiem. Przy danych medycznych, gdzie zdarzają się bardzo wysokie pomiary, to istotna różnica.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego różnica względna, a nie zwykła</strong>: <code>SerumInsulin</code> różni się o 101 jednostek, a <code>DiabetesPedigree</code> o 0,04. Porównywanie tych liczb wprost nie ma sensu, bo są w zupełnie innych skalach. Dzielenie przez wartość wyjściową sprowadza je do wspólnego mianownika: „o ile procent więcej".</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1-2: grupowanie i mediana</strong></p>
+<div class="highlight"><pre><span></span><span class="n">mediany</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">ETYKIETA</span><span class="p">)[</span><span class="n">cechy</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+</pre></div>
+<ul>
+<li><code>dane.groupby(ETYKIETA)</code> dzieli wiersze na grupy według wartości w kolumnie <code>Diabetic</code> - powstaną dwie grupy: 0 i 1.</li>
+<li><code>[cechy]</code> ogranicza działanie do kolumn z cechami. <code>cechy</code> to lista zdefiniowana wcześniej w notatniku, bez <code>PatientID</code> i bez <code>Diabetic</code>.</li>
+<li><code>.median()</code> liczy medianę każdej kolumny osobno w każdej grupie.</li>
+</ul>
+<p><strong>Krok 3: odwrócenie tabeli</strong></p>
+<div class="highlight"><pre><span></span><span class="n">mediany</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">ETYKIETA</span><span class="p">)[</span><span class="n">cechy</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+<span class="n">mediany</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'zdrowi (0)'</span><span class="p">,</span> <span class="s1">'chorzy (1)'</span><span class="p">]</span>
+</pre></div>
+<ul>
+<li><code>.T</code> to <strong>transpozycja</strong> - zamienia wiersze z kolumnami. Bez niej masz 2 wiersze i 8 kolumn, po niej 8 wierszy i 2 kolumny.</li>
+<li><code>mediany.columns = [...]</code> nadaje kolumnom czytelne nazwy zamiast <code>0</code> i <code>1</code>.</li>
+</ul>
+<p><strong>Krok 4-5: obie różnice</strong></p>
+<div class="highlight"><pre><span></span><span class="n">mediany</span><span class="p">[</span><span class="s1">'różnica'</span><span class="p">]</span> <span class="o">=</span> <span class="n">mediany</span><span class="p">[</span><span class="s1">'chorzy (1)'</span><span class="p">]</span> <span class="o">-</span> <span class="n">mediany</span><span class="p">[</span><span class="s1">'zdrowi (0)'</span><span class="p">]</span>
+<span class="n">mediany</span><span class="p">[</span><span class="s1">'różnica względna'</span><span class="p">]</span> <span class="o">=</span> <span class="n">mediany</span><span class="p">[</span><span class="s1">'różnica'</span><span class="p">]</span> <span class="o">/</span> <span class="n">mediany</span><span class="p">[</span><span class="s1">'zdrowi (0)'</span><span class="p">]</span>
+</pre></div>
+<p>Przypisanie do nieistniejącej kolumny <strong>tworzy ją</strong>. Odejmowanie i dzielenie działają tu na całych kolumnach naraz, wiersz po wierszu - nie potrzebujesz pętli.</p>
+<p><strong>Krok 6: sortowanie</strong></p>
+<div class="highlight"><pre><span></span><span class="n">mediany</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'różnica względna'</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">abs</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+<ul>
+<li><code>key=abs</code> sortuje według <strong>wartości bezwzględnej</strong>. Bez tego cecha, która u chorych jest niższa (różnica ujemna), wylądowałaby na końcu, choć różnica może być duża.</li>
+<li><code>ascending=False</code> układa od największej do najmniejszej.</li></ul></details>
+
+
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="n">mediany</span> <span class="o">=</span> <span class="n">dane</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">ETYKIETA</span><span class="p">)[</span><span class="n">cechy</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+<span class="n">mediany</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'zdrowi (0)'</span><span class="p">,</span> <span class="s1">'chorzy (1)'</span><span class="p">]</span>
+<span class="n">mediany</span><span class="p">[</span><span class="s1">'różnica'</span><span class="p">]</span> <span class="o">=</span> <span class="n">mediany</span><span class="p">[</span><span class="s1">'chorzy (1)'</span><span class="p">]</span> <span class="o">-</span> <span class="n">mediany</span><span class="p">[</span><span class="s1">'zdrowi (0)'</span><span class="p">]</span>
+<span class="n">mediany</span><span class="p">[</span><span class="s1">'różnica względna'</span><span class="p">]</span> <span class="o">=</span> <span class="n">mediany</span><span class="p">[</span><span class="s1">'różnica'</span><span class="p">]</span> <span class="o">/</span> <span class="n">mediany</span><span class="p">[</span><span class="s1">'zdrowi (0)'</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">mediany</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'różnica względna'</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">abs</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+             <span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Pełne describe() dla grupy chorych:"</span><span class="p">)</span>
+<span class="n">dane</span><span class="p">[</span><span class="n">dane</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][</span><span class="n">cechy</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+<p><strong>Czego się spodziewać</strong> - tabela uszeregowana mniej więcej tak:</p>
+<pre><code>                        zdrowi (0)  chorzy (1)  różnica  różnica względna
+Pregnancies                  1.000       5.000    4.000             4.000
+SerumInsulin                53.000     154.000  101.000             1.906
+Age                         23.000      37.000   14.000             0.609
+DiabetesPedigree             0.193       0.231    0.038             0.198
+BMI                         28.623      33.883    5.260             0.184
+PlasmaGlucose               96.000     108.000   12.000             0.125
+TricepsThickness            31.000      29.000   -2.000            -0.065
+DiastolicBloodPressure      69.000      73.000    4.000             0.058
+</code></pre>
+<p><strong>Jak to czytać:</strong></p>
+<ul>
+<li>Odpowiedź na pytanie z zadania to <strong><code>Pregnancies</code></strong>: mediana rośnie z 1 do 5, czyli o 400%. Żadna inna cecha nie zbliża się do tego.</li>
+<li><code>TricepsThickness</code> ma różnicę <strong>ujemną</strong> - u chorych jest niższa. Właśnie dlatego sortujesz przez <code>key=abs</code>.</li>
+<li>Porównaj ten ranking z korelacjami z sekcji 5. Kolejność jest podobna, ale nie identyczna - korelacja i różnica median to dwie różne miary i nie muszą się zgadzać co do joty.</li></ul></details>
+
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=a37f0871">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1937ba73"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-2:-Histogram-z-podzia%C5%82em-na-klasy">Zadanie 2: Histogram z podziałem na klasy<a class="anchor-link" href="#Zadanie-2:-Histogram-z-podzia%C5%82em-na-klasy">¶</a></h2><p>Narysuj histogram cechy <code>PlasmaGlucose</code> z <strong>dwoma nałożonymi rozkładami</strong>: osobno dla chorych, osobno dla zdrowych.</p>
+<p>Wskazówki:</p>
+<ul>
+<li>narysuj dwa razy <code>ax.hist(...)</code> na tej samej osi,</li>
+<li>użyj <code>alpha=0.6</code>, żeby oba były widoczne,</li>
+<li>ustaw <code>bins=30</code> i <code>label=...</code>, dodaj <code>ax.legend()</code>.</li>
+</ul>
+<p>Następnie powtórz to dla cechy, która według rankingu z sekcji 6 rozróżnia klasy <strong>najsłabiej</strong>. Porównaj oba rysunki - co widzisz?</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Utwórz figurę z jedną osią (<code>fig, ax = plt.subplots(...)</code>).</li>
+<li>Wybierz wiersze zdrowych pacjentów i narysuj z nich histogram na tej osi.</li>
+<li>Wybierz wiersze chorych i narysuj <strong>drugi</strong> histogram na <strong>tej samej</strong> osi.</li>
+<li>Dodaj legendę, podpis osi i tytuł.</li>
+<li>Powtórz całość dla cechy, która rozróżnia klasy najsłabiej. Nie wpisuj jej nazwy z pamięci - wylicz ją z danych.</li>
+</ol>
+<blockquote>
+<p><strong>Co to jest histogram</strong>: wykres pokazujący, ile obserwacji wpada w kolejne przedziały wartości. Słupek przy wartości 100 o wysokości 400 znaczy „400 pacjentów miało wynik w okolicy 100". Dwa nałożone histogramy pozwalają zobaczyć, czy chorzy i zdrowi mają <strong>różne</strong> rozkłady - a to jest dokładnie to, co model będzie próbował wykorzystać.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1: figura i oś</strong></p>
+<div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+</pre></div>
+<p><code>plt.subplots()</code> zwraca dwie rzeczy: figurę (całe płótno) i oś (jeden układ współrzędnych). Rysujesz zawsze na osi, czyli na <code>ax</code>.</p>
+<p><strong>Krok 2-3: dwa histogramy na jednej osi</strong></p>
+<div class="highlight"><pre><span></span><span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">dane</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dane</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'PlasmaGlucose'</span><span class="p">],</span>
+        <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'zdrowi'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">dane</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dane</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'PlasmaGlucose'</span><span class="p">],</span>
+        <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'chorzy'</span><span class="p">)</span>
+</pre></div>
+<p>Rozłóżmy pierwszą linię na części:</p>
+<ul>
+<li><code>dane[ETYKIETA] == 0</code> daje kolumnę wartości <code>True</code>/<code>False</code> - <code>True</code> tam, gdzie pacjent jest zdrowy.</li>
+<li><code>dane.loc[maska, 'PlasmaGlucose']</code> wybiera <strong>te wiersze</strong>, w których maska jest <code>True</code>, i z nich tylko kolumnę <code>PlasmaGlucose</code>.</li>
+<li><code>bins=30</code> dzieli zakres wartości na 30 przedziałów. Za mało przedziałów ukryje kształt, za dużo zamieni wykres w grzebień.</li>
+<li><code>alpha=0.6</code> to przezroczystość. <strong>Bez niej drugi histogram całkowicie zasłoni pierwszy</strong> - to najczęstszy błąd w tym zadaniu.</li>
+<li><code>label=</code> to podpis, który pojawi się w legendzie.</li>
+</ul>
+<p><strong>Krok 4: opisy</strong></p>
+<div class="highlight"><pre><span></span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'PlasmaGlucose'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'liczba pacjentów'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+<p><code>ax.legend()</code> <strong>musi</strong> być wywołane, inaczej podpisy z <code>label=</code> nigdzie się nie pojawią.</p>
+<p><strong>Krok 5: najsłabsza cecha - wyliczona, nie zgadnięta</strong></p>
+<div class="highlight"><pre><span></span><span class="n">najslabsza</span> <span class="o">=</span> <span class="n">macierz</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">ETYKIETA</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()</span>
+</pre></div>
+<ul>
+<li><code>macierz[ETYKIETA]</code> bierze kolumnę korelacji z etykietą.</li>
+<li><code>.drop(ETYKIETA)</code> usuwa korelację etykiety z samą sobą (zawsze równą 1).</li>
+<li><code>.abs()</code> bierze wartości bezwzględne - interesuje nas siła związku, nie jego kierunek.</li>
+<li><code>.idxmin()</code> zwraca <strong>nazwę</strong> cechy o najmniejszej wartości, a nie samą wartość.</li>
+</ul>
+<p>Żeby nie powtarzać kodu dwa razy, opłaca się zamknąć rysowanie w funkcji przyjmującej nazwę kolumny i oś.</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">histogram_wg_klas</span><span class="p">(</span><span class="n">kolumna</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">dane</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dane</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">kolumna</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">'#4C72B0'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'zdrowi'</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">dane</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dane</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">kolumna</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">'#C44E52'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'chorzy'</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">kolumna</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'liczba pacjentów'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kolumna</span><span class="si">}</span><span class="s2"> (korelacja z etykietą: </span><span class="si">{</span><span class="n">macierz</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kolumna</span><span class="p">,</span><span class="w"> </span><span class="n">ETYKIETA</span><span class="p">]</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+
+<span class="c1"># Cecha najslabiej rozrozniajaca klasy - wybieramy ja z danych, nie z pamieci</span>
+<span class="n">najslabsza</span> <span class="o">=</span> <span class="n">macierz</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">ETYKIETA</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Najsłabiej skorelowana z etykietą:"</span><span class="p">,</span> <span class="n">najslabsza</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
+<span class="n">histogram_wg_klas</span><span class="p">(</span><span class="s1">'PlasmaGlucose'</span><span class="p">,</span> <span class="n">ax1</span><span class="p">)</span>
+<span class="n">histogram_wg_klas</span><span class="p">(</span><span class="n">najslabsza</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<ul>
+<li>Wydruk: <code>Najsłabiej skorelowana z etykietą: DiastolicBloodPressure</code> (korelacja +0,087).</li>
+<li>Dwa wykresy obok siebie.</li>
+</ul>
+<p><strong>Jak to czytać - to jest pointa zadania:</strong></p>
+<ul>
+<li>Przy <code>PlasmaGlucose</code> oba rozkłady są przesunięte względem siebie. Widać, że chorzy mają wyższe wartości - <strong>nakładają się, ale nie pokrywają</strong>.</li>
+<li>Przy <code>DiastolicBloodPressure</code> oba rozkłady leżą niemal jeden na drugim. Gdybyś dostał sam pomiar ciśnienia, nie potrafiłbyś zgadnąć, czy pacjent jest chory.</li>
+<li>Dokładnie to oznacza „cecha rozróżnia klasy słabo". Korelacja 0,087 to ta sama informacja podana liczbą - wykres pokazuje ją tak, że się ją rozumie.</li></ul></details>
+
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=79719dac">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=ce7bcb31"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-3:-Najsilniej-skorelowane-pary-cech">Zadanie 3: Najsilniej skorelowane pary cech<a class="anchor-link" href="#Zadanie-3:-Najsilniej-skorelowane-pary-cech">¶</a></h2><p>Znajdź <strong>trzy pary cech</strong> (nie licząc etykiety) o najwyższej korelacji co do wartości bezwzględnej.</p>
+<p>Wskazówki:</p>
+<ul>
+<li>korzystaj z <code>macierz</code> policzonej w sekcji 5,</li>
+<li>każda para występuje w macierzy dwa razy, a na przekątnej są same jedynki - trzeba je pominąć; przyda się podwójna pętla po indeksach <code>i &lt; j</code> albo <code>macierz.where(np.triu(np.ones(macierz.shape), k=1).astype(bool))</code>.</li>
+</ul>
+<p>Zastanów się: czy któraś z tych par jest na tyle silnie skorelowana, że warto rozważyć usunięcie jednej z cech?</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Policz macierz korelacji <strong>samych cech</strong>, bez etykiety.</li>
+<li>Zostaw tylko górny trójkąt macierzy, bez przekątnej.</li>
+<li>Zamień macierz na listę par (cecha A, cecha B, korelacja).</li>
+<li>Dodaj kolumnę z wartością bezwzględną korelacji.</li>
+<li>Posortuj i wypisz trzy najsilniejsze oraz trzy najsłabsze pary.</li>
+</ol>
+<blockquote>
+<p><strong>Dlaczego górny trójkąt</strong>: macierz korelacji jest symetryczna - korelacja <code>BMI</code> z <code>Age</code> jest tą samą liczbą co korelacja <code>Age</code> z <code>BMI</code>. Gdybyś wziął całą macierz, każda para pojawiłaby się dwa razy. Na przekątnej są same jedynki (korelacja cechy z samą sobą), które zawsze wygrałyby ranking i zaśmieciły wynik.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1: korelacje bez etykiety</strong></p>
+<div class="highlight"><pre><span></span><span class="n">tylko_cechy</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="n">cechy</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+</pre></div>
+<p>Zwróć uwagę: <code>dane[cechy]</code>, a nie <code>dane[cechy + [ETYKIETA]]</code>. Zadanie pyta o korelacje <strong>między cechami</strong>, nie o ich związek z etykietą.</p>
+<p><strong>Krok 2: górny trójkąt</strong></p>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">gorny</span> <span class="o">=</span> <span class="n">tylko_cechy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">tylko_cechy</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))</span>
+</pre></div>
+<p>To jedna gęsta linia, więc od środka:</p>
+<ul>
+<li><code>np.ones(tylko_cechy.shape)</code> tworzy tablicę 8x8 wypełnioną jedynkami.</li>
+<li><code>np.triu(..., k=1)</code> zeruje wszystko poniżej przekątnej <strong>oraz samą przekątną</strong> (to robi <code>k=1</code>). Zostaje górny trójkąt.</li>
+<li><code>.astype(bool)</code> zamienia 1 na <code>True</code>, a 0 na <code>False</code>.</li>
+<li><code>.where(maska)</code> zostawia wartości tam, gdzie maska jest <code>True</code>, a w pozostałych miejscach wstawia <code>NaN</code>.</li>
+</ul>
+<p><strong>Krok 3: z macierzy na listę par</strong></p>
+<div class="highlight"><pre><span></span><span class="n">pary</span> <span class="o">=</span> <span class="p">(</span><span class="n">gorny</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+             <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">'korelacja'</span><span class="p">)</span>
+             <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+             <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">'level_0'</span><span class="p">:</span> <span class="s1">'cecha A'</span><span class="p">,</span> <span class="s1">'level_1'</span><span class="p">:</span> <span class="s1">'cecha B'</span><span class="p">}))</span>
+</pre></div>
+<ul>
+<li><code>.stack()</code> „rozkłada" tabelę na jedną długą kolumnę, w której indeks to para (wiersz, kolumna). <strong>Pomija przy tym <code>NaN</code></strong>, więc dolny trójkąt znika sam.</li>
+<li><code>.reset_index()</code> zamienia ten indeks w zwykłe kolumny, domyślnie nazwane <code>level_0</code> i <code>level_1</code>.</li>
+<li><code>.rename(columns=...)</code> nadaje im czytelne nazwy.</li>
+</ul>
+<p><strong>Krok 4-5: sortowanie</strong></p>
+<div class="highlight"><pre><span></span><span class="n">pary</span><span class="p">[</span><span class="s1">'|korelacja|'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pary</span><span class="p">[</span><span class="s1">'korelacja'</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+<span class="n">pary</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'|korelacja|'</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">pary</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'|korelacja|'</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+<p>Osobna kolumna z wartością bezwzględną jest wygodniejsza od <code>key=abs</code>, bo chcesz ją też <strong>zobaczyć</strong> w wyniku.</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="n">tylko_cechy</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="n">cechy</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+
+<span class="c1"># Bierzemy gorny trojkat bez przekatnej - kazda para dokladnie raz</span>
+<span class="n">gorny</span> <span class="o">=</span> <span class="n">tylko_cechy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">tylko_cechy</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))</span>
+
+<span class="n">pary</span> <span class="o">=</span> <span class="p">(</span><span class="n">gorny</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+             <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">'korelacja'</span><span class="p">)</span>
+             <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+             <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">'level_0'</span><span class="p">:</span> <span class="s1">'cecha A'</span><span class="p">,</span> <span class="s1">'level_1'</span><span class="p">:</span> <span class="s1">'cecha B'</span><span class="p">}))</span>
+<span class="n">pary</span><span class="p">[</span><span class="s1">'|korelacja|'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pary</span><span class="p">[</span><span class="s1">'korelacja'</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Trzy najsilniej skorelowane pary cech:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pary</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'|korelacja|'</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Trzy najsłabiej skorelowane pary cech:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pary</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'|korelacja|'</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code>Trzy najsilniej skorelowane pary cech:
+    cecha A      cecha B  korelacja  |korelacja|
+Pregnancies          Age   0.144361     0.144361
+Pregnancies SerumInsulin   0.115830     0.115830
+Pregnancies          BMI   0.098109     0.098109
+</code></pre>
+<p><strong>Odpowiedź na pytanie z zadania jest przecząca - i to jest najważniejsze w tym zadaniu.</strong></p>
+<p>Najsilniejsza para w całym zbiorze ma korelację <strong>0,144</strong>. To bardzo mało. Za próg, przy którym w ogóle rozważa się usunięcie jednej z cech, przyjmuje się zwykle 0,8-0,9. <strong>Żadnej cechy nie należy tu usuwać.</strong></p>
+<p>Gdyby któraś para miała korelację rzędu 0,95, obie kolumny niosłyby praktycznie tę samą informację. Model dostawałby ją podwójnie, a jego współczynniki stawałyby się niestabilne - to zjawisko nazywa się <strong>współliniowością</strong> (ang. <em>multicollinearity</em>).</p>
+<p>Warto zapamiętać, że <strong>negatywny wynik też jest wynikiem</strong>. Sprawdziłeś realne ryzyko i wykluczyłeś je pomiarem, zamiast zakładać.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e693cc94">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=78dfd10d"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-4:-Regu%C5%82a-IQR-z-innym-mno%C5%BCnikiem">Zadanie 4: Reguła IQR z innym mnożnikiem<a class="anchor-link" href="#Zadanie-4:-Regu%C5%82a-IQR-z-innym-mno%C5%BCnikiem">¶</a></h2><p>Funkcja <code>granice_iqr</code> ma parametr <code>mnoznik</code>, domyślnie 1,5. Sprawdź, jak liczba wartości odstających w cesze <code>SerumInsulin</code> zmienia się dla mnożników 1,0, 1,5, 2,0 i 3,0.</p>
+<p>Wypisz tabelkę: mnożnik, granice, liczba odstających, udział procentowy.</p>
+<p>Zastanów się: skąd w ogóle wzięła się wartość 1,5? Czy jest w niej coś matematycznie koniecznego?</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Przygotuj listę mnożników do sprawdzenia: 1,0, 1,5, 2,0 i 3,0.</li>
+<li>Dla każdego mnożnika wywołaj gotową funkcję <code>granice_iqr</code> na kolumnie <code>SerumInsulin</code>.</li>
+<li>Policz, ile wartości wypada poza wyznaczone granice.</li>
+<li>Policz, jaki to procent wszystkich wierszy.</li>
+<li>Zbierz wyniki w tabelę i ją wypisz.</li>
+</ol>
+<blockquote>
+<p><strong>Przypomnienie reguły IQR</strong>: bierzesz pierwszy kwartyl Q1 (25% danych jest poniżej) i trzeci kwartyl Q3 (75% poniżej). Ich różnica to rozstęp międzykwartylowy IQR. Granice to <code>Q1 - mnożnik * IQR</code> i <code>Q3 + mnożnik * IQR</code>. Im większy mnożnik, tym szersze granice i tym mniej wartości uznanych za odstające.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1-2: pętla po mnożnikach</strong></p>
+<div class="highlight"><pre><span></span><span class="n">wiersze</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">mnoznik</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">]:</span>
+    <span class="n">dol</span><span class="p">,</span> <span class="n">gora</span> <span class="o">=</span> <span class="n">granice_iqr</span><span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">],</span> <span class="n">mnoznik</span><span class="p">)</span>
+</pre></div>
+<p><code>granice_iqr</code> zwraca <strong>dwie</strong> wartości naraz, więc możesz je od razu rozpakować do dwóch zmiennych.</p>
+<p><strong>Krok 3: liczenie odstających</strong></p>
+<div class="highlight"><pre><span></span>    <span class="n">odstajace</span> <span class="o">=</span> <span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dol</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">gora</span><span class="p">)</span>
+    <span class="n">liczba</span> <span class="o">=</span> <span class="n">odstajace</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+<ul>
+<li>Każde porównanie daje kolumnę <code>True</code>/<code>False</code>.</li>
+<li><code>|</code> to „lub" działające element po elemencie. <strong>Musi być w nawiasach</strong>, bo <code>|</code> ma w Pythonie wyższy priorytet niż <code>&lt;</code> i bez nawiasów dostaniesz błąd.</li>
+<li><code>.sum()</code> na kolumnie <code>True</code>/<code>False</code> liczy <code>True</code> jako 1 - dostajesz liczbę odstających.</li>
+</ul>
+<p><strong>Krok 4: procent</strong></p>
+<div class="highlight"><pre><span></span>    <span class="n">udzial</span> <span class="o">=</span> <span class="n">odstajace</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+<p><code>.mean()</code> na tej samej kolumnie daje od razu <strong>udział</strong> (średnia z zer i jedynek to właśnie udział jedynek). Nie musisz dzielić przez <code>len(dane)</code>.</p>
+<p><strong>Krok 5: tabela</strong></p>
+<div class="highlight"><pre><span></span>    <span class="n">wiersze</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">'mnożnik'</span><span class="p">:</span> <span class="n">mnoznik</span><span class="p">,</span>
+        <span class="s1">'dolna granica'</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">dol</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s1">'górna granica'</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">gora</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s1">'liczba odstających'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">odstajace</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+        <span class="s1">'udział'</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">odstajace</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+    <span class="p">})</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wiersze</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+<p>Budowanie listy słowników, a na końcu jedno <code>pd.DataFrame(...)</code>, jest szybsze i czytelniejsze niż doklejanie wierszy do tabeli w pętli.</p>
+<p><code>to_string(index=False)</code> ukrywa numery wierszy 0-3, które niczego tu nie wnoszą.</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="n">wiersze</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">mnoznik</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">]:</span>
+    <span class="n">dol</span><span class="p">,</span> <span class="n">gora</span> <span class="o">=</span> <span class="n">granice_iqr</span><span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">],</span> <span class="n">mnoznik</span><span class="p">)</span>
+    <span class="n">odstajace</span> <span class="o">=</span> <span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dol</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">dane</span><span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">gora</span><span class="p">)</span>
+    <span class="n">wiersze</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">'mnożnik'</span><span class="p">:</span> <span class="n">mnoznik</span><span class="p">,</span>
+        <span class="s1">'dolna granica'</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">dol</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s1">'górna granica'</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">gora</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s1">'liczba odstających'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">odstajace</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+        <span class="s1">'udział'</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">odstajace</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+    <span class="p">})</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wiersze</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code> mnożnik  dolna granica  górna granica  liczba odstających udział
+     1.0         -119.0          355.0                 699  6.99%
+     1.5         -198.0          434.0                 448  4.48%
+     2.0         -277.0          513.0                 267  2.67%
+     3.0         -435.0          671.0                  77  0.77%
+</code></pre>
+<p><strong>Jak to czytać:</strong></p>
+<ul>
+<li>Liczba odstających spada z 699 do 77 - <strong>dziewięciokrotnie</strong> - a dane się nie zmieniły. Zmienił się wyłącznie próg, który sam sobie ustawiłeś.</li>
+<li>Dolna granica jest <strong>ujemna</strong> w każdym wariancie. Insulina nie może być ujemna, więc reguła IQR nie wykryje tu żadnej wartości „za niskiej". Wszystkie odstające to wartości za wysokie.</li>
+</ul>
+<p><strong>Odpowiedź na pytanie „skąd 1,5":</strong> to <strong>konwencja</strong>, a nie wynik matematyczny. Zaproponował ją John Tukey przy okazji wykresu pudełkowego, bo dla rozkładu normalnego daje około 0,7% odstających, co uznał za rozsądny próg. Nie ma tu żadnej konieczności - liczba 1,5 jest wyborem, nie prawem.</p>
+<p>To ważniejsze, niż wygląda: <strong>„wartość odstająca" nie jest własnością danych, tylko skutkiem progu, który ktoś przyjął.</strong> Zmiana progu zmienia odpowiedź, a dane zostają te same.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=fc6bbccd">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=4ac42818"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-5:-Wykryj-podejrzane-zera-samodzielnie">Zadanie 5: Wykryj podejrzane zera samodzielnie<a class="anchor-link" href="#Zadanie-5:-Wykryj-podejrzane-zera-samodzielnie">¶</a></h2><p>Napisz funkcję <code>raport_zer(ramka, kolumny, prog=0.01)</code>, która:</p>
+<ol>
+<li>dla każdej kolumny liczy udział zer,</li>
+<li>wypisuje <strong>tylko te kolumny</strong>, w których udział zer przekracza <code>prog</code>,</li>
+<li>sortuje wynik malejąco według udziału zer.</li>
+</ol>
+<p>Uruchom ją na <code>dane_surowe</code> i na <code>dane</code>. Porównaj wyniki.</p>
+<p>Następnie odpowiedz: funkcja wskaże także <code>Pregnancies</code>. Dlaczego to <strong>nie jest</strong> błąd funkcji i czego to dowodzi o automatycznym wykrywaniu problemów z danymi?</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Zdefiniuj funkcję o trzech parametrach: ramka danych, lista kolumn i próg (domyślnie 0,01).</li>
+<li>W środku przejdź po kolumnach i dla każdej policz udział zer.</li>
+<li>Zatrzymaj tylko te kolumny, w których udział przekracza próg.</li>
+<li>Posortuj wynik malejąco i zwróć go.</li>
+<li>Uruchom funkcję na <code>dane_surowe</code>, potem na <code>dane</code>, i porównaj wyniki.</li>
+</ol>
+<blockquote>
+<p><strong>Po co pisać funkcję, a nie jednorazowy kod</strong>: bo ten test będziesz chciał uruchomić na każdym nowym zbiorze danych, jaki dostaniesz. Kod wklejony raz do notatnika ginie; funkcja zostaje i daje się przenieść.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1: nagłówek funkcji</strong></p>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">raport_zer</span><span class="p">(</span><span class="n">ramka</span><span class="p">,</span> <span class="n">kolumny</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+</pre></div>
+<p><code>prog=0.01</code> to <strong>wartość domyślna</strong>. Możesz wywołać <code>raport_zer(dane, cechy)</code> i próg wyniesie 0,01, albo <code>raport_zer(dane, cechy, prog=0.05)</code> i użyty zostanie 0,05.</p>
+<p><strong>Krok 2: udział zer w kolumnie</strong></p>
+<div class="highlight"><pre><span></span>    <span class="n">udzialy</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">kolumna</span> <span class="ow">in</span> <span class="n">kolumny</span><span class="p">:</span>
+        <span class="n">udzialy</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ramka</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+<p><code>(ramka[kolumna] == 0)</code> daje kolumnę <code>True</code>/<code>False</code>, a <code>.mean()</code> zamienia ją od razu na udział - ten sam chwyt co w zadaniu 4.</p>
+<p><strong>Krok 3-4: filtr, sortowanie i druga kolumna</strong></p>
+<div class="highlight"><pre><span></span>    <span class="n">wynik</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">udzialy</span><span class="p">)</span>
+               <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span> <span class="o">&gt;</span> <span class="n">prog</span><span class="p">]</span>
+               <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+               <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">'udział zer'</span><span class="p">)</span>
+               <span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
+    <span class="n">wynik</span><span class="p">[</span><span class="s1">'liczba zer'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">ramka</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">wynik</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">wynik</span>
+</pre></div>
+<ul>
+<li><code>pd.Series(słownik)</code> robi z niego kolumnę z nazwami kolumn jako indeksem.</li>
+<li><code>.loc[lambda s: s &gt; prog]</code> zostawia tylko pozycje powyżej progu. Zapis z <code>lambda</code> znaczy „weź to, co właśnie powstało w łańcuchu, i zastosuj do tego warunek" - dzięki temu nie trzeba przerywać łańcucha i zapisywać wyniku do zmiennej pomocniczej.</li>
+<li><code>.rename('udział zer')</code> nadaje kolumnie nazwę, a <code>.to_frame()</code> zamienia pojedynczą kolumnę w tabelę - bez tego nie dałoby się dołożyć drugiej kolumny.</li>
+<li>Ostatnia linia dokłada liczby bezwzględne. Sam udział bywa mylący: 5% z dziesięciu wierszy to zupełnie inna sytuacja niż 5% z dziesięciu tysięcy.</li>
+<li>Funkcja <strong>zwraca</strong> wynik zamiast go drukować - dzięki temu da się go dalej użyć w kodzie, a nie tylko obejrzeć.</li>
+</ul>
+<p><strong>Krok 5: dwa uruchomienia</strong></p>
+<div class="highlight"><pre><span></span><span class="n">r_surowe</span> <span class="o">=</span> <span class="n">raport_zer</span><span class="p">(</span><span class="n">dane_surowe</span><span class="p">,</span> <span class="n">cechy</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">r_surowe</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_surowe</span><span class="p">)</span>
+      <span class="k">else</span> <span class="s2">"brak kolumn powyżej progu"</span><span class="p">)</span>
+</pre></div>
+<p>Przekazujesz <code>cechy</code>, a nie wszystkie kolumny - inaczej funkcja zgłosi też <code>Diabetic</code>, gdzie 66% zer to poprawna wartość etykiety, a nie brak danych.</p>
+<p>Sprawdzenie <code>if len(r_surowe)</code> jest potrzebne, bo <code>to_string()</code> na pustej tabeli daje mylący wydruk samych nagłówków. Funkcja, która nic nie znalazła, powinna powiedzieć to wprost.</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">raport_zer</span><span class="p">(</span><span class="n">ramka</span><span class="p">,</span> <span class="n">kolumny</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="c1"># Zwraca kolumny, w ktorych udzial zer przekracza prog, posortowane malejaco.</span>
+    <span class="n">udzialy</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">(</span><span class="n">ramka</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kolumny</span><span class="p">}</span>
+    <span class="n">wynik</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">udzialy</span><span class="p">)</span>
+               <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span> <span class="o">&gt;</span> <span class="n">prog</span><span class="p">]</span>
+               <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+               <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">'udział zer'</span><span class="p">)</span>
+               <span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
+    <span class="n">wynik</span><span class="p">[</span><span class="s1">'liczba zer'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">ramka</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">wynik</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">wynik</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"=== dane_surowe (symulowany wadliwy eksport) ==="</span><span class="p">)</span>
+<span class="n">r_surowe</span> <span class="o">=</span> <span class="n">raport_zer</span><span class="p">(</span><span class="n">dane_surowe</span><span class="p">,</span> <span class="n">cechy</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">r_surowe</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_surowe</span><span class="p">)</span>
+      <span class="k">else</span> <span class="s2">"brak kolumn powyżej progu"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"=== dane (plik oryginalny) ==="</span><span class="p">)</span>
+<span class="n">r_czyste</span> <span class="o">=</span> <span class="n">raport_zer</span><span class="p">(</span><span class="n">dane</span><span class="p">,</span> <span class="n">cechy</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">r_czyste</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_czyste</span><span class="p">)</span>
+      <span class="k">else</span> <span class="s2">"brak kolumn powyżej progu"</span><span class="p">)</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code>=== dane_surowe (symulowany wadliwy eksport) ===
+                        udział zer  liczba zer
+SerumInsulin                 0.355        3555
+Pregnancies                  0.288        2879
+TricepsThickness             0.197        1967
+DiastolicBloodPressure       0.048         482
+
+=== dane (plik oryginalny) ===
+             udział zer  liczba zer
+Pregnancies       0.288        2879
+</code></pre>
+<p><strong>Jak to czytać:</strong></p>
+<ul>
+<li>W zepsutych danych funkcja wskazała cztery kolumny, w prawdziwych - jedną.</li>
+<li>Trzy kolumny, które zniknęły z drugiej listy (<code>SerumInsulin</code>, <code>TricepsThickness</code>, <code>DiastolicBloodPressure</code>), to dokładnie te, które wcześniej celowo zepsuto. Funkcja znalazła je <strong>nie wiedząc o tym</strong>.</li>
+</ul>
+<p><strong>Odpowiedź na pytanie o <code>Pregnancies</code>:</strong> 28,79% zer występuje w <strong>obu</strong> wersjach danych, także w nieuszkodzonej. I słusznie - zero przebytych ciąż to prawdziwa, sensowna wartość.</p>
+<p>Czego to dowodzi o automatycznym wykrywaniu problemów: <strong>narzędzie wskazuje podejrzanych, ale nie wydaje wyroku.</strong> Żeby rozstrzygnąć, czy zero jest wartością, czy zakamuflowanym brakiem, trzeba wiedzieć, co dana kolumna znaczy w rzeczywistości. Tej wiedzy nie ma w pliku CSV - masz ją Ty albo lekarz, z którym rozmawiasz. Automat, który sam usuwałby wszystkie kolumny z zerami, wyrzuciłby tu poprawną cechę.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=9501349c">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=58a69e55"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-6:-Ile-kosztuje-jedno-przeoczone-zero?">Zadanie 6: Ile kosztuje jedno przeoczone zero?<a class="anchor-link" href="#Zadanie-6:-Ile-kosztuje-jedno-przeoczone-zero?">¶</a></h2><p>Na kolumnie <code>TricepsThickness</code> z ramki <code>dane_surowe</code>:</p>
+<ol>
+<li>policz średnią i odchylenie standardowe <strong>razem z zerami</strong>,</li>
+<li>policz te same statystyki <strong>po zamianie zer na <code>NaN</code></strong> (<code>.replace(0, np.nan)</code>),</li>
+<li>porównaj obie wersje z wartościami z ramki <code>dane</code> (dane prawdziwe),</li>
+<li>wyraź błąd średniej w procentach wartości prawdziwej.</li>
+</ol>
+<p>Na koniec narysuj wykres pudełkowy tej cechy w trzech wersjach obok siebie: prawdziwej, z zerami i po zamianie na <code>NaN</code>.</p>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Weź kolumnę <code>TricepsThickness</code> z ramki <code>dane_surowe</code> i policz jej średnią oraz odchylenie standardowe.</li>
+<li>Zrób kopię tej kolumny z zerami zamienionymi na <code>NaN</code> i policz te same dwie statystyki.</li>
+<li>Policz je również dla prawdziwej kolumny z ramki <code>dane</code>.</li>
+<li>Policz, o ile procent średnia „z zerami" różni się od prawdziwej.</li>
+<li>Narysuj wykres pudełkowy trzech wersji obok siebie.</li>
+</ol>
+<blockquote>
+<p><strong>Czym jest <code>NaN</code></strong>: skrót od <em>not a number</em>, czyli „tu nie ma wartości". Pandas traktuje <code>NaN</code> inaczej niż zero - <strong>pomija go</strong> przy liczeniu średniej zamiast wliczać jako 0. Na tym polega cała różnica w tym zadaniu.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1: statystyki z zerami</strong></p>
+<div class="highlight"><pre><span></span><span class="n">kolumna</span> <span class="o">=</span> <span class="s1">'TricepsThickness'</span>
+<span class="n">z_zerami</span> <span class="o">=</span> <span class="n">dane_surowe</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">z_zerami</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">z_zerami</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+</pre></div>
+<p><strong>Krok 2: zamiana zer na NaN</strong></p>
+<div class="highlight"><pre><span></span><span class="n">po_naprawie</span> <span class="o">=</span> <span class="n">dane_surowe</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+</pre></div>
+<p><code>.replace(0, np.nan)</code> zwraca <strong>nową</strong> kolumnę i nie zmienia <code>dane_surowe</code>. To dobrze - oryginał zostaje nienaruszony do porównania.</p>
+<p><strong>Krok 3: wartości prawdziwe</strong></p>
+<div class="highlight"><pre><span></span><span class="n">prawdziwe</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span>
+</pre></div>
+<p><strong>Krok 4: błąd względny</strong></p>
+<div class="highlight"><pre><span></span><span class="n">blad_z_zerami</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_zerami</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">prawdziwe</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="n">prawdziwe</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Błąd średniej Z ZERAMI: </span><span class="si">{</span><span class="n">blad_z_zerami</span><span class="si">:</span><span class="s2">+.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+<p><code>:+.1%</code> w f-stringu robi dwie rzeczy naraz: mnoży przez 100 i dokleja znak procenta, a <code>+</code> wymusza wypisanie znaku. Od razu widać, czy błąd zaniża, czy zawyża.</p>
+<p>Do tabeli warto dołożyć jeszcze <code>mediana</code> i <code>liczba wartości</code> - ta druga jest tu najciekawsza. <code>.count()</code> liczy wartości <strong>pomijając <code>NaN</code></strong>, więc pokaże, ilu pomiarów naprawdę brakuje.</p>
+<p><strong>Krok 5: wykres pudełkowy</strong></p>
+<div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">boxplot</span><span class="p">([</span><span class="n">prawdziwe</span><span class="p">,</span> <span class="n">z_zerami</span><span class="p">,</span> <span class="n">po_naprawie</span><span class="o">.</span><span class="n">dropna</span><span class="p">()],</span> <span class="n">patch_artist</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">'prawdziwe'</span><span class="p">,</span> <span class="s1">'z zerami'</span><span class="p">,</span> <span class="s1">'po zamianie</span><span class="se">\n</span><span class="s1">na NaN'</span><span class="p">])</span>
+</pre></div>
+<ul>
+<li><code>.dropna()</code> jest konieczne - <code>boxplot</code> nie poradzi sobie z <code>NaN</code> w danych wejściowych.</li>
+<li>Etykiety ustawiaj przez <code>ax.set_xticklabels(...)</code>, a nie argumentem <code>labels=</code>. Ten drugi został wycofany w Matplotlib 3.9 i wypisuje ostrzeżenie.</li></ul></details>
+
+
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="n">kolumna</span> <span class="o">=</span> <span class="s1">'TricepsThickness'</span>
+
+<span class="n">prawdziwe</span> <span class="o">=</span> <span class="n">dane</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span>
+<span class="n">z_zerami</span> <span class="o">=</span> <span class="n">dane_surowe</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span>
+<span class="n">po_naprawie</span> <span class="o">=</span> <span class="n">dane_surowe</span><span class="p">[</span><span class="n">kolumna</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+<span class="n">zestawienie</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">'średnia'</span><span class="p">:</span> <span class="p">[</span><span class="n">prawdziwe</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">z_zerami</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">po_naprawie</span><span class="o">.</span><span class="n">mean</span><span class="p">()],</span>
+    <span class="s1">'odch. std'</span><span class="p">:</span> <span class="p">[</span><span class="n">prawdziwe</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="n">z_zerami</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="n">po_naprawie</span><span class="o">.</span><span class="n">std</span><span class="p">()],</span>
+    <span class="s1">'mediana'</span><span class="p">:</span> <span class="p">[</span><span class="n">prawdziwe</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span> <span class="n">z_zerami</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span> <span class="n">po_naprawie</span><span class="o">.</span><span class="n">median</span><span class="p">()],</span>
+    <span class="s1">'liczba wartości'</span><span class="p">:</span> <span class="p">[</span><span class="n">prawdziwe</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">z_zerami</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">po_naprawie</span><span class="o">.</span><span class="n">count</span><span class="p">()],</span>
+<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">'dane prawdziwe'</span><span class="p">,</span> <span class="s1">'z zerami'</span><span class="p">,</span> <span class="s1">'po zamianie 0 na NaN'</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">zestawienie</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="n">blad_z_zerami</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_zerami</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">prawdziwe</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="n">prawdziwe</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">blad_po_naprawie</span> <span class="o">=</span> <span class="p">(</span><span class="n">po_naprawie</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">prawdziwe</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="n">prawdziwe</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Błąd średniej Z ZERAMI:          </span><span class="si">{</span><span class="n">blad_z_zerami</span><span class="si">:</span><span class="s2">+.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Błąd średniej PO ZAMIANIE NA NaN: </span><span class="si">{</span><span class="n">blad_po_naprawie</span><span class="si">:</span><span class="s2">+.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">boxplot</span><span class="p">([</span><span class="n">prawdziwe</span><span class="p">,</span> <span class="n">z_zerami</span><span class="p">,</span> <span class="n">po_naprawie</span><span class="o">.</span><span class="n">dropna</span><span class="p">()],</span>
+           <span class="n">patch_artist</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">'prawdziwe'</span><span class="p">,</span> <span class="s1">'z zerami'</span><span class="p">,</span> <span class="s1">'po zamianie</span><span class="se">\n</span><span class="s1">na NaN'</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">kolumna</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Skutek nierozpoznanych zer - ten sam pomiar, trzy wersje'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'y'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code>                      średnia  odch. std  mediana  liczba wartości
+dane prawdziwe          28.82      14.51     31.0            10000
+z zerami                23.15      17.32     23.0            10000
+po zamianie 0 na NaN    28.82      14.50     31.0             8033
+
+Błąd średniej Z ZERAMI:          -19.7%
+Błąd średniej PO ZAMIANIE NA NaN: -0.0%
+</code></pre>
+<p><strong>Jak to czytać - i dlaczego to jest groźne:</strong></p>
+<ul>
+<li>Średnia „z zerami" jest zaniżona o <strong>19,7%</strong>. Gdyby to była grubość fałdu skórnego w badaniu klinicznym, pomyliłbyś się o jedną piątą - i nic by o tym nie krzyknęło.</li>
+<li>Odchylenie standardowe <strong>rośnie</strong> z 14,5 do 17,3. Zera dorzucają sztuczne skupisko przy zerze, więc dane wyglądają na bardziej rozrzucone, niż są.</li>
+<li>Po zamianie zer na <code>NaN</code> średnia wraca do wartości prawdziwej, a błąd spada do <strong>-0,0%</strong> - nie dlatego, że coś zgadliśmy, tylko dlatego, że przestaliśmy wliczać nieistniejące pomiary.</li>
+<li>Kolumna <code>liczba wartości</code> pokazuje cenę tej naprawy: z 10 000 pomiarów zostaje <strong>8033</strong>. Prawie 2000 wierszy nie ma tej cechy w ogóle - wcześniej udawały zera i wyglądały jak dane.</li>
+<li>Mediana spada z 31 do 23 i wraca do 31. Zera przesuwają nawet miarę, która z założenia jest odporna na wartości skrajne - bo tu nie chodzi o pojedynczy odstający wynik, tylko o jedną piątą zbioru.</li>
+</ul>
+<p>Na wykresie pudełkowym środkowe pudełko jest rozciągnięte w dół, a jego wąs sięga zera. Dwa pozostałe wyglądają praktycznie identycznie.</p>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=fa47adc9">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1d245963"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-7-(trudniejsze):-Czy-model-zauwa%C5%BCy-r%C3%B3%C5%BCnic%C4%99?">Zadanie 7 (trudniejsze): Czy model zauważy różnicę?<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Czy-model-zauwa%C5%BCy-r%C3%B3%C5%BCnic%C4%99?">¶</a></h2><p>Sprawdź empirycznie, czy podejrzane zera faktycznie szkodzą modelowi. Porównaj <strong>trzy warianty</strong> tych samych danych:</p>
+<ul>
+<li><strong>A</strong> - dane prawdziwe (<code>dane</code>),</li>
+<li><strong>B</strong> - dane zepsute (<code>dane_surowe</code>), wrzucone do modelu tak jak są, razem z zerami,</li>
+<li><strong>C</strong> - dane zepsute, ale z wierszami zawierającymi zera <strong>usuniętymi</strong> (zamień zera na <code>NaN</code> i użyj <code>dropna()</code>).</li>
+</ul>
+<p>Dla każdego wariantu:</p>
+<ol>
+<li>zbuduj <code>X</code> (bez <code>PatientID</code> i <code>Diabetic</code>) oraz <code>y</code>,</li>
+<li>podziel dane (<code>test_size=0.2</code>, <code>stratify=y</code>, <code>random_state=42</code>),</li>
+<li>wytrenuj <code>make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, random_state=42))</code>,</li>
+<li>wypisz skuteczność na zbiorze testowym <strong>oraz liczbę wierszy</strong>, na których model się uczył.</li>
+</ol>
+<p>Pytania, na które odpowiadasz wynikiem:</p>
+<ul>
+<li>Czy wariant B wypada zauważalnie gorzej od A? Czy różnica jest tak duża, że ktoś by ją zauważył bez porównania?</li>
+<li>Ile danych kosztowało nas podejście C? Czy to była dobra cena?</li>
+<li>Który wariant jest <strong>najbardziej niebezpieczny w praktyce</strong> - i dlaczego to nie jest ten o najniższej skuteczności?</li>
+</ul>
+<details>
+<summary><b>Krok po kroku - co masz zrobić</b> (kliknij, żeby rozwinąć)</summary>
+<ol>
+<li>Napisz funkcję, która dostaje ramkę danych i opis, a zwraca skuteczność modelu i liczbę wierszy uczących.</li>
+<li>W środku: wydziel <code>X</code> (bez <code>PatientID</code> i <code>Diabetic</code>) oraz <code>y</code> (sama kolumna <code>Diabetic</code>).</li>
+<li>Podziel dane na część uczącą i testową.</li>
+<li>Zbuduj potok: skalowanie + regresja logistyczna, i naucz go na części uczącej.</li>
+<li>Policz skuteczność na części testowej.</li>
+<li>Przygotuj trzy warianty danych (A, B, C) i przepuść każdy przez tę funkcję.</li>
+<li>Zestaw wyniki w jednej tabeli.</li>
+</ol>
+<blockquote>
+<p><strong>Po co potok (<code>make_pipeline</code>)</strong>: regresja logistyczna działa źle, gdy cechy mają bardzo różne skale - <code>SerumInsulin</code> sięga setek, a <code>DiabetesPedigree</code> jest poniżej jedynki. <code>StandardScaler</code> sprowadza je do wspólnej skali. Potok łączy skalowanie i model w jeden obiekt, dzięki czemu skalowanie jest uczone <strong>tylko na danych uczących</strong> - inaczej doszłoby do przecieku informacji ze zbioru testowego.</p>
+</blockquote></details>
+
+<details>
+<summary><b>Jak to napisać - kod z wyjaśnieniem</b></summary>
+<p><strong>Krok 1-2: funkcja i podział na X oraz y</strong></p>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">ocen</span><span class="p">(</span><span class="n">ramka</span><span class="p">,</span> <span class="n">opis</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">ramka</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">IDENTYFIKATOR</span><span class="p">,</span> <span class="n">ETYKIETA</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">ramka</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span>
+</pre></div>
+<ul>
+<li><code>X</code> to cechy, czyli wszystko poza identyfikatorem i etykietą. <code>PatientID</code> <strong>musi</strong> wypaść - to numer z rejestracji, a model potrafiłby się go nauczyć na pamięć.</li>
+<li><code>y</code> to kolumna, którą przewidujemy.</li>
+</ul>
+<p><strong>Krok 3: podział</strong></p>
+<div class="highlight"><pre><span></span>    <span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+    <span class="p">)</span>
+</pre></div>
+<ul>
+<li><code>test_size=0.2</code> odkłada 20% danych na test.</li>
+<li><code>stratify=y</code> pilnuje, żeby proporcja chorych do zdrowych była <strong>taka sama</strong> w obu częściach. Bez tego mógłbyś dostać zbiór testowy o innym składzie niż uczący i porównanie straciłoby sens.</li>
+<li><code>random_state=42</code> sprawia, że losowanie jest powtarzalne. Przy porównywaniu trzech wariantów jest to konieczne - inaczej nie wiedziałbyś, czy różnica bierze się z danych, czy z innego losowania.</li>
+</ul>
+<p><strong>Krok 4: potok i trenowanie</strong></p>
+<div class="highlight"><pre><span></span>    <span class="n">model</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+        <span class="n">StandardScaler</span><span class="p">(),</span>
+        <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+</pre></div>
+<p><code>max_iter=1000</code> podnosi limit iteracji - przy wartości domyślnej algorytm często nie zdąży się zbiec i wypisze ostrzeżenie.</p>
+<p><strong>Krok 5: ocena i zwrócenie wyniku</strong></p>
+<div class="highlight"><pre><span></span>    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'wariant'</span><span class="p">:</span> <span class="n">opis</span><span class="p">,</span>
+        <span class="s1">'wierszy razem'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ramka</span><span class="p">),</span>
+        <span class="s1">'wierszy uczących'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">),</span>
+        <span class="s1">'skuteczność testowa'</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">),</span>
+    <span class="p">}</span>
+</pre></div>
+<p><code>m.score(...)</code> dla klasyfikatora zwraca skuteczność, czyli udział poprawnych predykcji.</p>
+<p>Kolumna <code>wierszy razem</code> jest tu równie ważna jak skuteczność. Bez niej porównanie wariantów wygląda na remis - a to właśnie ona pokazuje, ile wariant C zapłacił za swój wynik.</p>
+<p><strong>Krok 6: trzy warianty</strong></p>
+<div class="highlight"><pre><span></span><span class="n">dane_c</span> <span class="o">=</span> <span class="n">dane_surowe</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">podejrzane</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">,</span> <span class="s1">'TricepsThickness'</span><span class="p">,</span> <span class="s1">'DiastolicBloodPressure'</span><span class="p">]</span>
+<span class="n">dane_c</span><span class="p">[</span><span class="n">podejrzane</span><span class="p">]</span> <span class="o">=</span> <span class="n">dane_c</span><span class="p">[</span><span class="n">podejrzane</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+<span class="n">dane_c</span> <span class="o">=</span> <span class="n">dane_c</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</pre></div>
+<p><code>.dropna()</code> usuwa <strong>cały wiersz</strong>, jeśli choć jedna z tych trzech kolumn jest pusta. Zaraz zobaczysz, ile to kosztuje.</p>
+</details>
+<details>
+<summary><b>Gotowe rozwiązanie i czego się spodziewać</b></summary>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">ocen</span><span class="p">(</span><span class="n">ramka</span><span class="p">,</span> <span class="n">opis</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">ramka</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">IDENTYFIKATOR</span><span class="p">,</span> <span class="n">ETYKIETA</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">ramka</span><span class="p">[</span><span class="n">ETYKIETA</span><span class="p">]</span>
+    <span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+    <span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">))</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'wariant'</span><span class="p">:</span> <span class="n">opis</span><span class="p">,</span>
+        <span class="s1">'wierszy razem'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ramka</span><span class="p">),</span>
+        <span class="s1">'wierszy uczących'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">),</span>
+        <span class="s1">'skuteczność testowa'</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="c1"># C: zamieniamy podejrzane zera na NaN i usuwamy takie wiersze</span>
+<span class="n">podejrzane</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'SerumInsulin'</span><span class="p">,</span> <span class="s1">'TricepsThickness'</span><span class="p">,</span> <span class="s1">'DiastolicBloodPressure'</span><span class="p">]</span>
+<span class="n">dane_c</span> <span class="o">=</span> <span class="n">dane_surowe</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">dane_c</span><span class="p">[</span><span class="n">podejrzane</span><span class="p">]</span> <span class="o">=</span> <span class="n">dane_c</span><span class="p">[</span><span class="n">podejrzane</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+<span class="n">dane_c</span> <span class="o">=</span> <span class="n">dane_c</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+<span class="n">wyniki</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
+    <span class="n">ocen</span><span class="p">(</span><span class="n">dane</span><span class="p">,</span> <span class="s1">'A - dane prawdziwe'</span><span class="p">),</span>
+    <span class="n">ocen</span><span class="p">(</span><span class="n">dane_surowe</span><span class="p">,</span> <span class="s1">'B - z zerami, wrzucone jak leci'</span><span class="p">),</span>
+    <span class="n">ocen</span><span class="p">(</span><span class="n">dane_c</span><span class="p">,</span> <span class="s1">'C - zera na NaN, wiersze usunięte'</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">wyniki</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wariant C stracił </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dane</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">dane_c</span><span class="p">)</span><span class="si">}</span><span class="s2"> wierszy "</span>
+      <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">dane_c</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">dane</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> zbioru)."</span><span class="p">)</span>
+</pre></div>
+<p><strong>Czego się spodziewać:</strong></p>
+<pre><code>                          wariant  wierszy razem  wierszy uczących  skuteczność testowa
+               A - dane prawdziwe          10000              8000               0.7880
+  B - z zerami, wrzucone jak leci          10000              8000               0.7775
+C - zera na NaN, wiersze usunięte           4925              3940               0.7787
+
+Wariant C stracił 5075 wierszy (50.8% zbioru).
+</code></pre>
+<p><strong>Odpowiedzi na trzy pytania z zadania:</strong></p>
+<p><strong>1. Czy B wypada zauważalnie gorzej od A?</strong> Różnica to <strong>1 punkt procentowy</strong> (0,7880 wobec 0,7775). Bez wariantu A obok <strong>nikt by jej nie zauważył</strong>. Wynik 77,75% wygląda całkowicie normalnie - i to jest sedno sprawy.</p>
+<p><strong>2. Ile kosztowało podejście C?</strong> <strong>50,8% danych</strong> - z 10 000 wierszy zostało 4925. W zamian skuteczność wzrosła o 0,12 punktu procentowego względem B, czyli praktycznie o nic. To zła cena. Przy takim udziale braków sensowniejsze jest <strong>uzupełnianie</strong> wartości (ang. <em>imputation</em>) niż wyrzucanie wierszy - wrócisz do tego w ćwiczeniu 03.</p>
+<p><strong>3. Który wariant jest najbardziej niebezpieczny?</strong> <strong>Wariant B</strong> - mimo że to nie on ma najniższą skuteczność.</p>
+<p>Powód: B jest jedynym wariantem, w którym <strong>nie wiesz, że masz problem</strong>. Model działa, wyniki wyglądają zdrowo, nic się nie wysypuje. C jest jawnie kosztowny - od razu widzisz, że straciłeś połowę danych, i możesz o tym zdecydować świadomie. B po cichu uczy model, że jedna trzecia pacjentów miała zerową insulinę.</p>
+<blockquote>
+<p><strong>To jest pointa całego ćwiczenia</strong>: model nie zgłasza problemów z danymi. On się na nich uczy i zwraca liczbę, która wygląda wiarygodnie. Jedyny moment, w którym takie rzeczy da się złapać, to spojrzenie na dane <strong>własnymi oczami</strong> - czyli EDA.</p>
+</blockquote></details>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1cfa68d5">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># Zadanie 7 jako jedyne w tym notatniku trenuje model,</span>
+<span class="c1"># więc potrzebuje scikit-learn - wcześniejsze sekcje korzystały</span>
+<span class="c1"># wyłącznie z pandas i matplotlib.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=29426cb1"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Pytania-do-przemy%C5%9Blenia">Pytania do przemyślenia<a class="anchor-link" href="#Pytania-do-przemy%C5%9Blenia">¶</a></h1><p>Na te pytania odpowiadasz słowami, nie kodem.</p>
+<ol>
+<li>Cecha ma korelację z etykietą równą 0,02. Czy to wystarczający powód, żeby ją usunąć ze zbioru? Co jeszcze sprawdzisz, zanim zdecydujesz?</li>
+<li>W kolumnie „wiek pacjenta" znajdujesz wartość 0. W kolumnie „liczba przebytych ciąż" też znajdujesz 0. Dlaczego pierwsza jest alarmem, a druga nie? Jakiej wiedzy potrzebujesz, żeby to rozstrzygnąć - i skąd ją bierzesz?</li>
+<li>Model wytrenowany na danych z podejrzanymi zerami osiąga przyzwoitą skuteczność na zbiorze testowym. Dlaczego to <strong>nie dowodzi</strong>, że zera nie szkodzą? Co takiego dzieli zbiór testowy z uczącym, czego nie podzieli prawdziwy pacjent?</li>
+<li>Cecha okazuje się skorelowana z etykietą na poziomie 0,97. Jaka powinna być Twoja pierwsza reakcja i dlaczego nie jest nią radość?</li>
+<li>Reguła IQR oznaczyła 3% pacjentów jako odstających. Podaj dwie sytuacje, w których należy ich usunąć, i dwie, w których byłby to poważny błąd.</li>
+<li>EDA robi się <strong>przed</strong> podziałem na zbiór uczący i testowy czy <strong>po</strong>? Uzasadnij. (Podpowiedź: rozróżnij oglądanie danych od podejmowania decyzji, które trafią do modelu - do tego wątku wrócimy w ćwiczeniu 03.)</li>
+</ol>
+<h1 id="Chcesz-wiedzie%C4%87-wi%C4%99cej">Chcesz wiedzieć więcej<a class="anchor-link" href="#Chcesz-wiedzie%C4%87-wi%C4%99cej">¶</a></h1><ul>
+<li><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html"><code>pandas.DataFrame.describe</code></a> - zwróć uwagę na argument <code>include</code>, który pozwala objąć też kolumny tekstowe.</li>
+<li><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.corr.html"><code>pandas.DataFrame.corr</code></a> - poza Pearsonem dostępne są <code>method='spearman'</code> i <code>method='kendall'</code>, które wychwytują zależności nieliniowe, ale monotoniczne.</li>
+<li><a href="https://pandas.pydata.org/docs/user_guide/visualization.html">Wizualizacja w pandas</a> - skrótowe <code>dane.hist()</code> i <code>dane.plot.box()</code> rysują matplotlibem pod spodem.</li>
+<li><a href="https://matplotlib.org/stable/gallery/index.html">Galeria matplotliba</a> - gotowe przykłady wykresów wraz z kodem.</li>
+<li><a href="https://pandas.pydata.org/docs/user_guide/missing_data.html">Praca z brakami danych w pandas</a> - <code>isna</code>, <code>fillna</code>, <code>dropna</code>, <code>replace</code>.</li>
+</ul>
+<p>W kolejnym ćwiczeniu (<strong>03 - Przygotowanie danych</strong>) zajmiemy się tym, co zrobić z problemami, które właśnie wykryliśmy: jak uzupełniać braki, jak skalować cechy, jak kodować zmienne kategoryczne - i przede wszystkim <strong>dlaczego wszystkie te operacje wolno dopasowywać wyłącznie na zbiorze uczącym</strong>.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="01-pierwszy-model.html"><span>Poprzednie</span>Ćwiczenie 1: Twój pierwszy model uczenia maszynowego</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="03-przygotowanie-danych.html"><span>Następne</span>Ćwiczenie 3: Przygotowanie danych</a>
+</nav>
+</div></main>
+
+</body>
+</html>

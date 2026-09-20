@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 9B: Interpretowanie modeli</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../../index.html">Materiały</a> / <a href="../index.html">Azure ML (polski)</a></div><div class="tresc">
+<a class="pobierz" href="../09b-interpreting-models.html">Notatnik do tego ćwiczenia</a><h1>Lab 9B: Interpretowanie modeli</h1>
+<h2>Po co jest to ćwiczenie?</h2>
+<p>W <a href="lab09a.html">Lab 9A</a> wyjaśnienia pojawiły się same - wystarczyło jedno ustawienie w zadaniu (job) automatycznego uczenia maszynowego. Modele, które piszesz samodzielnie, takiej wygody nie mają. Regresja logistyczna, drzewo decyzyjne, las losowy: każdy z nich zwraca przewidywanie i nic poza tym. Żeby dowiedzieć się, co wpłynęło na wynik, trzeba sięgnąć po osobne narzędzie.</p>
+<p>Takim narzędziem jest <strong>wyjaśniacz (ang. <em>explainer</em>)</strong> - kod, który wielokrotnie podmienia wartości cech na wejściu modelu i obserwuje, jak zmienia się przewidywanie. Z tych obserwacji wylicza <strong>ważność cech (ang. <em>feature importance</em>)</strong>, czyli miarę wpływu każdej kolumny na wynik. Działa to niezależnie od tego, jakim algorytmem model został wytrenowany - dlatego takie wyjaśniacze nazywa się „czarnoskrzynkowymi&quot;.</p>
+<p>To ćwiczenie ma dwie wyraźnie różne części:</p>
+<ul>
+<li><strong>Część lokalna</strong> - biblioteka <code>interpret-community</code> uruchomiona wprost w notatniku, na modelu wytrenowanym w tym samym notatniku. Nie wymaga żadnego połączenia z Azure Machine Learning; ten sam kod zadziała na dowolnej maszynie.</li>
+<li><strong>Część w obszarze roboczym</strong> - dołączenie wyjaśnień do modelu <strong>zarejestrowanego</strong> w Azure ML przez zbudowanie <strong>Responsible AI dashboard</strong>. To potok (pipeline) złożony z gotowych komponentów, który uruchamia się na klastrze i tworzy pulpit oglądany w Studio.</li>
+</ul>
+<blockquote>
+<p><strong>Po co dwie drogi</strong>: pierwsza służy do własnej pracy - szybko, w pętli, przy analizie modelu, nad którym właśnie siedzisz. Druga służy do pokazania wyniku innym: wyjaśnienie zostaje przypięte do zarejestrowanego modelu, ma swój adres w Studio i przetrwa zamknięcie notatnika.</p>
+</blockquote>
+<h2>Czego się nauczysz</h2>
+<ol>
+<li>Czym jest wyjaśniacz i dlaczego jeden rodzaj wyjaśniacza obsługuje wiele typów modeli.</li>
+<li>Jak policzyć <strong>globalną</strong> ważność cech, czyli obraz zachowania modelu na całym zbiorze.</li>
+<li>Jak policzyć <strong>lokalną</strong> ważność cech, czyli wyjaśnienie pojedynczego przewidywania.</li>
+<li>Czym jest <strong>Responsible AI dashboard</strong> i z jakich komponentów powstaje.</li>
+<li>Jak zbudować taki pulpit kreatorem w studio dla modelu zarejestrowanego w obszarze roboczym.</li>
+<li>Jak odczytać w Studio wykresy <strong>Aggregate feature importance</strong> i <strong>Individual feature importance</strong>.</li>
+</ol>
+<h2>Zanim zaczniesz</h2>
+<p>Upewnij się, że masz ukończone ćwiczenia <a href="lab01a.html">Lab 1A</a> i <a href="lab01b.html">Lab 1B</a> - powstaje w nich obszar roboczy Azure Machine Learning oraz pozostałe zasoby używane w tym ćwiczeniu. Potrzebne jest też <a href="lab03b.html">Lab 3B</a>, w którym rejestrowany jest model <code>diabetes_model</code> używany w drugiej części.</p>
+<h2>Krok 1: Interpretowanie modelu lokalnie</h2>
+<ol>
+<li><p>W <a href="https://ml.azure.com">Azure Machine Learning studio</a> przejdź do strony <strong>Compute</strong> swojego obszaru roboczego, a na karcie <strong>Compute instances</strong> upewnij się, że instancja obliczeniowa (<code>mymachine</code>) jest uruchomiona. Jeśli nie, uruchom ją.</p>
+</li>
+<li><p>Gdy instancja obliczeniowa jest uruchomiona, kliknij przy niej link <strong>JupyterLab</strong>, aby otworzyć JupyterLab w nowej karcie przeglądarki.</p>
+</li>
+<li><p>W przeglądarce plików JupyterLab otwórz folder <code>MachineLearningCourse/materialy/azure-ml/pl</code> sklonowany w <a href="lab01b.html">Lab 1B</a>, a w nim notatnik <strong>09B - Interpreting Models.ipynb</strong>. Upewnij się, że korzysta on z kernela <strong>Python 3.10 - SDK v2</strong>, a następnie czytaj komentarze w notatniku, uruchamiając kolejno każdą komórkę kodu.</p>
+<blockquote>
+<p><strong>Dlaczego kernel jest ważny</strong>: kernel decyduje, które środowisko Pythona wykonuje kod. Tylko kernel z SDK v2 ma zainstalowany pakiet <code>azure-ai-ml</code>, potrzebny w drugiej części ćwiczenia.</p>
+</blockquote>
+</li>
+</ol>
+<h3>Na co zwrócić uwagę w pierwszej części</h3>
+<p><strong>Model trenuje się zwykłym kodem scikit-learn.</strong></p>
+<blockquote>
+<p><strong>Dlaczego to ważne</strong>: notatnik świadomie zaczyna od modelu, który nie ma nic wspólnego z Azure ML - nie powstał w zadaniu i nie jest zarejestrowany. Chodzi o pokazanie, że interpretowalność jest własnością modelu i danych, a nie usługą chmurową. Ten sam kod zadziała na laptopie.</p>
+</blockquote>
+<p><strong>Wyjaśniacz <code>TabularExplainer</code>.</strong></p>
+<blockquote>
+<p><strong>Dlaczego akurat ten</strong>: to wyjaśniacz czarnoskrzynkowy - nie zagląda do wnętrza modelu, tylko wielokrotnie go odpytuje i obserwuje reakcje na zmiany wejścia. Pod spodem dobiera odpowiednią odmianę metody SHAP. Konsekwencja jest praktyczna: podmiana drzewa decyzyjnego na dowolny inny klasyfikator nie wymaga zmiany kodu wyjaśniania.</p>
+</blockquote>
+<p><strong>Wyjaśnienie globalne (<code>explain_global</code>).</strong></p>
+<blockquote>
+<p><strong>Co z niego wynika</strong>: dostajesz uszeregowaną listę cech - od tej, która najmocniej przesuwa przewidywania w całym zbiorze, do najsłabszej. To odpowiedź na pytanie „na co ten model w ogóle patrzy&quot;. Przydaje się przy sprawdzaniu, czy model nie oparł się na kolumnie, która nie powinna go obchodzić.</p>
+</blockquote>
+<p><strong>Wyjaśnienie lokalne (<code>explain_local</code>).</strong></p>
+<blockquote>
+<p><strong>Czym się różni od globalnego</strong>: wyjaśnienie lokalne dotyczy konkretnego pacjenta, nie całego zbioru, i podaje wkład każdej cechy osobno dla każdej możliwej etykiety. Cecha nieistotna globalnie może być rozstrzygająca dla pojedynczego przypadku. To właśnie tego rodzaju wyjaśnienia oczekuje osoba, której decyzja dotyczy: nie „co model uważa za ważne ogólnie&quot;, tylko „dlaczego akurat mnie zakwalifikował w ten sposób&quot;.</p>
+</blockquote>
+<h2>Krok 2: Zbudowanie pulpitu Responsible AI dla zarejestrowanego modelu</h2>
+<p>Pulpit powstaje dla modelu <code>diabetes_model</code> zarejestrowanego w <a href="lab03b.html">Lab 3B</a>. Zbudujesz go <strong>kreatorem w Azure Machine Learning studio</strong>, bez pisania kodu.</p>
+<ol>
+<li><p>Uruchom komórkę notatnika, która sprawdza, czy model i zasób danych są na miejscu - wypisze ich nazwy i wersje.</p>
+</li>
+<li><p>W studio przejdź do <strong>Models</strong>, wybierz <strong>diabetes_model</strong>, a na karcie <strong>Details</strong> kliknij <strong>Create Responsible AI dashboard (preview)</strong>.</p>
+</li>
+<li><p>Przejdź przez kreator:</p>
+<p>| Sekcja | Wybór |
+|---|---|
+| Training dataset | <code>diabetes_mltable</code> |
+| Test dataset | <code>diabetes_mltable</code> |
+| Modeling task | Classification |
+| Dashboard components | Model debugging |
+| Component parameters | Target feature: <code>Diabetic</code>, <strong>Generate explanations</strong> włączone |
+| Experiment configuration | nazwa pulpitu, eksperyment, klaster <code>aml-cluster</code> |</p>
+</li>
+<li><p>Kliknij <strong>Create</strong>. Zadanie potrwa kilkanaście minut.</p>
+</li>
+</ol>
+<h3>Co kreator robi pod spodem</h3>
+<p>Uruchamia potok złożony z gotowych komponentów opublikowanych przez Microsoft w rejestrze <code>azureml</code>:</p>
+<table>
+<thead>
+<tr>
+  <th>Komponent</th>
+  <th>Rola</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>microsoft_azureml_rai_tabular_insight_constructor</code></td>
+  <td>tworzy pusty pulpit dla wskazanego modelu i danych</td>
+</tr>
+<tr>
+  <td><code>microsoft_azureml_rai_tabular_explanation</code></td>
+  <td>dokłada do niego ważność cech liczoną metodą SHAP</td>
+</tr>
+<tr>
+  <td><code>microsoft_azureml_rai_tabular_insight_gather</code></td>
+  <td>składa gotowy pulpit z zebranych wyników</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Dlaczego przez kreator, a nie z SDK</strong>: te same komponenty da się pobrać kodem i połączyć we własny potok - tak opisuje to <a href="https://learn.microsoft.com/azure/machine-learning/how-to-responsible-ai-insights-sdk-cli">dokumentacja</a>. Nie w każdym obszarze roboczym są jednak dostępne: <code>registry_client.components.get()</code> kończy się wtedy błędem <code>Could not find component with name</code>. Kreator działa niezależnie od tego, więc ćwiczenie korzysta z niego.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego to potok, a nie jedna funkcja</strong>: liczenie wyjaśnień dla całego zbioru jest kosztowne obliczeniowo, a poszczególne etapy dają się wymieniać - obok wyjaśnień do pulpitu można dołożyć analizę błędów czy analizę przyczynową. Rozbicie na komponenty pozwala uruchomić to na klastrze i dobrać zestaw narzędzi do potrzeb.</p>
+</blockquote>
+<h3>Wymagania formatów</h3>
+<blockquote>
+<p><strong>Dlaczego to jest częsta pułapka</strong>: komponenty Responsible AI przyjmują dane wyłącznie w formacie <code>mltable</code>, a model wyłącznie w formacie MLflow. Dlatego w kreatorze wybierasz zasób <code>diabetes_mltable</code> (typu <code>mltable</code>) oraz <code>diabetes_model</code> zarejestrowany w formacie MLflow w <a href="lab03b.html">Lab 3B</a>. Zwykły plik CSV albo model zapisany przez <code>joblib</code> nie pojawią się nawet na liście wyboru.</p>
+</blockquote>
+<h2>Krok 3: Obejrzenie wyjaśnień w Studio</h2>
+<ol>
+<li><p>Gdy zadanie się zakończy, wróć do modelu <strong>diabetes_model</strong> i otwórz jego kartę <strong>Responsible AI</strong>. Wybierz utworzony pulpit.</p>
+</li>
+<li><p>Obejrzyj wykres <strong>Aggregate feature importance</strong>.</p>
+<blockquote>
+<p><strong>Co tu widzisz</strong>: to jest wyjaśnienie globalne - odpowiednik tego, co w pierwszej części ćwiczenia policzył <code>TabularExplainer</code>, tylko wyliczony jako zarządzane zadanie i przypięty na stałe do zarejestrowanego modelu. Warto porównać kolejność cech z listą wypisaną wcześniej w notatniku: obie powinny wskazywać podobnych zwycięzców, choć liczby nie muszą być identyczne, bo modele i zbiory są inne.</p>
+</blockquote>
+</li>
+<li><p>Przełącz się na widok <strong>Individual feature importance</strong> i wskaż pojedynczy punkt danych, aby zobaczyć wyjaśnienie tego konkretnego przewidywania.</p>
+<blockquote>
+<p><strong>Dlaczego to robimy</strong>: to najbardziej praktyczna część pulpitu. Pozwala wziąć jeden przypadek - najlepiej taki, w którym model się pomylił - i zobaczyć, która cecha przeważyła szalę. Systematyczne przeglądanie takich przypadków szybciej podpowiada, co poprawić w danych, niż patrzenie na uśrednione metryki.</p>
+</blockquote>
+</li>
+<li><p>Zajrzyj do sekcji <strong>Error analysis</strong> - pokazuje, w których podgrupach danych model myli się najczęściej.</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>Uwaga</strong>: Jeśli zamierzasz od razu przejść do <a href="lab10a.html">kolejnego ćwiczenia</a>, zostaw instancję obliczeniową uruchomioną. Jeśli robisz przerwę, warto zamknąć wszystkie karty JupyterLab i zatrzymać instancję obliczeniową przyciskiem <strong>Stop</strong>, aby uniknąć niepotrzebnych kosztów.</p>
+</blockquote>
+<h2>Co dalej</h2>
+<p>Model jest już wytrenowany, wdrożony i zrozumiany. Zostaje ostatni etap cyklu życia: obserwowanie go po uruchomieniu w produkcji. W <a href="lab10a.html">Lab 10A</a> włączysz zbieranie telemetrii i danych produkcyjnych dla wdrożonego punktu końcowego (endpoint) - czyli zbudujesz podstawę, bez której nie da się stwierdzić, że model przestał działać poprawnie.</p>
+<nav class="przejscia">
+<a class="wstecz" href="lab09a.html"><span>Poprzednie</span>Lab 9A: Przeglądanie wyjaśnień modeli z automatycznego uczenia maszynowego</a>
+<a class="do-spisu" href="../index.html">Spis ćwiczeń</a>
+<a class="dalej" href="lab10a.html"><span>Następne</span>Lab 10A: Monitorowanie modelu</a>
+</nav>
+</div></main>
+
+</body>
+</html>

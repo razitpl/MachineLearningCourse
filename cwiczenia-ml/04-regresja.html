@@ -1,0 +1,1289 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ćwiczenie 4: Regresja - przewidywanie wartości liczbowej</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="pobierz/04_regresja.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered" id="cell-id=86f1c5b2"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="%C4%86wiczenie-4:-Regresja---przewidywanie-warto%C5%9Bci-liczbowej">Ćwiczenie 4: Regresja - przewidywanie wartości liczbowej<a class="anchor-link" href="#%C4%86wiczenie-4:-Regresja---przewidywanie-warto%C5%9Bci-liczbowej">¶</a></h1><h2 id="Po-co-to-%C4%87wiczenie?">Po co to ćwiczenie?<a class="anchor-link" href="#Po-co-to-%C4%87wiczenie?">¶</a></h2><p>Dotąd model odpowiadał na pytanie <strong>„która klasa?"</strong> - chory czy zdrowy. Ale ogromna część realnych zadań wygląda inaczej: <em>ile będzie kosztowało to mieszkanie</em>, <em>ile energii zużyje budynek jutro</em>, <em>o ile wzrośnie stężenie markera po podaniu leku</em>. Odpowiedzią nie jest wtedy etykieta, tylko <strong>liczba</strong>.</p>
+<p>Takie zadanie nazywa się <strong>regresją</strong> (ang. <em>regression</em>). Zmiana wygląda na drobną - przecież to nadal „dane wchodzą, przewidywanie wychodzi" - ale pociąga za sobą trzy konsekwencje:</p>
+<ol>
+<li><strong>Inne metryki.</strong> Nie da się powiedzieć „model trafił" albo „nie trafił", bo przewidywanie 148,3 przy prawdzie 151,0 nie jest ani trafieniem, ani pomyłką. Trzeba mierzyć <strong>jak bardzo</strong> model się myli.</li>
+<li><strong>Inne modele.</strong> Zamiast <code>LogisticRegression</code> i <code>DecisionTreeClassifier</code> sięgamy po <code>LinearRegression</code>, <code>Ridge</code>, <code>Lasso</code>, <code>DecisionTreeRegressor</code>.</li>
+<li><strong>Inne pułapki.</strong> Pojedyncza błędna wartość w danych potrafi przesunąć cały model - i zobaczymy to na własne oczy.</li>
+</ol>
+<p>Przy okazji regresja liniowa daje coś, czego klasyfikatory zwykle nie dają tak wprost: <strong>współczynnik przy każdej cesze</strong>, czyli liczbę, którą da się przeczytać jak zdanie.</p>
+<p>Ćwiczenie ma dwie części i to celowe. Przykład prowadzony opiera się na zbiorze, w którym regresja <strong>działa</strong>: model wyjaśnia sporą część zmienności celu, więc metryki, wykres reszt i regularyzacja mają co pokazać. Ostatnie zadanie robi rzecz odwrotną - wraca do znanego z ćwiczeń 01-03 pliku <code>dane/diabetes.csv</code> i pokazuje, jak wygląda sytuacja, w której <strong>w danych po prostu nie ma odpowiedzi na zadane pytanie</strong>. Obie sytuacje trzeba umieć rozpoznać, a druga zdarza się w prawdziwych projektach częściej, niż sugerują podręczniki.</p>
+<h2 id="Czego-si%C4%99-nauczysz">Czego się nauczysz<a class="anchor-link" href="#Czego-si%C4%99-nauczysz">¶</a></h2><ol>
+<li>Czym regresja różni się od klasyfikacji i jak rozpoznać, które zadanie masz przed sobą.</li>
+<li>Jak zbudować model odniesienia dla regresji (<code>DummyRegressor</code>) - tak jak w ćwiczeniu 01 zaczynamy od poprzeczki.</li>
+<li>Co dokładnie mierzą <strong>MAE</strong>, <strong>MSE</strong>, <strong>RMSE</strong> i <strong>R²</strong> oraz kiedy się rozjeżdżają.</li>
+<li>Dlaczego MSE jest wrażliwe na wartości odstające (ang. <em>outliers</em>) - na eksperymencie, nie na wykładzie.</li>
+<li>Jak czytać współczynniki regresji liniowej i czego <strong>nie wolno</strong> z nich wyczytać.</li>
+<li>Jak wygląda wykres reszt (ang. <em>residuals</em>) i co z niego wynika.</li>
+<li>Czym różni się niedouczenie (ang. <em>underfitting</em>) od przeuczenia (ang. <em>overfitting</em>) - na wielomianach o rosnącym stopniu.</li>
+<li>Po co jest regularyzacja (ang. <em>regularization</em>) i dlaczego <strong>Lasso zeruje współczynniki</strong>, a Ridge nie.</li>
+<li>Jak rozpoznać, że problem leży <strong>nie w modelu, tylko w danych</strong> - i co wtedy zrobić.</li>
+</ol>
+<blockquote>
+<p><strong>Zanim zaczniesz</strong>: uruchamiaj komórki po kolei (Shift+Enter). Późniejsze korzystają ze zmiennych zdefiniowanych wcześniej.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=e0e0f201"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Regresja-a-klasyfikacja---co-si%C4%99-w%C5%82a%C5%9Bciwie-zmienia">1. Regresja a klasyfikacja - co się właściwie zmienia<a class="anchor-link" href="#1.-Regresja-a-klasyfikacja---co-si%C4%99-w%C5%82a%C5%9Bciwie-zmienia">¶</a></h2><p>Różnica sprowadza się do jednego: <strong>jakiego typu jest etykieta</strong> (ang. <em>label</em>). Wszystko inne wynika z tego automatycznie.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Klasyfikacja</th>
+<th>Regresja</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Etykieta</td>
+<td>kategoria (<code>0</code>/<code>1</code>, „kot"/„pies")</td>
+<td>liczba rzeczywista (151,0; 128 500 zł)</td>
+</tr>
+<tr>
+<td>Przykładowe pytanie</td>
+<td>czy pacjent choruje?</td>
+<td>jak bardzo choroba postąpi przez rok?</td>
+</tr>
+<tr>
+<td>Model odniesienia</td>
+<td>najczęstsza klasa (<code>DummyClassifier</code>)</td>
+<td>średnia etykiety (<code>DummyRegressor</code>)</td>
+</tr>
+<tr>
+<td>Metryki</td>
+<td>skuteczność, precyzja, czułość, F1</td>
+<td>MAE, MSE, RMSE, R²</td>
+</tr>
+<tr>
+<td>Modele liniowe</td>
+<td><code>LogisticRegression</code></td>
+<td><code>LinearRegression</code>, <code>Ridge</code>, <code>Lasso</code></td>
+</tr>
+<tr>
+<td>Modele drzewiaste</td>
+<td><code>DecisionTreeClassifier</code></td>
+<td><code>DecisionTreeRegressor</code></td>
+</tr>
+<tr>
+<td>Co zwraca <code>predict</code></td>
+<td>numer klasy</td>
+<td>liczbę</td>
+</tr>
+<tr>
+<td>Co zwraca <code>score</code></td>
+<td>skuteczność (im wyżej, tym lepiej, maksimum 1)</td>
+<td>R² (im wyżej, tym lepiej, maksimum 1, <strong>bez dolnej granicy</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p>Zwróć uwagę na ostatni wiersz: <code>score</code> znaczy co innego w zależności od tego, jakiego typu jest model. To częste źródło nieporozumień - liczba 0,45 zwrócona przez regresor nie jest „45% skuteczności", tylko współczynnikiem R², o którym za chwilę.</p>
+<h3 id="Zbi%C3%B3r-danych-do-tego-%C4%87wiczenia">Zbiór danych do tego ćwiczenia<a class="anchor-link" href="#Zbi%C3%B3r-danych-do-tego-%C4%87wiczenia">¶</a></h3><p>Plik <code>dane/diabetes.csv</code>, na którym pracowały ćwiczenia 01-03, ma etykietę <strong>binarną</strong> (<code>Diabetic</code>), więc do regresji się nie nadaje. Potrzebujemy celu <strong>ciągłego</strong>, sięgamy więc po zbiór wbudowany w scikit-learn: <code>load_diabetes</code>. Nic nie trzeba pobierać - dane są częścią biblioteki.</p>
+<ul>
+<li><strong>442 pacjentów</strong>, 10 cech, żadnych braków danych.</li>
+<li><strong>Cel</strong>: liczbowa miara postępu choroby <strong>rok po badaniu</strong>. Wartości mieszczą się mniej więcej między 25 a 350; twórcy zbioru nie podają jednostki fizycznej tej miary - im większa liczba, tym gorszy stan pacjenta po roku.</li>
+<li><strong>Cechy</strong>: <code>age</code> (wiek w latach), <code>sex</code> (płeć zakodowana jako 1 i 2 - dokumentacja nie mówi, która wartość oznacza którą płeć), <code>bmi</code>, <code>bp</code> (średnie ciśnienie krwi) oraz <code>s1</code>-<code>s6</code>, czyli sześć wyników badań krwi: cholesterol całkowity, frakcja LDL, frakcja HDL, stosunek cholesterolu całkowitego do HDL, stężenie trójglicerydów i poziom cukru.</li>
+</ul>
+<blockquote>
+<p><strong>Uwaga na zbieżność nazw - przeczytaj to, zanim się pomylisz</strong>: <code>load_diabetes</code> ze scikit-learn to <strong>inny zbiór</strong> niż nasz plik <code>dane/diabetes.csv</code>. Oba dotyczą cukrzycy, ale odpowiadają na <strong>różne pytania</strong> i pochodzą z różnych badań.</p>
+<p>| | <code>dane/diabetes.csv</code> (ćwiczenia 01-03) | <code>load_diabetes</code> (to ćwiczenie) |
+|---|---|---|
+| Zadanie | <strong>klasyfikacja</strong> | <strong>regresja</strong> |
+| Etykieta | <code>Diabetic</code>: chory / zdrowy (0 lub 1) | liczbowa miara postępu choroby po roku |
+| Liczba wierszy | 10 000 | 442 |
+| Skąd pochodzi | plik CSV w katalogu <code>dane/</code> | wbudowany w scikit-learn |</p>
+<p>Mylenie tych dwóch zbiorów jest najczęstszym nieporozumieniem w tym ćwiczeniu. Do pliku CSV wrócimy dopiero w <strong>zadaniu 8</strong> - i to w zupełnie innej roli.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dlaczego <code>scaled=False</code></strong>: domyślnie <code>load_diabetes</code> oddaje cechy <strong>już wystandaryzowane</strong> (wyśrodkowane i przeskalowane), co jest wygodne dla modelu, ale zabija to, na czym nam tu zależy: możliwość przeczytania współczynnika jak zdania po polsku. Argument <code>scaled=False</code> zwraca wartości w oryginalnych jednostkach - lata, mm Hg, wyniki badań. Jeśli w internetowym przykładzie zobaczysz cechy o wartościach rzędu 0,05, to właśnie dlatego, że ktoś zostawił ustawienie domyślne.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=76be9f44">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_diabetes</span>
+
+<span class="c1"># scaled=False -&gt; cechy w oryginalnych jednostkach (lata, mm Hg, wyniki badan krwi).</span>
+<span class="c1"># as_frame=True -&gt; dostajemy DataFrame zamiast tablicy numpy, wiec cechy maja nazwy.</span>
+<span class="n">zbior</span> <span class="o">=</span> <span class="n">load_diabetes</span><span class="p">(</span><span class="n">scaled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">dane</span> <span class="o">=</span> <span class="n">zbior</span><span class="o">.</span><span class="n">frame</span>          <span class="c1"># cechy i cel w jednej ramce</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">zbior</span><span class="o">.</span><span class="n">data</span>              <span class="c1"># 10 cech</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">zbior</span><span class="o">.</span><span class="n">target</span>            <span class="c1"># etykieta ciagla: miara postepu choroby po roku</span>
+
+<span class="n">CEL</span> <span class="o">=</span> <span class="s1">'postęp choroby'</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Kształt danych:"</span><span class="p">,</span> <span class="n">dane</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Cechy podawane modelowi:"</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cel: </span><span class="si">{</span><span class="n">CEL</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c87825cc"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Popatrz na podsumowanie celu: wartości rozciągają się od około 25 do około 346, a odchylenie standardowe wynosi około 77 jednostek. <strong>Zapamiętaj rząd wielkości tego odchylenia</strong> - to naturalna zmienność celu i za chwilę posłuży nam za punkt odniesienia dla błędów modelu. Błąd rzędu 77 oznaczałby, że model nie wie nic ponad to, co wiadomo bez niego.</p>
+<p>Zwróć też uwagę, że wśród <strong>cech</strong> jest kolumna <code>bmi</code>. W tym zbiorze BMI jest jedną z informacji wejściowych, a nie odpowiedzią - to dobry moment, żeby przypomnieć sobie, że o tym, co jest cechą, a co etykietą, decyduje <strong>zadane pytanie</strong>, a nie sama kolumna.</p>
+<h2 id="2.-Podzia%C5%82-danych-i-model-odniesienia">2. Podział danych i model odniesienia<a class="anchor-link" href="#2.-Podzia%C5%82-danych-i-model-odniesienia">¶</a></h2><p>Podział wygląda jak w ćwiczeniu 01, z jedną różnicą: <strong>nie ma argumentu <code>stratify</code></strong>. Stratyfikacja pilnuje proporcji klas, a przy celu ciągłym klas nie ma - nie ma czego zachowywać.</p>
+<p>Potem, zanim sięgniemy po jakikolwiek prawdziwy model, stawiamy <strong>poprzeczkę</strong>: <code>DummyRegressor(strategy="mean")</code>. Ten model ignoruje wszystkie cechy i dla każdego pacjenta odpowiada tą samą liczbą - <strong>średnim postępem choroby w zbiorze uczącym</strong>.</p>
+<blockquote>
+<p><strong>Dlaczego znowu zaczynamy od atrapy</strong>: bo liczba „średni błąd 42,8" sama w sobie nic nie znaczy. Znaczenie dostaje dopiero wtedy, gdy wiadomo, ile wynosi błąd modelu, który nie robi <strong>nic</strong>. Regresja ma tu dodatkową pułapkę: model odniesienia bywa zaskakująco trudny do pobicia, jeśli cechy niosą mało informacji - zobaczymy to w ostatnim zadaniu.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=f72fcf52">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.dummy</span><span class="w"> </span><span class="kn">import</span> <span class="n">DummyRegressor</span>
+
+<span class="n">X_ucz</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>      <span class="c1"># ustalone ziarno losowosci - powtarzalny podzial</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zbiór uczący:  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">)</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2"> pacjentów"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zbiór testowy: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2"> pacjentów"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="n">odniesienie</span> <span class="o">=</span> <span class="n">DummyRegressor</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s2">"mean"</span><span class="p">)</span>
+<span class="n">odniesienie</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Średni postęp choroby w zbiorze uczącym: </span><span class="si">{</span><span class="n">y_ucz</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Co model odniesienia przewiduje dla pierwszych pięciu pacjentów testowych:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">odniesienie</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">[:</span><span class="mi">5</span><span class="p">]),</span> <span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=d1cdd05c"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Ten sam wynik dla każdego pacjenta - dokładnie o to chodziło. Teraz trzeba go zmierzyć.</p>
+<h2 id="3.-Cztery-metryki-regresji">3. Cztery metryki regresji<a class="anchor-link" href="#3.-Cztery-metryki-regresji">¶</a></h2><p>Dla każdego pacjenta model popełnia błąd: <code>błąd = wartość prawdziwa - wartość przewidziana</code>. Metryka to sposób na streszczenie kilkuset takich błędów jedną liczbą - a sposobów jest kilka i <strong>każdy odpowiada na inne pytanie</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Metryka</th>
+<th>Pełna nazwa</th>
+<th>Jak liczy</th>
+<th>Jednostka</th>
+<th>Kierunek</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MAE</strong></td>
+<td><em>mean absolute error</em>, średni błąd bezwzględny</td>
+<td>średnia z wartości bezwzględnych błędów</td>
+<td>ta sama co cel (tu: jednostki miary postępu choroby)</td>
+<td>im mniej, tym lepiej</td>
+</tr>
+<tr>
+<td><strong>MSE</strong></td>
+<td><em>mean squared error</em>, błąd średniokwadratowy</td>
+<td>średnia z kwadratów błędów</td>
+<td><strong>kwadrat</strong> jednostki celu</td>
+<td>im mniej, tym lepiej</td>
+</tr>
+<tr>
+<td><strong>RMSE</strong></td>
+<td><em>root mean squared error</em></td>
+<td>pierwiastek z MSE</td>
+<td>ta sama co cel</td>
+<td>im mniej, tym lepiej</td>
+</tr>
+<tr>
+<td><strong>R²</strong></td>
+<td>współczynnik determinacji (ang. <em>coefficient of determination</em>)</td>
+<td><code>1 - MSE modelu / MSE średniej</code></td>
+<td>brak (liczba niemianowana)</td>
+<td>im więcej, tym lepiej; maksimum 1</td>
+</tr>
+</tbody>
+</table>
+<p>Trzy rzeczy, które warto rozumieć od razu:</p>
+<p><strong>MAE kontra RMSE.</strong> Obie liczby wyrażają się w jednostkach celu, więc kuszą, żeby czytać je tak samo. A nie są tym samym: MAE traktuje wszystkie błędy <strong>proporcjonalnie</strong> (pomyłka o 10 jest dziesięć razy gorsza od pomyłki o 1), RMSE karze duże błędy <strong>nieproporcjonalnie mocniej</strong> (pomyłka o 10 waży sto razy tyle, co pomyłka o 1, bo liczy się kwadrat). Stąd praktyczna reguła: <strong>RMSE jest zawsze większe lub równe MAE</strong>, a im bardziej się rozjeżdżają, tym bardziej nierówny jest rozkład błędów.</p>
+<p><strong>Po co MSE, skoro RMSE jest czytelniejsze.</strong> MSE jest tym, co model faktycznie <strong>minimalizuje</strong> podczas uczenia (metoda najmniejszych kwadratów), i jest wygodne matematycznie - w przeciwieństwie do wartości bezwzględnej ma pochodną wszędzie. Do raportowania wyników i tak lepiej nadaje się RMSE, bo „błąd 53,9 jednostki" da się porównać z odchyleniem standardowym celu, a „2900 jednostek do kwadratu" - nie.</p>
+<p><strong>R² to porównanie z modelem odniesienia, wbudowane w metrykę.</strong> Mówi, jaką część zmienności celu model wyjaśnia ponad to, co daje samo przewidywanie średniej:</p>
+<ul>
+<li><strong>R² = 1</strong> - przewidywania idealne,</li>
+<li><strong>R² = 0</strong> - model jest dokładnie tak dobry, jak przewidywanie średniej, czyli bezwartościowy,</li>
+<li><strong>R² &lt; 0</strong> - model jest <strong>gorszy</strong> od średniej. Tak, to możliwe i wcale nie rzadkie na zbiorze testowym.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=5606c28b">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ocen</span><span class="p">(</span><span class="n">nazwa</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">X_oceny</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_oceny</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># Zwraca slownik z czterema metrykami. Domyslnie ocenia na zbiorze testowym</span>
+    <span class="c1"># przykladu prowadzonego - przy innych danych trzeba je podac jawnie.</span>
+    <span class="n">X_oceny</span> <span class="o">=</span> <span class="n">X_test</span> <span class="k">if</span> <span class="n">X_oceny</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">X_oceny</span>
+    <span class="n">y_oceny</span> <span class="o">=</span> <span class="n">y_test</span> <span class="k">if</span> <span class="n">y_oceny</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">y_oceny</span>
+    <span class="n">przewidywania</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_oceny</span><span class="p">)</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_oceny</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'model'</span><span class="p">:</span> <span class="n">nazwa</span><span class="p">,</span>
+        <span class="s1">'MAE'</span><span class="p">:</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_oceny</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">),</span>
+        <span class="s1">'MSE'</span><span class="p">:</span> <span class="n">mse</span><span class="p">,</span>
+        <span class="s1">'RMSE'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mse</span><span class="p">),</span>          <span class="c1"># RMSE liczymy recznie - dziala w kazdej wersji scikit-learn</span>
+        <span class="s1">'R2'</span><span class="p">:</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_oceny</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">),</span>
+    <span class="p">}</span>
+
+<span class="n">wyniki</span> <span class="o">=</span> <span class="p">[</span><span class="n">ocen</span><span class="p">(</span><span class="s1">'model odniesienia (średnia)'</span><span class="p">,</span> <span class="n">odniesienie</span><span class="p">)]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wyniki</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">10.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dla porównania - odchylenie standardowe celu w zbiorze testowym: </span><span class="si">{</span><span class="n">y_test</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=c08b068e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Porównaj RMSE modelu odniesienia z odchyleniem standardowym celu wypisanym poniżej tabeli. Są niemal identyczne - i nie jest to przypadek. Przewidywanie średniej to dokładnie to, co robi odchylenie standardowe: mierzy typowe odchylenie obserwacji od średniej. <strong>RMSE modelu odniesienia ≈ odchylenie standardowe celu</strong> to tożsamość, którą warto znać, bo pozwala oszacować poprzeczkę bez trenowania czegokolwiek.</p>
+<p>Zwróć też uwagę, że R² modelu odniesienia na zbiorze testowym wyszło bliskie zeru, ale niekoniecznie <strong>dokładnie</strong> zeru. Powód: średnia policzona została na zbiorze uczącym, a R² mierzymy względem średniej zbioru testowego. Te dwie średnie minimalnie się różnią, więc wychodzi liczba nieco poniżej zera.</p>
+<h2 id="4.-Regresja-liniowa">4. Regresja liniowa<a class="anchor-link" href="#4.-Regresja-liniowa">¶</a></h2><p><code>LinearRegression</code> szuka najlepszej kombinacji liniowej cech:</p>
+<pre><code>przewidywany postęp choroby = wyraz_wolny
+                            + w_1 · age
+                            + w_2 · sex
+                            + ...
+                            + w_10 · s6
+</code></pre>
+<p>„Najlepsza" znaczy: taka, przy której <strong>suma kwadratów błędów</strong> na zbiorze uczącym jest najmniejsza (stąd nazwa: metoda najmniejszych kwadratów, ang. <em>ordinary least squares</em>). Wyraz wolny (ang. <em>intercept</em>) to wartość, którą model przewiduje, gdy wszystkie cechy są zerowe - tutaj liczba bez sensu fizycznego, bo pacjent o wieku 0 i ciśnieniu 0 nie istnieje.</p>
+<blockquote>
+<p><strong>Dlaczego tym razem nie skalujemy cech</strong>: zwykła regresja liniowa <strong>nie potrzebuje skalowania</strong> - rozwiązanie jest dokładnie to samo, zmieniają się tylko jednostki współczynników. A nam zależy właśnie na tym, żeby współczynniki były w oryginalnych jednostkach, bo dzięki temu da się je przeczytać po polsku. Sytuacja zmieni się w sekcji 8: <strong>regularyzacja bez skalowania nie ma sensu</strong> i tam skaler wróci.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=bfc7e0c7">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearRegression</span>
+
+<span class="n">regresja</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span>
+<span class="n">regresja</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz</span><span class="p">)</span>
+
+<span class="n">wyniki</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ocen</span><span class="p">(</span><span class="s1">'regresja liniowa'</span><span class="p">,</span> <span class="n">regresja</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wyniki</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">10.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="n">poprawa</span> <span class="o">=</span> <span class="n">wyniki</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'RMSE'</span><span class="p">]</span> <span class="o">-</span> <span class="n">wyniki</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'RMSE'</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zmiana RMSE względem modelu odniesienia: </span><span class="si">{</span><span class="n">poprawa</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2"> jednostki celu"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Model wyjaśnia </span><span class="si">{</span><span class="n">wyniki</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'R2'</span><span class="p">]</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> zmienności celu."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=da405e5f"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Tym razem tabela wygląda tak, jak podręcznik obiecuje: <strong>regresja liniowa wyraźnie bije model odniesienia</strong>. RMSE spada o blisko dwadzieścia jednostek, MAE o ponad dwadzieścia, a R² wychodzi w okolicach 0,45 - model wyjaśnia blisko połowę zmienności celu, korzystając wyłącznie z wieku, BMI, ciśnienia i sześciu wyników badań krwi.</p>
+<p>Zachowaj jednak proporcje. R² rzędu 0,45 to <strong>nie jest</strong> model gotowy do zastosowań klinicznych: typowa pomyłka wynosi wciąż kilkadziesiąt jednostek przy zmienności celu rzędu 77. Taki wynik mówi raczej „w tych badaniach naprawdę jest sygnał i da się go wyciągnąć prostym modelem" niż „problem rozwiązany". Do pytania, co wolno powiedzieć o modelu o niskim R², wrócimy w ostatnim zadaniu.</p>
+<h3 id="Co-m%C3%B3wi%C4%85-wsp%C3%B3%C5%82czynniki">Co mówią współczynniki<a class="anchor-link" href="#Co-m%C3%B3wi%C4%85-wsp%C3%B3%C5%82czynniki">¶</a></h3><p>Teraz najciekawsza rzecz w regresji liniowej: <strong>każdą cechę da się wycenić jedną liczbą</strong>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4173c13c">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">wspolczynniki</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">regresja</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wyraz wolny (intercept): </span><span class="si">{</span><span class="n">regresja</span><span class="o">.</span><span class="n">intercept_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Współczynniki (w oryginalnych jednostkach cech):"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">wspolczynniki</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Odczyt trzech wybranych współczynników:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  age: wzrost wieku o 1 rok            -&gt; przewidywany cel zmienia się o </span><span class="si">{</span><span class="n">wspolczynniki</span><span class="p">[</span><span class="s1">'age'</span><span class="p">]</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  bmi: wzrost BMI o 1 jednostkę        -&gt; przewidywany cel zmienia się o </span><span class="si">{</span><span class="n">wspolczynniki</span><span class="p">[</span><span class="s1">'bmi'</span><span class="p">]</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  sex: przejście z kodu 1 na kod 2     -&gt; przewidywany cel zmienia się o </span><span class="si">{</span><span class="n">wspolczynniki</span><span class="p">[</span><span class="s1">'sex'</span><span class="p">]</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8d327ec0"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Współczynnik przy <code>bmi</code> czyta się tak: <strong>jeżeli BMI wzrośnie o jedną jednostkę, a wszystkie pozostałe cechy pozostaną bez zmian, przewidywany postęp choroby zmieni się o tyle jednostek</strong>. Zwrot „przy pozostałych cechach bez zmian" (po łacinie <em>ceteris paribus</em>) jest częścią definicji, a nie ozdobnikiem - bez niego zdanie jest po prostu nieprawdziwe.</p>
+<p><code>sex</code> przyjmuje tylko dwie wartości (1 i 2), więc „wzrost o jeden" oznacza po prostu przejście od jednej grupy do drugiej. Współczynnik mówi więc, <strong>o ile średnio różni się przewidywany cel między tymi dwiema grupami</strong> - przy pozostałych cechach takich samych. Dokumentacja zbioru nie podaje, która wartość odpowiada której płci, więc dalej niż do takiego zdania nie da się uczciwie pójść.</p>
+<p>Trzy rzeczy, których ze współczynników wyczytać <strong>nie wolno</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Pokusa</th>
+<th>Dlaczego to błąd</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>„Wysokie BMI <strong>powoduje</strong> szybszy postęp choroby"</td>
+<td>Regresja mierzy współwystępowanie, nie przyczynę. Kierunek może być odwrotny, może istnieć trzeci czynnik wpływający na oba. To ta sama pułapka co przy korelacji w ćwiczeniu 02.</td>
+</tr>
+<tr>
+<td>„<code>s5</code> ma współczynnik największy co do wartości, więc jest najważniejszą cechą"</td>
+<td>Współczynniki są <strong>w jednostkach swoich cech</strong>. <code>s5</code> przyjmuje wartości między 3 a 6, <code>s1</code> - w setkach; ta pierwsza dostaje z natury współczynnik kilkadziesiąt razy większy. Żeby porównywać, trzeba najpierw cechy wystandaryzować - o tym jest zadanie 3.</td>
+</tr>
+<tr>
+<td>„Ujemny współczynnik oznacza, że cecha działa ochronnie"</td>
+<td>Popatrz na <code>s1</code>: jego korelacja z celem jest <strong>dodatnia</strong> (około +0,21), a współczynnik w modelu wychodzi <strong>ujemny</strong>. Powód: <code>s1</code> i <code>s2</code> są ze sobą skorelowane na poziomie około 0,90 - to praktycznie ta sama informacja podana dwa razy. Model rozdziela ją między obie kolumny w sposób, który liczy się tylko jako para. Przy silnie skorelowanych cechach pojedynczy współczynnik przestaje mieć samodzielne znaczenie.</td>
+</tr>
+</tbody>
+</table>
+<p>Najważniejsza jest <strong>trzecia pozycja w tabeli</strong> - ta o ujemnym współczynniku przy <code>s1</code>. Warto ją rozpisać, bo wraca w tym kursie jeszcze kilka razy.</p>
+<p>Patrząc osobno, <code>s1</code> rośnie razem z celem (korelacja <code>+0,21</code>). Ale w modelu dostaje współczynnik <strong>ujemny</strong>. Sprzeczność jest pozorna, bo te dwie liczby odpowiadają na <strong>różne pytania</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Pytanie</th>
+<th>Odpowiada na nie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>„Jak <code>s1</code> zachowuje się względem celu, gdy patrzę tylko na nie?"</td>
+<td>korelacja: <code>+0,21</code></td>
+</tr>
+<tr>
+<td>„Co wnosi <code>s1</code> <strong>ponad to, co już wnosi <code>s2</code></strong>?"</td>
+<td>współczynnik: <code>−1,28</code></td>
+</tr>
+</tbody>
+</table>
+<p>Ponieważ <code>s1</code> i <code>s2</code> są skorelowane na poziomie 0,90, model dostaje tę samą informację dwa razy i rozdziela ją między obie kolumny - a rozdzielić może ją na wiele sposobów, byle suma się zgadzała.</p>
+<p>Stąd zasada: <strong>współczynnik opisuje rolę cechy w obecności wszystkich pozostałych, a nie jej samodzielny związek z celem.</strong> Przy silnie skorelowanych cechach pojedynczy współczynnik przestaje mieć sens interpretacyjny - sensowna jest dopiero cała para.</p>
+<h2 id="5.-Dlaczego-MSE-jest-wra%C5%BCliwe-na-warto%C5%9Bci-odstaj%C4%85ce">5. Dlaczego MSE jest wrażliwe na wartości odstające<a class="anchor-link" href="#5.-Dlaczego-MSE-jest-wra%C5%BCliwe-na-warto%C5%9Bci-odstaj%C4%85ce">¶</a></h2><p>To nie jest teoria do zapamiętania, tylko coś, co da się pokazać w dziesięć sekund. Weźmiemy gotowe wyniki i <strong>zepsujemy jeden jedyny rekord</strong> w zbiorze testowym: wpiszemy pacjentowi wartość celu równą 5000. Przy skali, która kończy się na 346, taka liczba jest niemożliwa - to typowy błąd wpisu albo pomyłka jednostek, coś, co w prawdziwych danych zdarza się stale.</p>
+<p>Jeden rekord na 89. Zobacz, co zrobi z każdą z czterech metryk.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=1d9e1ddb">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">przewidywania</span> <span class="o">=</span> <span class="n">regresja</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="n">y_test_zepsute</span> <span class="o">=</span> <span class="n">y_test</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">indeks_ofiary</span> <span class="o">=</span> <span class="n">y_test_zepsute</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">y_test_zepsute</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">indeks_ofiary</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5000.0</span>      <span class="c1"># jeden blednie wpisany pomiar</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">metryki</span><span class="p">(</span><span class="n">y_prawda</span><span class="p">,</span> <span class="n">y_przewidziane</span><span class="p">,</span> <span class="n">opis</span><span class="p">):</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_prawda</span><span class="p">,</span> <span class="n">y_przewidziane</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">'dane'</span><span class="p">:</span> <span class="n">opis</span><span class="p">,</span>
+            <span class="s1">'MAE'</span><span class="p">:</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_prawda</span><span class="p">,</span> <span class="n">y_przewidziane</span><span class="p">),</span>
+            <span class="s1">'MSE'</span><span class="p">:</span> <span class="n">mse</span><span class="p">,</span>
+            <span class="s1">'RMSE'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mse</span><span class="p">),</span>
+            <span class="s1">'R2'</span><span class="p">:</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_prawda</span><span class="p">,</span> <span class="n">y_przewidziane</span><span class="p">)}</span>
+
+<span class="n">porownanie</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
+    <span class="n">metryki</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">,</span> <span class="s1">'zbiór testowy bez zmian'</span><span class="p">),</span>
+    <span class="n">metryki</span><span class="p">(</span><span class="n">y_test_zepsute</span><span class="p">,</span> <span class="n">przewidywania</span><span class="p">,</span> <span class="s1">'jeden rekord z celem = 5000'</span><span class="p">),</span>
+<span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">porownanie</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">12.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Wzrost każdej metryki (ile razy):"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'MAE'</span><span class="p">,</span> <span class="s1">'MSE'</span><span class="p">,</span> <span class="s1">'RMSE'</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">m</span><span class="si">:</span><span class="s2">5s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">porownanie</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">porownanie</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> x"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=997d251f"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Popatrz na ostatnie trzy linie. MAE urosło mniej więcej dwukrotnie, MSE - blisko stukrotnie, RMSE gdzieś pośrodku. Arytmetyka jest prosta: model przewidział dla tego pacjenta około 140, więc błąd na zepsutym rekordzie wynosi około 4860. Do MAE dokłada to <code>4860 / 89</code>, czyli około 55 jednostek. Do MSE dokłada <code>4860² / 89</code>, czyli ponad ćwierć miliona - prawie sto razy więcej niż wynosił cały MSE przed zepsuciem danych.</p>
+<p><strong>Wniosek</strong>: jedna obserwacja potrafi zdominować metrykę opartą na kwadratach. Nie dlatego, że coś jest zepsute w MSE - to działa dokładnie tak, jak zaprojektowano. Pytanie brzmi, czy tego chcemy.</p>
+<table>
+<thead>
+<tr>
+<th>Chcę, żeby…</th>
+<th>Wybieram</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>każdy błąd ważył proporcjonalnie do swojej wielkości</td>
+<td><strong>MAE</strong></td>
+</tr>
+<tr>
+<td>duże pomyłki bolały wyraźnie bardziej niż małe</td>
+<td><strong>RMSE</strong> (albo MSE)</td>
+</tr>
+<tr>
+<td>wyrazić wynik w jednostkach celu</td>
+<td>MAE albo RMSE (nie MSE)</td>
+</tr>
+<tr>
+<td>porównać modele między różnymi zbiorami danych</td>
+<td><strong>R²</strong> (jest niemianowane)</td>
+</tr>
+</tbody>
+</table>
+<p>W medycynie zwykle chcemy RMSE: jedna pomyłka o sto jednostek jest nieporównanie groźniejsza niż sto pomyłek po jednej jednostce. Ale gdy dane bywają zanieczyszczone błędnymi wpisami, RMSE mierzy głównie te wpisy - i wtedy MAE jest uczciwsze.</p>
+<p>Zwróć jeszcze uwagę na kolumnę <code>R2</code>. Zachowuje się mniej dramatycznie, niż można by sądzić, i to z ciekawego powodu: zepsuty rekord powiększa <strong>jednocześnie</strong> błąd modelu i zmienność celu, czyli licznik i mianownik tego samego ułamka. Do tego wątku wraca zadanie 4.</p>
+<h3 id="To-samo-od-drugiej-strony:-zepsuty-rekord-w-danych-ucz%C4%85cych">To samo od drugiej strony: zepsuty rekord w danych uczących<a class="anchor-link" href="#To-samo-od-drugiej-strony:-zepsuty-rekord-w-danych-ucz%C4%85cych">¶</a></h3><p>Powyżej zepsuliśmy dane <strong>testowe</strong>, więc ucierpiał tylko pomiar. Model pozostał ten sam. A co, jeśli błędna wartość siedzi w danych <strong>uczących</strong>?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=8db39e05">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">y_ucz_zepsute</span> <span class="o">=</span> <span class="n">y_ucz</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">y_ucz_zepsute</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">y_ucz_zepsute</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">5000.0</span>
+
+<span class="n">regresja_zepsuta</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_ucz</span><span class="p">,</span> <span class="n">y_ucz_zepsute</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Ocena na CZYSTYM zbiorze testowym:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
+    <span class="n">ocen</span><span class="p">(</span><span class="s1">'model uczony na czystych danych'</span><span class="p">,</span> <span class="n">regresja</span><span class="p">),</span>
+    <span class="n">ocen</span><span class="p">(</span><span class="s1">'model uczony z jednym błędnym rekordem'</span><span class="p">,</span> <span class="n">regresja_zepsuta</span><span class="p">),</span>
+<span class="p">])</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">10.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Jak przesunęły się współczynniki:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">'czysty'</span><span class="p">:</span> <span class="n">regresja</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+    <span class="s1">'zepsuty'</span><span class="p">:</span> <span class="n">regresja_zepsuta</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+    <span class="s1">'różnica'</span><span class="p">:</span> <span class="n">regresja_zepsuta</span><span class="o">.</span><span class="n">coef_</span> <span class="o">-</span> <span class="n">regresja</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=a959f674"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To jest wynik, który warto zapamiętać: <strong>jedna błędna wartość na 353 rekordy uczące zabrała modelowi większość jego skuteczności</strong>. R² spadło z okolic 0,45 do kilku setnych - model, który przed chwilą wyjaśniał blisko połowę zmienności celu, po tej jednej zmianie jest ledwie lepszy od przewidywania średniej.</p>
+<p>Powód jest ten sam co poprzednio: metoda najmniejszych kwadratów minimalizuje <strong>sumę kwadratów</strong> błędów, więc opłaca jej się przesunąć całą hiperpłaszczyznę, byle tylko zmniejszyć ten jeden gigantyczny, podniesiony do kwadratu błąd. Reszta pacjentów płaci za to pogorszeniem - i tym razem płaci słono.</p>
+<p>To jest praktyczne uzasadnienie dla całego ćwiczenia 02: <strong>wartości odstające trzeba znaleźć, zanim zacznie się trenować</strong>. Alternatywą są modele odporne (ang. <em>robust</em>), na przykład <code>HuberRegressor</code>, który karze duże błędy liniowo zamiast kwadratowo.</p>
+<h2 id="6.-Wykres-reszt">6. Wykres reszt<a class="anchor-link" href="#6.-Wykres-reszt">¶</a></h2><p><strong>Reszta</strong> (ang. <em>residual</em>) to błąd na pojedynczej obserwacji:</p>
+<pre><code>reszta = wartość prawdziwa - wartość przewidziana
+</code></pre>
+<p>Jedna liczba metryki streszcza kilkaset reszt i przy okazji gubi całą informację o ich <strong>strukturze</strong>. A struktura reszt mówi rzeczy, których żadna metryka nie powie. Standardowy wykres diagnostyczny to: <strong>na osi poziomej przewidywania modelu, na osi pionowej reszty</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Co widać</th>
+<th>Co to znaczy</th>
+<th>Co z tym zrobić</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bezkształtna chmura wokół zera</td>
+<td>model wyłapał to, co było liniowe; zostaje sam szum</td>
+<td>nic - tak ma być</td>
+</tr>
+<tr>
+<td>wyraźny łuk albo fala</td>
+<td>model <strong>przeoczył nieliniowość</strong></td>
+<td>dodać cechy wielomianowe albo zmienić model</td>
+</tr>
+<tr>
+<td>lejek (rozrzut rośnie ze wzrostem przewidywań)</td>
+<td>błąd jest proporcjonalny do wielkości celu</td>
+<td>rozważyć logarytm celu</td>
+</tr>
+<tr>
+<td>reszty przesunięte w górę lub w dół dla części zakresu</td>
+<td>model systematycznie zaniża albo zawyża w tym zakresie</td>
+<td>brakuje cechy opisującej tę grupę</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=4a32c2ea">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">reszty</span> <span class="o">=</span> <span class="n">y_test</span> <span class="o">-</span> <span class="n">przewidywania</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">osie</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">))</span>
+
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">przewidywania</span><span class="p">,</span> <span class="n">reszty</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#4C72B0'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'red'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'przewidywany postęp choroby'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'reszta (prawda - przewidywanie)'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Wykres reszt'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">reszty</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#55A868'</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'red'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'reszta'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'liczba pacjentów'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Rozkład reszt'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Średnia reszt: </span><span class="si">{</span><span class="n">reszty</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Odchylenie standardowe reszt: </span><span class="si">{</span><span class="n">reszty</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Reszty w podziale na cztery przedziały przewidywań:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'reszta'</span><span class="p">:</span> <span class="n">reszty</span><span class="p">,</span> <span class="s1">'przedział'</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">qcut</span><span class="p">(</span><span class="n">przewidywania</span><span class="p">,</span> <span class="mi">4</span><span class="p">)})</span>
+      <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'przedział'</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="s1">'reszta'</span><span class="p">]</span>
+      <span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s1">'mean'</span><span class="p">,</span> <span class="s1">'std'</span><span class="p">,</span> <span class="s1">'count'</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7bd996f9"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Ten wykres warto przeczytać powoli, bo tym razem naprawdę jest na nim co oglądać:</p>
+<ol>
+<li><strong>Chmura jest szeroka w poziomie.</strong> Przewidywania rozciągają się od około 50 do około 290 - model faktycznie <strong>różnicuje</strong> pacjentów, a nie odpowiada wszystkim mniej więcej to samo. To graficzny odpowiednik przyzwoitego R².</li>
+<li><strong>Nie ma wyraźnego łuku ani fali.</strong> Model liniowy nie przeoczył tu żadnej oczywistej nieliniowości.</li>
+<li><strong>Widać za to lejek.</strong> Tabelka pod wykresem pokazuje to liczbowo: odchylenie standardowe reszt rośnie z każdym kolejnym przedziałem przewidywań. Im gorszy przewidywany stan pacjenta, tym bardziej model się myli. To wzorzec z trzeciego wiersza tabeli powyżej.</li>
+<li><strong>Przy najniższych przewidywaniach reszty są średnio dodatnie</strong>, czyli model systematycznie <strong>zaniża</strong> wynik w tym zakresie. Częściowo to efekt tego, że cel nie schodzi poniżej 25 - model liniowy o tym nie wie i potrafi przewidzieć mniej.</li>
+</ol>
+<p>Ostatnie dwa punkty opierają się na 89 obserwacjach, więc traktuj je jako sygnał do sprawdzenia, a nie jako dowód. Przy tak małej próbce łatwo zobaczyć wzorzec, którego nie ma - to samo ostrzeżenie, które padło przy histogramach w ćwiczeniu 02.</p>
+<p>Histogram obok pokazuje rozkład reszt: z grubsza symetryczny, wyśrodkowany blisko zera. Średnia reszt bliska zeru to zresztą właściwość metody najmniejszych kwadratów, a nie zasługa modelu - warto o tym pamiętać, zanim się z tego ucieszy.</p>
+<p>Żeby zobaczyć wykres reszt, który <strong>krzyczy</strong>, potrzebujemy danych z zależnością, którą świadomie zepsujemy. Do tego posłużą dane syntetyczne.</p>
+<h2 id="7.-Niedouczenie-i-przeuczenie">7. Niedouczenie i przeuczenie<a class="anchor-link" href="#7.-Niedouczenie-i-przeuczenie">¶</a></h2><p>Przechodzimy na <strong>dane wygenerowane sztucznie</strong>. Powód jest prosty: przy danych syntetycznych <strong>znamy prawdziwą zależność</strong>, bo sami ją zapisaliśmy. Można więc obejrzeć, jak bardzo model się od niej odchyla - komfort, którego z prawdziwymi danymi nigdy nie ma.</p>
+<p>Prawdziwa zależność będzie falą sinusoidalną plus szum. Model dostanie tylko punkty; ma zgadnąć kształt.</p>
+<p>Narzędziem będzie <code>PolynomialFeatures</code>: klasa, która z jednej cechy <code>x</code> robi zestaw <code>x, x², x³, …</code> aż do zadanego stopnia. Model pozostaje liniowy - liniowy <strong>względem współczynników</strong> - ale krzywa, którą rysuje, robi się dowolnie pofalowana. Stopień wielomianu staje się więc pokrętłem sterującym <strong>złożonością modelu</strong>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=057a7b90">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolynomialFeatures</span><span class="p">,</span> <span class="n">StandardScaler</span>
+
+<span class="n">losowy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">x_syn</span> <span class="o">=</span> <span class="n">losowy</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+<span class="n">y_syn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">1.4</span> <span class="o">*</span> <span class="n">x_syn</span><span class="p">)</span> <span class="o">+</span> <span class="n">losowy</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>   <span class="c1"># prawda + szum</span>
+<span class="n">X_syn</span> <span class="o">=</span> <span class="n">x_syn</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>                                <span class="c1"># scikit-learn chce dwuwymiarowego X</span>
+
+<span class="n">X_syn_ucz</span><span class="p">,</span> <span class="n">X_syn_test</span><span class="p">,</span> <span class="n">y_syn_ucz</span><span class="p">,</span> <span class="n">y_syn_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X_syn</span><span class="p">,</span> <span class="n">y_syn</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">model_wielomianowy</span><span class="p">(</span><span class="n">stopien</span><span class="p">,</span> <span class="n">estymator</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># PolynomialFeatures -&gt; StandardScaler -&gt; model liniowy.</span>
+    <span class="c1"># Skaler nie zmienia dopasowania zwyklej regresji, ale ratuje ja</span>
+    <span class="c1"># przed problemami numerycznymi przy wysokich potegach.</span>
+    <span class="k">return</span> <span class="n">make_pipeline</span><span class="p">(</span>
+        <span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="n">stopien</span><span class="p">,</span> <span class="n">include_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">StandardScaler</span><span class="p">(),</span>
+        <span class="n">LinearRegression</span><span class="p">()</span> <span class="k">if</span> <span class="n">estymator</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">estymator</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Punktów uczących: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_syn_ucz</span><span class="p">)</span><span class="si">}</span><span class="s2">, testowych: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_syn_test</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b4cca73c">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">siatka</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">stopnie</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">15</span><span class="p">]</span>
+<span class="n">opisy</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'stopień 1 - niedouczenie'</span><span class="p">,</span> <span class="s1">'stopień 4 - w sam raz'</span><span class="p">,</span> <span class="s1">'stopień 15 - przeuczenie'</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">osie</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mf">4.6</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">tabela_syn</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">stopien</span><span class="p">,</span> <span class="n">opis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">osie</span><span class="p">,</span> <span class="n">stopnie</span><span class="p">,</span> <span class="n">opisy</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">model_wielomianowy</span><span class="p">(</span><span class="n">stopien</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_syn_ucz</span><span class="p">,</span> <span class="n">y_syn_ucz</span><span class="p">)</span>
+
+    <span class="n">tabela_syn</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">'stopień'</span><span class="p">:</span> <span class="n">stopien</span><span class="p">,</span>
+        <span class="s1">'RMSE uczący'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_syn_ucz</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_syn_ucz</span><span class="p">))),</span>
+        <span class="s1">'RMSE testowy'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_syn_test</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_syn_test</span><span class="p">))),</span>
+    <span class="p">})</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">siatka</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">1.4</span> <span class="o">*</span> <span class="n">siatka</span><span class="o">.</span><span class="n">ravel</span><span class="p">()),</span> <span class="n">color</span><span class="o">=</span><span class="s1">'green'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s1">'prawdziwa zależność'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">siatka</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">siatka</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">'red'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'model'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_syn_ucz</span><span class="p">,</span> <span class="n">y_syn_ucz</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#4C72B0'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'dane uczące'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_syn_test</span><span class="p">,</span> <span class="n">y_syn_test</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'orange'</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'s'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'dane testowe'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">opis</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'y'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">'lower left'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tabela_syn</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=02100720"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Trzy obrazki i trzy zupełnie różne historie:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Niedouczenie (<em>underfitting</em>)</th>
+<th>W sam raz</th>
+<th>Przeuczenie (<em>overfitting</em>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model</td>
+<td>za prosty na dane</td>
+<td>dopasowany do złożoności zjawiska</td>
+<td>za elastyczny</td>
+</tr>
+<tr>
+<td>Błąd na zbiorze uczącym</td>
+<td>duży</td>
+<td>mały</td>
+<td><strong>bardzo mały</strong></td>
+</tr>
+<tr>
+<td>Błąd na zbiorze testowym</td>
+<td>duży</td>
+<td>mały</td>
+<td><strong>duży</strong></td>
+</tr>
+<tr>
+<td>Objaw</td>
+<td>oba błędy wysokie i podobne</td>
+<td>oba niskie i podobne</td>
+<td>wielka przepaść między nimi</td>
+</tr>
+<tr>
+<td>Co model zrobił</td>
+<td>przeoczył kształt zależności</td>
+<td>wychwycił kształt</td>
+<td>dopasował się do <strong>szumu</strong></td>
+</tr>
+<tr>
+<td>Lekarstwo</td>
+<td>bogatszy model, więcej cech</td>
+<td>nic</td>
+<td>prostszy model, więcej danych, <strong>regularyzacja</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Zwróć uwagę na wielomian stopnia 15: przechodzi przez punkty uczące niemal idealnie, a między nimi <strong>wariuje</strong>. Nauczył się nie zależności, lecz konkretnego losowania szumu. To ten sam mechanizm co drzewo bez ograniczenia głębokości z ćwiczenia 01 - inny model, identyczna choroba.</p>
+<p>Najważniejszy nawyk diagnostyczny: <strong>zawsze patrz na oba błędy naraz</strong>. Sam błąd testowy nie mówi, czy model jest za prosty, czy za skomplikowany - a to dwa problemy wymagające przeciwnych reakcji.</p>
+<h2 id="8.-Regularyzacja:-Ridge-i-Lasso">8. Regularyzacja: Ridge i Lasso<a class="anchor-link" href="#8.-Regularyzacja:-Ridge-i-Lasso">¶</a></h2><p>Przeuczony wielomian ze stopnia 15 ma charakterystyczną cechę: jego <strong>współczynniki są ogromne</strong>. Żeby krzywa mogła przecisnąć się przez wszystkie punkty, musi gwałtownie zawracać, a to wymaga wielkich dodatnich i ujemnych wag, które prawie się znoszą.</p>
+<p>Stąd pomysł <strong>regularyzacji</strong> (ang. <em>regularization</em>): skoro duże współczynniki są objawem choroby, dołóżmy do tego, co model minimalizuje, <strong>karę za wielkość współczynników</strong>.</p>
+<pre><code>zwykła regresja:   minimalizuj   suma kwadratów błędów
+Ridge:             minimalizuj   suma kwadratów błędów + alpha · suma (w_i)²
+Lasso:             minimalizuj   suma kwadratów błędów + alpha · suma |w_i|
+</code></pre>
+<p>Parametr <code>alpha</code> steruje siłą kary:</p>
+<ul>
+<li><code>alpha = 0</code> - kara znika, dostajemy zwykłą regresję liniową,</li>
+<li><code>alpha</code> małe - model lekko przyhamowany,</li>
+<li><code>alpha</code> duże - współczynniki dociśnięte niemal do zera, model zbliża się do przewidywania średniej (czyli do <strong>niedouczenia</strong>).</li>
+</ul>
+<blockquote>
+<p><strong>Dlaczego regularyzacja wymaga skalowania cech</strong>: kara dotyczy współczynników, a wielkość współczynnika zależy od jednostki cechy. Cecha mierzona w gramach ma współczynnik tysiąc razy mniejszy niż ta sama cecha w kilogramach - i tysiąc razy mniejszą karę. Bez standaryzacji <code>alpha</code> karałoby cechy w sposób zależny od tego, w czym akurat je zmierzono. Dlatego <code>StandardScaler</code> przed <code>Ridge</code> i <code>Lasso</code> to nie opcja, tylko obowiązek.</p>
+</blockquote>
+<h3 id="Dlaczego-Lasso-zeruje-wsp%C3%B3%C5%82czynniki,-a-Ridge-nie">Dlaczego Lasso zeruje współczynniki, a Ridge nie<a class="anchor-link" href="#Dlaczego-Lasso-zeruje-wsp%C3%B3%C5%82czynniki,-a-Ridge-nie">¶</a></h3><p>To najczęściej zadawane pytanie w tej sekcji i jest na nie prosta odpowiedź: <strong>chodzi o zachowanie kary blisko zera</strong>.</p>
+<ul>
+<li>Kara Ridge to <strong>kwadrat</strong>. Gdy współczynnik jest już mały, jego kwadrat jest malutki (0,01² = 0,0001), więc zysk ze zmniejszania go dalej praktycznie znika. Ridge ściska współczynniki w stronę zera, ale <strong>nigdy ich nie dociska do samego zera</strong>.</li>
+<li>Kara Lasso to <strong>wartość bezwzględna</strong>. Jej „nachylenie" jest takie samo niezależnie od tego, jak blisko zera jesteśmy - zmniejszenie współczynnika z 0,01 do 0 daje dokładnie taki sam zysk na karze jak zmniejszenie z 1,01 do 1,00. Jeśli więc cecha nie zarabia na siebie dokładnością, opłaca się wyciąć ją <strong>całkowicie</strong>.</li>
+</ul>
+<p>Skutek praktyczny: <strong>Lasso robi selekcję cech</strong> (ang. <em>feature selection</em>). Współczynnik wyzerowany oznacza cechę, której model w ogóle nie używa - można ją usunąć ze zbioru i nic się nie zmieni. Ridge zostawia wszystkie cechy, tylko je przycisza.</p>
+<p>Sprawdźmy to na przeuczonym wielomianie stopnia 15.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=3d66d414">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ridge</span><span class="p">,</span> <span class="n">Lasso</span>
+
+<span class="n">STOPIEN</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="n">warianty</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'bez regularyzacji'</span><span class="p">:</span> <span class="n">LinearRegression</span><span class="p">(),</span>
+    <span class="s1">'Ridge (alpha=1)'</span><span class="p">:</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+    <span class="s1">'Lasso (alpha=0.05)'</span><span class="p">:</span> <span class="n">Lasso</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">tabela_reg</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">dopasowane</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">nazwa</span><span class="p">,</span> <span class="n">estymator</span> <span class="ow">in</span> <span class="n">warianty</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">model_wielomianowy</span><span class="p">(</span><span class="n">STOPIEN</span><span class="p">,</span> <span class="n">estymator</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_syn_ucz</span><span class="p">,</span> <span class="n">y_syn_ucz</span><span class="p">)</span>
+    <span class="n">dopasowane</span><span class="p">[</span><span class="n">nazwa</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
+
+    <span class="n">wagi</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coef_</span>
+    <span class="n">tabela_reg</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s1">'model'</span><span class="p">:</span> <span class="n">nazwa</span><span class="p">,</span>
+        <span class="s1">'RMSE uczący'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_syn_ucz</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_syn_ucz</span><span class="p">))),</span>
+        <span class="s1">'RMSE testowy'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_syn_test</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_syn_test</span><span class="p">))),</span>
+        <span class="s1">'największy |w|'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wagi</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+        <span class="s1">'zerowych w'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wagi</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">)),</span>
+        <span class="s1">'wszystkich w'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">wagi</span><span class="p">),</span>
+    <span class="p">})</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tabela_reg</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">10.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=c9f75b22">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">osie</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="c1"># Lewy panel: jak wygladaja dopasowane krzywe</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">siatka</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">1.4</span> <span class="o">*</span> <span class="n">siatka</span><span class="o">.</span><span class="n">ravel</span><span class="p">()),</span> <span class="n">color</span><span class="o">=</span><span class="s1">'green'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+             <span class="n">label</span><span class="o">=</span><span class="s1">'prawdziwa zależność'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">nazwa</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">dopasowane</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">siatka</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">siatka</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">nazwa</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_syn_ucz</span><span class="p">,</span> <span class="n">y_syn_ucz</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#4C72B0'</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'dane uczące'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'y'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Wielomian stopnia </span><span class="si">{</span><span class="n">STOPIEN</span><span class="si">}</span><span class="s1"> - z regularyzacją i bez'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="c1"># Prawy panel: same wspolczynniki</span>
+<span class="n">szerokosc</span> <span class="o">=</span> <span class="mf">0.27</span>
+<span class="n">pozycje</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">STOPIEN</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">nazwa</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dopasowane</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">pozycje</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">szerokosc</span><span class="p">,</span> <span class="n">m</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">szerokosc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">nazwa</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">pozycje</span> <span class="o">+</span> <span class="n">szerokosc</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s1">'x^</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">STOPIEN</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'cecha wielomianowa'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'współczynnik'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Wielkość współczynników'</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">osie</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0d1abba9"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Zadania">Zadania<a class="anchor-link" href="#Zadania">¶</a></h1><p>Zadania wykonuje się samodzielnie; wszystko, czego potrzeba, pojawiło się wyżej. Do dyspozycji są gotowe zmienne: <code>dane</code>, <code>X</code>, <code>y</code>, <code>X_ucz</code>, <code>X_test</code>, <code>y_ucz</code>, <code>y_test</code>, funkcje <code>ocen</code> i <code>model_wielomianowy</code> oraz dane syntetyczne <code>X_syn_ucz</code>, <code>y_syn_ucz</code>, <code>X_syn_test</code>, <code>y_syn_test</code>.</p>
+<h2 id="Zadanie-1:-Drugi-model-odniesienia">Zadanie 1: Drugi model odniesienia<a class="anchor-link" href="#Zadanie-1:-Drugi-model-odniesienia">¶</a></h2><p><code>DummyRegressor</code> ma także strategię <code>"median"</code> - zawsze przewiduje medianę etykiety ze zbioru uczącego.</p>
+<ol>
+<li>Zbuduj taki model, naucz go i oceń funkcją <code>ocen</code>.</li>
+<li>Zestaw wyniki obok strategii <code>"mean"</code> w jednej tabeli - <strong>osobno dla zbioru uczącego i osobno dla testowego</strong> (funkcja <code>ocen</code> przyjmuje <code>X_oceny</code> i <code>y_oceny</code>).</li>
+<li>Odpowiedz: która strategia wygrywa według <strong>MAE</strong>, a która według <strong>RMSE</strong>? Czy odpowiedź jest ta sama na obu zbiorach?</li>
+</ol>
+<p>Teoria mówi, że stała minimalizująca sumę kwadratów błędów to średnia, a stała minimalizująca sumę błędów bezwzględnych to mediana. Sprawdź, na którym zbiorze ta reguła sprawdza się co do joty, a na którym potrafi się odwrócić - i zastanów się dlaczego. Przyda się porównanie średniej i mediany celu: rozkład nie jest symetryczny.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b7cf45e4">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: schemat jest identyczny jak przy zmiennej `odniesienie`,</span>
+<span class="c1"># zmienia się tylko wartość argumentu strategy.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=8eaf8e6e"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-2:-Ile-wnosi-cecha-bmi?">Zadanie 2: Ile wnosi cecha <code>bmi</code>?<a class="anchor-link" href="#Zadanie-2:-Ile-wnosi-cecha-bmi?">¶</a></h2><p><code>bmi</code> ma najsilniejszą korelację z celem spośród wszystkich cech. Sprawdź, ile model traci, gdy ta kolumna znika.</p>
+<ol>
+<li>Zbuduj <code>X_bez = X.drop(columns=['bmi'])</code>.</li>
+<li>Podziel dane tak samo jak wcześniej (<code>test_size=0.2</code>, <code>random_state=42</code>).</li>
+<li>Wytrenuj <code>LinearRegression</code> i oceń go na zbiorze testowym (pamiętaj o podaniu nowych zbiorów do funkcji <code>ocen</code>).</li>
+<li>Porównaj R², MAE i RMSE z modelem korzystającym ze wszystkich cech.</li>
+</ol>
+<p>Pytanie na koniec: o ile dokładnie spadło R² i jaką część całego wyjaśnienia odpowiada ta jedna cecha? Czy model bez <code>bmi</code> nadal wyraźnie bije model odniesienia - i co to mówi o tym, czy informacja o pacjencie siedzi w jednej kolumnie, czy jest rozłożona na wiele?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e4e35a22">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=22aa3a30"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-3:-Kt%C3%B3re-cechy-naprawd%C4%99-wa%C5%BC%C4%85-najwi%C4%99cej?">Zadanie 3: Które cechy naprawdę ważą najwięcej?<a class="anchor-link" href="#Zadanie-3:-Kt%C3%B3re-cechy-naprawd%C4%99-wa%C5%BC%C4%85-najwi%C4%99cej?">¶</a></h2><p>W sekcji 4 padło ostrzeżenie: surowych współczynników <strong>nie wolno</strong> porównywać między sobą, bo każdy jest w innych jednostkach. Napraw to.</p>
+<ol>
+<li>Zbuduj potok <code>make_pipeline(StandardScaler(), LinearRegression())</code> i naucz go na tych samych danych.</li>
+<li>Wyciągnij współczynniki modelu (<code>potok[-1].coef_</code>) i zestaw je z nazwami cech.</li>
+<li>Posortuj cechy według <strong>wartości bezwzględnej</strong> współczynnika.</li>
+<li>Wypisz obok siebie ranking po standaryzacji i ranking z surowych współczynników z sekcji 4.</li>
+</ol>
+<p>Czy oba rankingi dają tę samą kolejność? Która cecha zmieniła pozycję najbardziej i dlaczego akurat ona? Sprawdź też, czy skalowanie zmieniło R² modelu - i zastanów się, czy powinno.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d8787181">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=7b86ed79"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-4:-Jak-szybko-psuje-si%C4%99-ka%C5%BCda-metryka">Zadanie 4: Jak szybko psuje się każda metryka<a class="anchor-link" href="#Zadanie-4:-Jak-szybko-psuje-si%C4%99-ka%C5%BCda-metryka">¶</a></h2><p>W sekcji 5 zepsuliśmy jeden rekord, wpisując wartość celu 5000. Zbadaj teraz, jak wielkość błędnego wpisu przekłada się na metryki.</p>
+<ol>
+<li>Dla każdej wartości z listy <code>[150, 400, 1000, 5000, 50000]</code> wstaw ją do <strong>jednego</strong> rekordu w kopii <code>y_test</code>.</li>
+<li>Za każdym razem policz MAE, RMSE i R² względem niezmienionych przewidywań <code>przewidywania</code>.</li>
+<li>Zbierz wyniki w <code>DataFrame</code> i narysuj wykres: na osi poziomej wartość błędnego wpisu (skala logarytmiczna, <code>ax.set_xscale('log')</code>), na osi pionowej metryka.</li>
+<li>Dorysuj wartości metryk dla niezepsutych danych jako linie poziome.</li>
+</ol>
+<p>Odpowiedz: która metryka rośnie liniowo z wielkością błędu, a która kwadratowo? I pytanie trudniejsze: dlaczego R² <strong>nie</strong> leci w dół bez końca, tylko zatrzymuje się w okolicach zera? Rozpisz wzór <code>R² = 1 - SS_res / SS_tot</code> i sprawdź, co dzieje się z licznikiem, a co z mianownikiem, gdy jedna obserwacja robi się gigantyczna.</p>
+<p>Zwróć też uwagę na pierwszą wartość z listy: 150 mieści się w normalnym zakresie celu. Co robią wtedy metryki?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=e82a44e6">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=10c8fbb9"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-5:-Wykres-reszt,-kt%C3%B3ry-co%C5%9B-pokazuje">Zadanie 5: Wykres reszt, który coś pokazuje<a class="anchor-link" href="#Zadanie-5:-Wykres-reszt,-kt%C3%B3ry-co%C5%9B-pokazuje">¶</a></h2><p>Wykres reszt dla modelu BMI był bezkształtną chmurą. Teraz zrób taki, na którym wzorzec widać z drugiego końca sali.</p>
+<ol>
+<li>Dopasuj <strong>prostą</strong> (<code>model_wielomianowy(1)</code>) do danych syntetycznych <code>X_syn_ucz</code>, <code>y_syn_ucz</code>.</li>
+<li>Policz reszty na zbiorze uczącym i narysuj je względem wartości <code>x</code> (nie względem przewidywań - przy jednej cesze to czytelniejsze).</li>
+<li>Powtórz to samo dla <code>model_wielomianowy(4)</code>.</li>
+<li>Narysuj oba wykresy obok siebie (<code>plt.subplots(1, 2)</code>) i dodaj poziomą linię na zerze.</li>
+</ol>
+<p>Opisz słowami, co widać na pierwszym wykresie, czego nie ma na drugim. Jaki wzorzec z tabeli w sekcji 6 to jest i jaka byłaby właściwa reakcja, gdyby zobaczyć go na prawdziwych danych?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=b7937c33">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=1d5d7d05"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-6:-Krzywa-z%C5%82o%C5%BCono%C5%9Bci">Zadanie 6: Krzywa złożoności<a class="anchor-link" href="#Zadanie-6:-Krzywa-z%C5%82o%C5%BCono%C5%9Bci">¶</a></h2><p>Sekcja 7 pokazała trzy stopnie wielomianu. Sprawdź wszystkie.</p>
+<ol>
+<li>Dla stopni od 1 do 15 dopasuj <code>model_wielomianowy(stopien)</code> do danych syntetycznych.</li>
+<li>Dla każdego stopnia zanotuj RMSE na zbiorze uczącym i testowym.</li>
+<li>Narysuj obie krzywe na jednym wykresie (oś pozioma: stopień, oś pionowa: RMSE). Warto ustawić <code>ax.set_yscale('log')</code> - przy stopniu kilkunastu błąd testowy potrafi urosnąć o rzędy wielkości.</li>
+<li>Zaznacz pionową linią stopień o najniższym RMSE testowym.</li>
+</ol>
+<p>Odpowiedz na trzy pytania:</p>
+<ul>
+<li>Czy RMSE <strong>uczący</strong> maleje monotonicznie? Dlaczego tak musi być?</li>
+<li>Gdzie dokładnie zaczyna się przeuczenie - czyli od którego stopnia obie krzywe idą w przeciwne strony?</li>
+<li>Czy stopień wybrany na podstawie zbioru testowego to uczciwy wybór? (Odpowiedź znasz z ćwiczenia 01; pełne rozwiązanie problemu przyjdzie w ćwiczeniu 06.)</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=d564d82f">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: pętla `for stopien in range(1, 16):` i lista słowników jak w sekcji 7.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=6ac6ba3b"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-7-(trudniejsze):-Lasso-jako-narz%C4%99dzie-selekcji-cech">Zadanie 7 (trudniejsze): Lasso jako narzędzie selekcji cech<a class="anchor-link" href="#Zadanie-7-(trudniejsze):-Lasso-jako-narz%C4%99dzie-selekcji-cech">¶</a></h2><p>Zbadaj, czy Lasso faktycznie potrafi <strong>znaleźć</strong> cechy, które mają znaczenie. Do tego potrzebne są dane, w których wiadomo, które cechy są prawdziwe - a to potrafi wygenerować <code>make_regression</code>:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_regression</span>
+
+<span class="n">X_mr</span><span class="p">,</span> <span class="n">y_mr</span><span class="p">,</span> <span class="n">wagi_prawdziwe</span> <span class="o">=</span> <span class="n">make_regression</span><span class="p">(</span>
+    <span class="n">n_samples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">n_informative</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">noise</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">coef</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+<p>Pięć cech z trzydziestu naprawdę wpływa na <code>y</code>; pozostałe dwadzieścia pięć to czysty szum (ich prawdziwa waga wynosi dokładnie 0).</p>
+<ol>
+<li>Podziel dane na uczące i testowe (<code>test_size=0.3</code>, <code>random_state=42</code>).</li>
+<li>Dla <code>alpha</code> z listy <code>[0.01, 0.1, 1, 5, 10, 50, 100]</code> dopasuj potok <code>StandardScaler</code> + <code>Lasso(alpha=..., max_iter=100000)</code>. Dla każdej wartości zanotuj: liczbę <strong>niezerowych</strong> współczynników, R² testowe oraz to, ile spośród 5 prawdziwie istotnych cech model zachował (indeksy istotnych: <code>np.flatnonzero(wagi_prawdziwe)</code>).</li>
+<li>Zrób to samo dla <code>Ridge</code> z tymi samymi wartościami <code>alpha</code>. Ile współczynników Ridge wyzerował?</li>
+<li>Narysuj <strong>ścieżkę współczynników</strong> dla Lasso: oś pozioma <code>alpha</code> w skali logarytmicznej, jedna linia na każdą z 30 cech. Cechy prawdziwie istotne narysuj grubszą linią.</li>
+</ol>
+<p>Odpowiedz: przy jakiej wartości <code>alpha</code> Lasso zostawia mniej więcej pięć cech i czy są to <strong>te właściwe</strong>? Co się dzieje z R², gdy <code>alpha</code> rośnie dalej? Dlaczego Ridge nie wyzerował ani jednego współczynnika, mimo że dwadzieścia pięć cech to bezużyteczny szum?</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=aeb76cf9">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=00d32789"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Zadanie-8-(na-koniec):-Kiedy-odpowiedzi-nie-ma-w-danych">Zadanie 8 (na koniec): Kiedy odpowiedzi nie ma w danych<a class="anchor-link" href="#Zadanie-8-(na-koniec):-Kiedy-odpowiedzi-nie-ma-w-danych">¶</a></h2><p>Wracamy do pliku <code>dane/diabetes.csv</code> - tego z ćwiczeń 01-03, gdzie przewidywaliśmy <code>Diabetic</code>. Tym razem zadamy mu pytanie <strong>regresyjne</strong>: spróbuj przewidzieć <code>BMI</code> na podstawie pozostałych cech.</p>
+<ol>
+<li>Wczytaj <code>dane/diabetes.csv</code>. Zbuduj <code>X_csv = dane_csv.drop(columns=['PatientID', 'BMI'])</code> oraz <code>y_csv = dane_csv['BMI']</code>.</li>
+<li>Podziel dane (<code>test_size=0.2</code>, <code>random_state=42</code>).</li>
+<li>Wytrenuj <code>DummyRegressor(strategy="mean")</code> i <code>LinearRegression</code>. Oceń oba na zbiorze testowym - pamiętaj, że funkcja <code>ocen</code> domyślnie sięga po zbiór testowy przykładu prowadzonego, więc nowe zbiory trzeba jej podać jawnie.</li>
+<li>Policz korelację każdej cechy z <code>BMI</code> (<code>dane_csv.drop(columns=['PatientID']).corr()['BMI']</code>) i zestaw ją z odchyleniem standardowym <code>BMI</code>.</li>
+</ol>
+<p>Potem odpowiedz słowami:</p>
+<ul>
+<li>Dlaczego model liniowy prawie nie poprawia wyniku względem przewidywania średniej?</li>
+<li>Czy to wina <strong>modelu</strong>, czy <strong>danych</strong>? Jaki dowód na swoją odpowiedź znajdziesz w tabeli korelacji?</li>
+<li>Czy pomogłoby sięgnięcie po model bardziej złożony - las losowy, sieć neuronową, cokolwiek większego?</li>
+<li>Co zrobić w prawdziwym projekcie, gdyby po kilku dniach pracy okazało się, że zbiór wygląda właśnie tak? Komu i jak to zakomunikować?</li>
+</ul>
+<blockquote>
+<p><strong>O co tu naprawdę chodzi</strong>: to zadanie <strong>nie ma dobrego zakończenia</strong> i tak ma być. Czasem dane po prostu nie zawierają odpowiedzi na zadane pytanie, a żaden model tego nie naprawi - bo model nie tworzy informacji, tylko ją wydobywa. Umiejętność rozpoznania takiej sytuacji <strong>wcześnie</strong> jest w praktyce warta więcej niż dowolna liczba godzin spędzonych na strojeniu hiperparametrów. Porównaj przy okazji oba zbiory: <code>load_diabetes</code> z przykładu prowadzonego i ten plik CSV dotyczą tej samej choroby, a dają zupełnie różne wyniki - bo mierzą różne rzeczy i odpowiadają na różne pytania.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered" id="cell-id=521691c9">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-python"><pre><span></span><span class="c1"># TWÓJ KOD TUTAJ</span>
+<span class="c1"># Podpowiedź: dane_csv = pd.read_csv('dane/diabetes.csv')</span>
+<span class="c1"># Pamiętaj o jawnym podaniu zbiorów oceny: ocen('...', model, X_csv_test, y_csv_test)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered" id="cell-id=0b9c71ca"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr/>
+<h1 id="Pytania-do-przemy%C5%9Blenia">Pytania do przemyślenia<a class="anchor-link" href="#Pytania-do-przemy%C5%9Blenia">¶</a></h1><p>Na te pytania odpowiada się słowami, nie kodem.</p>
+<ol>
+<li>Model z przykładu prowadzonego osiągnął R² rzędu 0,45, a model z zadania 8 - rzędu 0,05. Czy ten drugi jest bezużyteczny? Od czego zależy odpowiedź i czy istnieją zastosowania, w których tak słaby model nadal się przydaje?</li>
+<li>Model A ma niższe MAE, model B niższe RMSE. Który wybrać? Co ta sytuacja mówi o rozkładzie błędów obu modeli?</li>
+<li>R² modelu odniesienia wynosi dokładnie 0 na zbiorze uczącym, ale na testowym wychodzi liczba nieco ujemna. Skąd ta różnica? I dlaczego <strong>żaden</strong> model nie ma dolnego ograniczenia R², choć górne wynosi 1?</li>
+<li>Dlaczego przed <code>Ridge</code> i <code>Lasso</code> trzeba wystandaryzować cechy, a przed zwykłą regresją liniową nie trzeba? Co dokładnie poszłoby nie tak, gdyby jedną cechę podać w gramach, a drugą w kilogramach?</li>
+<li>Lasso wyzerowało dwadzieścia współczynników z trzydziestu. Czy wolno z tego wyciągnąć wniosek, że te dwadzieścia cech nie ma znaczenia dla zjawiska? Zastanów się, co Lasso robi z dwiema cechami niosącymi niemal tę samą informację.</li>
+<li>Wielomian stopnia 15 przechodzi przez punkty uczące niemal idealnie. Dlaczego nie jest to powód do radości - i co by się stało, gdyby poprosić ten model o przewidywanie dla <code>x</code> spoza zakresu danych uczących (ekstrapolacja)?</li>
+<li>W sekcji 4 współczynnik przy <code>s1</code> wyszedł ujemny, choć korelacja <code>s1</code> z celem jest dodatnia. Co trzeba wiedzieć o kolumnie <code>s2</code>, żeby to wyjaśnić? Czy wobec tego wolno powiedzieć „wyższy cholesterol całkowity wiąże się z wolniejszym postępem choroby"?</li>
+</ol>
+<h1 id="Chcesz-wiedzie%C4%87-wi%C4%99cej">Chcesz wiedzieć więcej<a class="anchor-link" href="#Chcesz-wiedzie%C4%87-wi%C4%99cej">¶</a></h1><ul>
+<li><a href="https://scikit-learn.org/stable/modules/linear_model.html">Modele liniowe w scikit-learn</a> - <code>LinearRegression</code>, <code>Ridge</code>, <code>Lasso</code>, <code>ElasticNet</code> i <code>HuberRegressor</code> w jednym miejscu, z wzorami minimalizowanych funkcji.</li>
+<li><a href="https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics">Metryki regresji</a> - poza omówionymi znajdziesz tam MAPE i błąd maksymalny.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_diabetes.html"><code>load_diabetes</code></a> - opis zbioru z przykładu prowadzonego, w tym znaczenie kolumn <code>s1</code>-<code>s6</code> i wyjaśnienie argumentu <code>scaled</code>.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyRegressor.html"><code>DummyRegressor</code></a> - zwróć uwagę na strategie <code>"quantile"</code> i <code>"constant"</code>.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.PolynomialFeatures.html"><code>PolynomialFeatures</code></a> - zobacz argument <code>interaction_only</code>, który generuje same iloczyny cech bez potęg.</li>
+<li><a href="https://scikit-learn.org/stable/auto_examples/model_selection/plot_underfitting_overfitting.html">Niedouczenie i przeuczenie - przykład z dokumentacji</a> - ta sama historia co w sekcji 7, opowiedziana na innej funkcji.</li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_regression.html"><code>make_regression</code></a> - generator danych z <strong>znanymi</strong> prawdziwymi współczynnikami; bardzo wygodny do sprawdzania, czy metoda działa.</li>
+</ul>
+<p>W kolejnym ćwiczeniu (<strong>05 - Klasyfikacja i metryki</strong>) wracamy do etykiet binarnych i do pliku <code>dane/diabetes.csv</code> w jego naturalnej roli. Rozprawimy się z obietnicą złożoną w ćwiczeniu 01: pokażemy metryki, które widzą to, czego skuteczność nie widzi - precyzję, czułość, F1 i krzywą ROC - oraz to, że próg decyzyjny jest wyborem, a nie stałą. Schemat zostaje ten sam co tutaj: najpierw poprzeczka, potem model, na końcu uczciwy pomiar.</p>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="03-przygotowanie-danych.html"><span>Poprzednie</span>Ćwiczenie 3: Przygotowanie danych</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="05-klasyfikacja-metryki.html"><span>Następne</span>Ćwiczenie 5: Klasyfikacja i metryki</a>
+</nav>
+</div></main>
+
+</body>
+</html>

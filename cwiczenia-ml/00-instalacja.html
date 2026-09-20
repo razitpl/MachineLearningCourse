@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00 - Przygotowanie środowiska pracy</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Machine Learning</a></div><div class="tresc">
+<a class="pobierz" href="00-sprawdz-srodowisko.html">Notatnik do tego ćwiczenia</a><h1>00 - Przygotowanie środowiska pracy</h1>
+<p>Zanim zaczniesz ćwiczenia, potrzebujesz działającego środowiska Pythona. Ten dokument przeprowadzi Cię przez instalację <strong>na własnym komputerze</strong>.</p>
+<blockquote>
+<p><strong>Nie masz ochoty nic instalować?</strong> Przeskocz do sekcji <a href="#praca-bez-instalacji-w-chmurze">Praca bez instalacji</a> na końcu. Ćwiczenia działają w przeglądarce, bez dotykania własnego systemu.</p>
+</blockquote>
+<h2>Co właściwie instalujemy i po co</h2>
+<table>
+<thead>
+<tr>
+  <th>Element</th>
+  <th>Do czego służy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><strong>Python</strong></td>
+  <td>język, w którym piszemy - sam w sobie nie umie uczenia maszynowego</td>
+</tr>
+<tr>
+  <td><strong>pandas</strong></td>
+  <td>wczytywanie i obróbka danych tabelarycznych (ramki danych, ang. <em>dataframes</em>)</td>
+</tr>
+<tr>
+  <td><strong>NumPy</strong></td>
+  <td>obliczenia na tablicach liczb; fundament, na którym stoi reszta</td>
+</tr>
+<tr>
+  <td><strong>scikit-learn</strong></td>
+  <td>właściwe uczenie maszynowe: modele, metryki, podział danych</td>
+</tr>
+<tr>
+  <td><strong>matplotlib</strong></td>
+  <td>wykresy</td>
+</tr>
+<tr>
+  <td><strong>JupyterLab</strong></td>
+  <td>środowisko, w którym otwierasz i uruchamiasz notatniki <code>.ipynb</code></td>
+</tr>
+<tr>
+  <td><strong>joblib</strong></td>
+  <td>zapisywanie wytrenowanego modelu do pliku (ćwiczenie 10)</td>
+</tr>
+<tr>
+  <td><strong>pytest</strong></td>
+  <td>testy jednostkowe (ćwiczenie 11)</td>
+</tr>
+</tbody>
+</table>
+<p>Nie instalujemy niczego więcej - żadnego TensorFlow ani PyTorcha. Cały kurs opiera się na scikit-learn, który jest lekki i działa na każdym sprzęcie, także bez karty graficznej.</p>
+<hr />
+<h2>Krok 1: Zainstaluj Pythona</h2>
+<p>Potrzebujesz <strong>Pythona 3.10 lub nowszego</strong>.</p>
+<h3>Sprawdź, czy już go masz</h3>
+<p>Otwórz terminal (Windows: <strong>PowerShell</strong>; macOS/Linux: <strong>Terminal</strong>) i wpisz:</p>
+<pre><code class="language-bash">python --version
+</code></pre>
+<p>Jeśli zobaczysz <code>Python 3.10.x</code> lub nowszy - masz gotowe, przejdź do kroku 2.</p>
+<blockquote>
+<p>Na macOS i Linuksie może być potrzebne <code>python3 --version</code>. Jeśli tak, w dalszych poleceniach też używaj <code>python3</code> zamiast <code>python</code>.</p>
+</blockquote>
+<h3>Jeśli Pythona nie ma</h3>
+<p>Masz dwie drogi. <strong>Wybierz jedną.</strong></p>
+<h4>Droga A: Miniconda (polecana, jeśli zaczynasz)</h4>
+<p>Miniconda instaluje Pythona wraz z własnym menedżerem środowisk. Jest odporniejsza na typowe problemy z bibliotekami obliczeniowymi na Windowsie.</p>
+<ol>
+<li>Pobierz instalator ze strony <a href="https://docs.conda.io/projects/miniconda/en/latest/">docs.conda.io/projects/miniconda</a>.</li>
+<li>Zainstaluj, zostawiając ustawienia domyślne.</li>
+<li>Uruchom <strong>Anaconda Prompt</strong> (Windows) albo zwykły terminal (macOS/Linux).</li>
+</ol>
+<h4>Droga B: Python z python.org</h4>
+<ol>
+<li>Pobierz instalator ze strony <a href="https://www.python.org/downloads/">python.org/downloads</a>.</li>
+<li><strong>Windows - to jest ważne</strong>: na pierwszym ekranie instalatora zaznacz <strong>„Add Python to PATH&quot;</strong>. Bez tego terminal nie znajdzie Pythona i dostaniesz <code>'python' is not recognized</code>.</li>
+<li>Dokończ instalację.</li>
+</ol>
+<blockquote>
+<p><strong>Której wersji Pythona użyć</strong>: nie zawsze najnowszej. Biblioteki obliczeniowe potrzebują czasem kilku tygodni, żeby wypuścić paczki dla świeżo wydanej wersji Pythona. Jeśli przy instalacji pakietów zobaczysz błędy o kompilacji, zainstaluj Pythona o jedno wydanie starszego.</p>
+</blockquote>
+<hr />
+<h2>Krok 2: Utwórz środowisko wirtualne</h2>
+<p><strong>Środowisko wirtualne</strong> (ang. <em>virtual environment</em>) to odizolowany katalog z własnym kompletem pakietów.</p>
+<p>Po co? Bo różne projekty potrzebują różnych wersji tych samych bibliotek. Bez izolacji instalacja czegoś na potrzeby jednego projektu potrafi zepsuć inny - klasyczny problem znany jako „piekło zależności&quot;. Środowisko wirtualne sprawia, że ten kurs ma swoją własną piaskownicę, a reszta systemu pozostaje nietknięta.</p>
+<p>Przejdź do katalogu z ćwiczeniami:</p>
+<pre><code class="language-bash">cd sciezka/do/MachineLearningCourse/materialy/cwiczenia-ml
+</code></pre>
+<h3>Wariant conda (jeśli wybrałeś Minicondę)</h3>
+<pre><code class="language-bash">conda create -n ml-kurs python=3.11
+conda activate ml-kurs
+</code></pre>
+<h3>Wariant venv (jeśli wybrałeś Pythona z python.org)</h3>
+<pre><code class="language-bash">python -m venv .venv
+</code></pre>
+<p>Aktywacja zależy od systemu:</p>
+<pre><code class="language-bash"># Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+
+# Windows (cmd)
+.venv\Scripts\activate.bat
+
+# macOS / Linux
+source .venv/bin/activate
+</code></pre>
+<p>Po aktywacji na początku wiersza polecenia zobaczysz nazwę środowiska, np. <code>(.venv)</code> albo <code>(ml-kurs)</code>. <strong>To jest sygnał, że jesteś we właściwym miejscu</strong> - bez tego pakiety zainstalują się globalnie.</p>
+<blockquote>
+<p><strong>Windows, błąd o zasadach wykonywania skryptów</strong>: jeśli przy aktywacji PowerShell odmówi z komunikatem o <code>ExecutionPolicy</code>, uruchom raz:</p>
+<pre><code class="language-powershell">Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+</code></pre>
+<p>i spróbuj ponownie.</p>
+</blockquote>
+<hr />
+<h2>Krok 3: Zainstaluj pakiety</h2>
+<p>Przy <strong>aktywnym</strong> środowisku:</p>
+<pre><code class="language-bash">pip install -r requirements.txt
+</code></pre>
+<p>Instalacja potrwa od kilkudziesięciu sekund do kilku minut - pobierane są paczki o łącznej wielkości kilkuset megabajtów.</p>
+<hr />
+<h2>Krok 4: Uruchom JupyterLab</h2>
+<pre><code class="language-bash">jupyter lab
+</code></pre>
+<p>W przeglądarce otworzy się JupyterLab. Po lewej stronie zobaczysz pliki - otwórz <strong><code>00_sprawdz_srodowisko.ipynb</code></strong> i uruchom wszystkie komórki (<strong>Run → Run All Cells</strong>).</p>
+<p>Jeśli notatnik wypisze, że wszystko działa - jesteś gotowy do ćwiczenia 01.</p>
+<blockquote>
+<p><strong>Zamykanie</strong>: JupyterLab działa w terminalu, w którym go uruchomiłeś. Żeby go zatrzymać, wróć do terminala i naciśnij <code>Ctrl+C</code>. Samo zamknięcie karty przeglądarki <strong>nie</strong> zatrzymuje serwera.</p>
+</blockquote>
+<hr />
+<h2>Alternatywa: Visual Studio Code</h2>
+<p>Jeśli wolisz pracować w edytorze zamiast w przeglądarce:</p>
+<ol>
+<li>Zainstaluj <a href="https://code.visualstudio.com/">Visual Studio Code</a>.</li>
+<li>Doinstaluj rozszerzenia <strong>Python</strong> oraz <strong>Jupyter</strong> (obydwa od Microsoftu).</li>
+<li>Otwórz katalog <code>cwiczenia-ml</code>, otwórz dowolny plik <code>.ipynb</code>.</li>
+<li>W prawym górnym rogu kliknij <strong>Select Kernel</strong> i wskaż interpreter ze swojego środowiska (<code>.venv</code> albo <code>ml-kurs</code>).</li>
+</ol>
+<p>Notatniki działają tak samo; zmienia się tylko interfejs.</p>
+<hr />
+<h2>Typowe problemy</h2>
+<table>
+<thead>
+<tr>
+  <th>Objaw</th>
+  <th>Przyczyna i rozwiązanie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>'python' is not recognized</code> (Windows)</td>
+  <td>Python nie trafił do PATH. Zainstaluj ponownie, zaznaczając <strong>Add Python to PATH</strong>, albo używaj <code>py</code> zamiast <code>python</code>.</td>
+</tr>
+<tr>
+  <td><code>ModuleNotFoundError: No module named 'sklearn'</code></td>
+  <td>Pakiety zainstalowane poza środowiskiem albo środowisko nieaktywne. Sprawdź, czy w wierszu polecenia widnieje <code>(.venv)</code>, i powtórz <code>pip install -r requirements.txt</code>.</td>
+</tr>
+<tr>
+  <td>JupyterLab nie widzi środowiska</td>
+  <td>Uruchamiaj <code>jupyter lab</code> <strong>z aktywnego</strong> środowiska. Jeśli to nie pomoże: <code>python -m ipykernel install --user --name ml-kurs</code>.</td>
+</tr>
+<tr>
+  <td><code>FileNotFoundError: dane/diabetes.csv</code></td>
+  <td>Notatnik uruchomiony z innego katalogu. JupyterLab musi być uruchomiony z katalogu <code>cwiczenia-ml</code>. Sprawdź w notatniku: <code>import os; print(os.getcwd())</code>.</td>
+</tr>
+<tr>
+  <td>Wykresy się nie pokazują</td>
+  <td>W notatniku są widoczne domyślnie. Jeśli nie - upewnij się, że komórka kończy się <code>plt.show()</code>.</td>
+</tr>
+<tr>
+  <td>Instalacja sypie błędami kompilacji</td>
+  <td>Zbyt świeża wersja Pythona. Zainstaluj wydanie o jedno starsze (np. 3.11 zamiast najnowszego).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Praca bez instalacji (w chmurze)</h2>
+<p>Jeśli nie chcesz lub nie możesz niczego instalować, masz dwie możliwości - w obu środowisko jest gotowe:</p>
+<p><strong>Instancja obliczeniowa Azure Machine Learning</strong> (jeśli realizujesz też kurs Azure w tym repozytorium): wszystkie pakiety są już zainstalowane. Uruchom instancję, otwórz JupyterLab i sklonuj repozytorium.</p>
+<p><strong>GitHub Codespaces</strong>: na stronie repozytorium wybierz <strong>Code → Codespaces → Create codespace</strong>. Dostajesz Visual Studio Code w przeglądarce. Po uruchomieniu wykonaj w terminalu:</p>
+<pre><code class="language-bash">pip install -r cwiczenia-ml/requirements.txt
+</code></pre>
+<hr />
+<h2>Sprawdź się przed zajęciami</h2>
+<p>Zanim przyjdziesz na pierwsze ćwiczenia, upewnij się, że:</p>
+<ul>
+<li>[ ] <code>python --version</code> zwraca 3.10 lub nowszy,</li>
+<li>[ ] środowisko wirtualne aktywuje się bez błędu,</li>
+<li>[ ] <code>pip install -r requirements.txt</code> przeszło do końca,</li>
+<li>[ ] <code>jupyter lab</code> otwiera się w przeglądarce,</li>
+<li>[ ] notatnik <code>00_sprawdz_srodowisko.ipynb</code> przechodzi wszystkie sprawdzenia.</li>
+</ul>
+<p>Jeśli któryś punkt nie działa - zgłoś to <strong>przed</strong> zajęciami, a nie w ich trakcie. Rozwiązywanie problemów instalacyjnych zabiera czas, którego nie będzie na zajęciach.</p>
+<nav class="przejscia">
+<span></span>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="00-sprawdz-srodowisko.html"><span>Następne</span>Ćwiczenie 0: Sprawdź swoje środowisko</a>
+</nav>
+</div></main>
+
+</body>
+</html>

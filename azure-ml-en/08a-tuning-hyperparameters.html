@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tuning Hyperparameters</title>
+<style>
+:root {
+  --tlo: #ffffff; --tekst: #1f2328; --przygaszony: #59636e;
+  --obramowanie: #d1d9e0; --akcent: #0969da; --akcent-tlo: #ddf4ff;
+  --kod-tlo: #f6f8fa; --ramka-tlo: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #0d1117; --tekst: #e6edf3; --przygaszony: #9198a1;
+    --obramowanie: #3d444d; --akcent: #4493f8; --akcent-tlo: #121d2f;
+    --kod-tlo: #151b23; --ramka-tlo: #151b23;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tekst);
+  font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--akcent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header.gora {
+  border-bottom: 1px solid var(--obramowanie); background: var(--ramka-tlo);
+  position: sticky; top: 0; z-index: 10;
+}
+header.gora .srodek {
+  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+header.gora .nazwa { font-weight: 600; }
+header.gora nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.tresc { max-width: 820px; }
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.25; }
+h2 { font-size: 22px; margin: 34px 0 10px; padding-bottom: 6px;
+     border-bottom: 1px solid var(--obramowanie); }
+h3 { font-size: 18px; margin: 26px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+li { margin: 4px 0; }
+code { background: var(--kod-tlo); padding: 2px 6px; border-radius: 6px;
+       font: 13.5px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+pre { background: var(--kod-tlo); padding: 14px 16px; border-radius: 8px;
+      overflow-x: auto; border: 1px solid var(--obramowanie); }
+pre code { background: none; padding: 0; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 4px solid var(--akcent);
+             background: var(--akcent-tlo); border-radius: 0 6px 6px 0; }
+blockquote p:last-child { margin-bottom: 0; }
+table { border-collapse: collapse; margin: 14px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--obramowanie); padding: 7px 12px; text-align: left; }
+th { background: var(--ramka-tlo); font-weight: 600; }
+img { max-width: 100%; height: auto; border-radius: 6px; }
+details { border: 1px solid var(--obramowanie); border-radius: 8px;
+          padding: 10px 14px; margin: 12px 0; background: var(--ramka-tlo); }
+details[open] { padding-bottom: 14px; }
+summary { cursor: pointer; font-weight: 600; margin: -10px -14px; padding: 10px 14px; }
+details[open] summary { border-bottom: 1px solid var(--obramowanie); margin-bottom: 12px; }
+.kafelki { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.kafelek { border: 1px solid var(--obramowanie); border-radius: 10px; padding: 18px 20px;
+           background: var(--ramka-tlo); }
+.kafelek h3 { margin-top: 0; }
+.kafelek p { color: var(--przygaszony); font-size: 15px; margin-bottom: 0; }
+.spis { list-style: none; padding: 0; }
+.spis li { border-bottom: 1px solid var(--obramowanie); padding: 11px 2px; margin: 0;
+           display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.spis .numer { color: var(--przygaszony); font-variant-numeric: tabular-nums;
+               min-width: 2.2em; font-size: 14px; }
+.spis .tytul { flex: 1; min-width: 220px; font-weight: 500; }
+.spis .obok { font-size: 14px; color: var(--przygaszony); display: flex; gap: 12px; }
+.okruchy { font-size: 14px; color: var(--przygaszony); margin-bottom: 14px; }
+.pobierz { display: inline-block; margin: 6px 8px 18px 0; padding: 7px 14px;
+           border: 1px solid var(--obramowanie); border-radius: 7px;
+           background: var(--ramka-tlo); font-size: 14px; }
+/* przejscia miedzy kolejnymi cwiczeniami */
+.przejscia { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+             align-items: stretch; margin: 44px 0 10px; padding-top: 22px;
+             border-top: 1px solid var(--obramowanie); }
+.przejscia a { border: 1px solid var(--obramowanie); border-radius: 9px;
+               padding: 11px 15px; background: var(--ramka-tlo);
+               display: flex; flex-direction: column; gap: 3px;
+               font-weight: 500; line-height: 1.4; }
+.przejscia a:hover { border-color: var(--akcent); text-decoration: none; }
+.przejscia a span { font-size: 12.5px; font-weight: 400; color: var(--przygaszony);
+                    text-transform: uppercase; letter-spacing: 0.04em; }
+.przejscia .wstecz { text-align: left; }
+.przejscia .wstecz span::before { content: "\2190  "; }
+.przejscia .dalej { text-align: right; align-items: flex-end; }
+.przejscia .dalej span::after { content: "  \2192"; }
+.przejscia .do-spisu { display: flex; align-items: center; justify-content: center;
+                       font-weight: 400; color: var(--przygaszony); white-space: nowrap; }
+@media (max-width: 620px) {
+  .przejscia { grid-template-columns: 1fr; }
+  .przejscia .dalej { text-align: left; align-items: flex-start; }
+  .przejscia .do-spisu { order: 3; }
+}
+footer { max-width: 1100px; margin: 0 auto; padding: 24px 20px 50px;
+         color: var(--przygaszony); font-size: 14px;
+         border-top: 1px solid var(--obramowanie); }
+/* wyjscia komorek notatnika */
+.jp-OutputArea-output, .output_subarea { overflow-x: auto; }
+.jp-RenderedText pre, .output pre { font-size: 13px; }
+@media (max-width: 620px) {
+  h1 { font-size: 25px; }
+  main { padding: 20px 16px 60px; }
+}
+</style>
+<style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<header class="gora"><div class="srodek">
+  <span class="nazwa"><a href="../index.html">Materiały kursów</a></span>
+  <nav>
+    <a href="../azure-ml-pl/index.html">Azure ML (PL)</a>
+    <a href="../azure-ml-en/index.html">Azure ML (EN)</a>
+    <a href="../cwiczenia-ml/index.html">Machine Learning</a>
+  </nav>
+</div></header>
+<main><div class="okruchy"><a href="../index.html">Materiały</a> / <a href="index.html">Azure ML (English)</a></div><div class="tresc">
+<a class="pobierz" href="labdocs/lab08a.html">Instrukcja do tego ćwiczenia</a><a class="pobierz" href="pobierz/08A%20-%20Tuning%20Hyperparameters.ipynb" download>Pobierz notatnik (.ipynb)</a><div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Tuning-Hyperparameters">Tuning Hyperparameters<a class="anchor-link" href="#Tuning-Hyperparameters">¶</a></h1><p>There are many machine learning algorithms that require <em>hyperparameters</em> (parameter values that influence training, but can't be determined from the training data itself). For example, when training a logistic regression model, you can use a <em>regularization rate</em> hyperparameter to counteract bias in the model; or when training a convolutional neural network, you can use hyperparameters like <em>learning rate</em> and <em>batch size</em> to control how weights are adjusted and how many data items are processed in a mini-batch respectively. The choice of hyperparameter values can significantly affect the performance of a trained model, or the time taken to train it; and often you need to try multiple combinations to find the optimal solution.</p>
+<p>In this case, you'll use a simple example of a logistic regression model with a single hyperparameter, but the principles apply to any kind of model you can train with Azure Machine Learning.</p>
+<h2 id="Connect-to-Your-Workspace">Connect to Your Workspace<a class="anchor-link" href="#Connect-to-Your-Workspace">¶</a></h2><p>The first thing you need to do is to connect to your workspace using the Azure ML SDK v2.</p>
+<blockquote>
+<p><strong>Note</strong>: If the authenticated session with your Azure subscription has expired since you completed the previous exercise, you'll be prompted to reauthenticate.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+
+<span class="n">credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
+<span class="n">ml_client</span> <span class="o">=</span> <span class="n">MLClient</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">credential</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Ready to use Azure ML to work with </span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">workspace_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Prepare-Data-for-a-Job">Prepare Data for a Job<a class="anchor-link" href="#Prepare-Data-for-a-Job">¶</a></h2><p>In this lab, you'll use a data asset containing details of diabetes patients. Run the cell below to create this data asset (if you created it in a previous lab, this will register a new version).</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># The mltable package together with its data-reading engine. Needed once per compute instance.</span>
+<span class="o">%</span><span class="k">pip</span> install -q -U mltable "azureml-dataprep[pandas]"
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mltable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># Combine the diabetes csv files into an MLTable</span>
+<span class="n">paths</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s1">'file'</span><span class="p">:</span> <span class="s1">'./data/diabetes.csv'</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">'file'</span><span class="p">:</span> <span class="s1">'./data/diabetes2.csv'</span><span class="p">},</span>
+<span class="p">]</span>
+<span class="n">tbl</span> <span class="o">=</span> <span class="n">mltable</span><span class="o">.</span><span class="n">from_delimited_files</span><span class="p">(</span><span class="n">paths</span><span class="o">=</span><span class="n">paths</span><span class="p">)</span>
+
+<span class="c1"># Drop the patient identifier. It is a registration number, not a measurement - it</span>
+<span class="c1"># carries no information about diabetes, but a model is perfectly capable of</span>
+<span class="c1"># memorising it and looking accurate on data it has already seen.</span>
+<span class="n">tbl</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">drop_columns</span><span class="p">([</span><span class="s1">'PatientID'</span><span class="p">])</span>
+
+<span class="n">tbl</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">'./diabetes-mltable'</span><span class="p">,</span> <span class="n">colocated</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Register the MLTable as a data asset</span>
+<span class="n">data_asset</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="s1">'./diabetes-mltable'</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">MLTABLE</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">'diabetes data'</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">'diabetes_mltable'</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">data_asset</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Dataset ready.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Prepare-a-Training-Script">Prepare a Training Script<a class="anchor-link" href="#Prepare-a-Training-Script">¶</a></h2><p>Let's start by creating a folder for the training script you'll use to train a logistic regression model.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">experiment_folder</span> <span class="o">=</span> <span class="s1">'diabetes_training-hyperdrive'</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">experiment_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Folder ready.'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now create the Python script to train the model. This must include:</p>
+<ul>
+<li>A parameter for each hyperparameter you want to optimize (in this case, there's only the regularization hyperparameter)</li>
+<li>Code to log the performance metric you want to optimize for (in this case, you'll log both AUC and accuracy using MLflow, so you can choose to optimize the model for either of these)</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">%%writefile</span> $experiment_folder/diabetes_training.py
+<span class="c1"># Import libraries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow.sklearn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mltable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_score</span>
+
+<span class="c1"># Set regularization parameter</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--input-data'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'training_data'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'mltable containing the training data'</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--regularization'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'reg_rate'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'regularization rate'</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--model_output'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'model_output'</span><span class="p">,</span>
+                    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'folder for the finished model'</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">reg</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">reg_rate</span>
+
+<span class="c1"># load the diabetes data</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Loading Data..."</span><span class="p">)</span>
+<span class="n">tbl</span> <span class="o">=</span> <span class="n">mltable</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">training_data</span><span class="p">)</span>
+<span class="n">diabetes</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">to_pandas_dataframe</span><span class="p">()</span>
+
+<span class="c1"># Separate features and labels</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">diabetes</span><span class="p">[[</span><span class="s1">'Pregnancies'</span><span class="p">,</span><span class="s1">'PlasmaGlucose'</span><span class="p">,</span><span class="s1">'DiastolicBloodPressure'</span><span class="p">,</span><span class="s1">'TricepsThickness'</span><span class="p">,</span><span class="s1">'SerumInsulin'</span><span class="p">,</span><span class="s1">'BMI'</span><span class="p">,</span><span class="s1">'DiabetesPedigree'</span><span class="p">,</span><span class="s1">'Age'</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">diabetes</span><span class="p">[</span><span class="s1">'Diabetic'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># Split data into training set and test set</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Train a logistic regression model</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Training a logistic regression model with regularization rate of'</span><span class="p">,</span> <span class="n">reg</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s1">'Regularization Rate'</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">reg</span><span class="p">))</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">reg</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s2">"liblinear"</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># calculate accuracy</span>
+<span class="n">y_hat</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y_hat</span> <span class="o">==</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Accuracy:'</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s1">'Accuracy'</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">acc</span><span class="p">))</span>
+
+<span class="c1"># calculate AUC</span>
+<span class="n">y_scores</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">auc</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_scores</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'AUC: '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">auc</span><span class="p">))</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s1">'AUC'</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">auc</span><span class="p">))</span>
+
+<span class="c1"># Save the model to the job's named output. log_model() will not work here:</span>
+<span class="c1"># azureml-mlflow supports MLflow 2.16 at the latest.</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">sk_model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">model_output</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Model saved to:'</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">model_output</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Prepare-a-Compute-Target">Prepare a Compute Target<a class="anchor-link" href="#Prepare-a-Compute-Target">¶</a></h2><p>One of the benefits of cloud compute is that it scales on-demand, enabling you to provision enough compute resources to process multiple runs of an experiment in parallel, each with different hyperparameter values.</p>
+<p>You'll use the <strong>aml-cluster</strong> Azure Machine Learning compute cluster you created in an earlier lab (if it doesn't exist, it will be created).</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">AmlCompute</span>
+
+<span class="n">cluster_name</span> <span class="o">=</span> <span class="s2">"aml-cluster"</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># Get the cluster if it exists</span>
+    <span class="n">training_cluster</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cluster_name</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Found existing cluster, use it.'</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="c1"># If not, create it</span>
+    <span class="n">compute_config</span> <span class="o">=</span> <span class="n">AmlCompute</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">"amlcompute"</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="s2">"Standard_D2as_v4"</span><span class="p">,</span>
+        <span class="n">min_instances</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">max_instances</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">idle_time_before_scale_down</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">training_cluster</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">begin_create_or_update</span><span class="p">(</span><span class="n">compute_config</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Compute target '</span><span class="si">{</span><span class="n">training_cluster</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' is ready to use."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Run-a-Sweep-Job">Run a Sweep Job<a class="anchor-link" href="#Run-a-Sweep-Job">¶</a></h2><p>Azure Machine Learning SDK v2 includes hyperparameter tuning through a <em>sweep job</em>. A sweep job takes a base command job and runs it multiple times, once for each hyperparameter combination in a search space. The trial (child job) producing the best model, as determined by the logged target performance metric, can be identified and its trained model selected for registration and deployment.</p>
+<blockquote>
+<p><strong>Note</strong>: The script reads its training data with the <strong>mltable</strong> package, which curated environments do not provide. The cell below therefore defines a custom environment containing it - the image is built on the first job and reused by every trial in the sweep.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span>
+
+<span class="c1"># The script reads its input with the mltable package, so that package must be</span>
+<span class="c1"># present in the job's environment. The curated sklearn environment does not</span>
+<span class="c1"># include it, so we define our own.</span>
+<span class="n">conda_spec</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"diabetes-mltable-env"</span><span class="p">,</span>
+    <span class="s2">"channels"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"conda-forge"</span><span class="p">],</span>
+    <span class="s2">"dependencies"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"python=3.10"</span><span class="p">,</span>
+        <span class="s2">"scikit-learn"</span><span class="p">,</span>
+        <span class="s2">"pandas"</span><span class="p">,</span>
+        <span class="s2">"numpy"</span><span class="p">,</span>
+        <span class="s2">"pip"</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">"pip"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"mltable"</span><span class="p">,</span>
+                <span class="s2">"azureml-dataprep[pandas]"</span><span class="p">,</span>
+                <span class="c1"># The script saves the model with mlflow.sklearn, so the full mlflow</span>
+                <span class="c1"># package is needed. Pinned to the upper bound that azureml-mlflow</span>
+                <span class="c1"># supports - a newer one breaks artifact logging.</span>
+                <span class="s2">"mlflow&lt;=3.15.0"</span><span class="p">,</span>
+                <span class="s2">"azureml-mlflow"</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">mltable_env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"diabetes-mltable-env"</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"Environment with the mltable package for reading tabular data assets"</span><span class="p">,</span>
+    <span class="n">conda_file</span><span class="o">=</span><span class="n">conda_spec</span><span class="p">,</span>
+    <span class="n">image</span><span class="o">=</span><span class="s2">"mcr.microsoft.com/azureml/openmpi5.0-ubuntu24.04"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Register in the workspace. Passing the object straight to a job would give an</span>
+<span class="c1"># anonymous environment - nameless, and separate for every job.</span>
+<span class="n">mltable_env</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">environments</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">mltable_env</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mltable_env</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">mltable_env</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2"> - environment registered."</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">command</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.sweep</span><span class="w"> </span><span class="kn">import</span> <span class="n">Choice</span>
+
+<span class="c1"># Get the registered training data asset</span>
+<span class="n">diabetes_data_asset</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_mltable"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"latest"</span><span class="p">)</span>
+
+<span class="c1"># Configure the base command job</span>
+<span class="n">job</span> <span class="o">=</span> <span class="n">command</span><span class="p">(</span>
+    <span class="n">code</span><span class="o">=</span><span class="n">experiment_folder</span><span class="p">,</span>
+    <span class="n">command</span><span class="o">=</span><span class="s2">"python diabetes_training.py --input-data ${{inputs.diabetes}} --regularization ${{inputs.regularization}} --model_output ${{outputs.model_output}}"</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"diabetes"</span><span class="p">:</span> <span class="n">Input</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">MLTABLE</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">diabetes_data_asset</span><span class="o">.</span><span class="n">id</span><span class="p">),</span>
+        <span class="s2">"regularization"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">outputs</span><span class="o">=</span><span class="p">{</span>
+        <span class="c1"># Named output - we register the model from here.</span>
+        <span class="s2">"model_output"</span><span class="p">:</span> <span class="n">Output</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">MLFLOW_MODEL</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="n">environment</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mltable_env</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">mltable_env</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+    <span class="n">compute</span><span class="o">=</span><span class="s2">"aml-cluster"</span><span class="p">,</span>
+    <span class="n">display_name</span><span class="o">=</span><span class="s2">"diabetes-training-hyperdrive"</span><span class="p">,</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"diabetes-training-hyperdrive"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Apply a search space to the regularization hyperparameter</span>
+<span class="c1"># There's only one parameter, so grid sampling will try each value - with multiple parameters it would try every combination</span>
+<span class="n">command_job_for_sweep</span> <span class="o">=</span> <span class="n">job</span><span class="p">(</span>
+    <span class="n">regularization</span><span class="o">=</span><span class="n">Choice</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]),</span>
+<span class="p">)</span>
+
+<span class="c1"># Configure the sweep settings</span>
+<span class="n">sweep_job</span> <span class="o">=</span> <span class="n">command_job_for_sweep</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span>
+    <span class="c1"># The cluster every trial runs on</span>
+    <span class="n">compute</span><span class="o">=</span><span class="s2">"aml-cluster"</span><span class="p">,</span>
+    <span class="c1"># How combinations are picked: "grid" tries every value in the search space.</span>
+    <span class="c1"># The alternatives are "random" and "bayesian" - useful when there are too</span>
+    <span class="c1"># many combinations to try them all.</span>
+    <span class="n">sampling_algorithm</span><span class="o">=</span><span class="s2">"grid"</span><span class="p">,</span>
+    <span class="c1"># The metric trials are compared by. The name must match exactly the one</span>
+    <span class="c1"># passed to mlflow.log_metric() in the training script.</span>
+    <span class="n">primary_metric</span><span class="o">=</span><span class="s2">"AUC"</span><span class="p">,</span>
+    <span class="c1"># Whether the metric should be as high or as low as possible. For AUC, high;</span>
+    <span class="c1"># for an error metric it would be "Minimize".</span>
+    <span class="n">goal</span><span class="o">=</span><span class="s2">"Maximize"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Set the limits for the sweep:</span>
+<span class="c1">#   max_total_trials      - how many trials in total. Six here, because Choice has</span>
+<span class="c1">#                           six values and with grid sampling more would add nothing.</span>
+<span class="c1">#   max_concurrent_trials - how many run at once. Going beyond the cluster's node</span>
+<span class="c1">#                           count (max_instances=4) just leaves trials queued.</span>
+<span class="c1">#   timeout               - after how many seconds to abort the whole job (2 hours here).</span>
+<span class="n">sweep_job</span><span class="o">.</span><span class="n">set_limits</span><span class="p">(</span><span class="n">max_total_trials</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">max_concurrent_trials</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">7200</span><span class="p">)</span>
+
+<span class="c1"># The experiment name is not carried over from the base job - set it here, or the</span>
+<span class="c1"># trials end up in the default experiment.</span>
+<span class="n">sweep_job</span><span class="o">.</span><span class="n">experiment_name</span> <span class="o">=</span> <span class="s2">"diabetes-training-hyperdrive"</span>
+
+<span class="c1"># Run the sweep job</span>
+<span class="n">returned_sweep_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">sweep_job</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Submitted sweep job: </span><span class="si">{</span><span class="n">returned_sweep_job</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Stream the job logs in the notebook as the job runs</span>
+<span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">returned_sweep_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can view the sweep job status in the logs streamed above. You can also view the parent sweep job and its trial (child) jobs in <a href="https://ml.azure.com">Azure Machine Learning studio</a> - open the job and select the <strong>Child jobs</strong> tab.</p>
+<h2 id="Determine-the-Best-Performing-Run">Determine the Best Performing Run<a class="anchor-link" href="#Determine-the-Best-Performing-Run">¶</a></h2><p>When all of the trials have finished, you can find the best one based on the performance metric you specified (in this case, the one with the best AUC). MLflow tracks each trial as a child run of the sweep job, so you can query them directly.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="n">ml_client</span><span class="o">.</span><span class="n">workspaces</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ml_client</span><span class="o">.</span><span class="n">workspace_name</span><span class="p">)</span><span class="o">.</span><span class="n">mlflow_tracking_uri</span><span class="p">)</span>
+
+<span class="c1"># The sweep job records which trial came out best</span>
+<span class="n">completed</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">returned_sweep_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="n">best_run_id</span> <span class="o">=</span> <span class="n">completed</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">"best_child_run_id"</span><span class="p">]</span>
+
+<span class="c1"># Take the trials from Azure ML and their metrics from MLflow</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">parent_job_name</span><span class="o">=</span><span class="n">returned_sweep_job</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+    <span class="n">run</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s2">"run_id"</span><span class="p">:</span> <span class="n">trial</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">"AUC"</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"AUC"</span><span class="p">),</span>
+        <span class="s2">"Accuracy"</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Accuracy"</span><span class="p">),</span>
+        <span class="c1"># The script logs this value as a metric, not as a parameter</span>
+        <span class="s2">"Regularization Rate"</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Regularization Rate"</span><span class="p">),</span>
+    <span class="p">})</span>
+
+<span class="n">child_runs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"AUC"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">child_runs</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+<span class="n">best_run</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">best_run_id</span><span class="p">)</span>
+<span class="n">best_run_metrics</span> <span class="o">=</span> <span class="n">best_run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">Best Run Id:'</span><span class="p">,</span> <span class="n">best_run_id</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">' -AUC:'</span><span class="p">,</span> <span class="n">best_run_metrics</span><span class="p">[</span><span class="s1">'AUC'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">' -Accuracy:'</span><span class="p">,</span> <span class="n">best_run_metrics</span><span class="p">[</span><span class="s1">'Accuracy'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">' -Regularization Rate:'</span><span class="p">,</span> <span class="n">best_run_metrics</span><span class="p">[</span><span class="s1">'Regularization Rate'</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that you've found the best run, you can register the model it trained.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.ai.ml.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetTypes</span>
+
+<span class="c1"># Register the model from the best trial's MLflow output</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">"azureml://jobs/</span><span class="si">{</span><span class="n">best_run_id</span><span class="si">}</span><span class="s2">/outputs/model_output"</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_model"</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"Model trained using a hyperparameter sweep"</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">AssetTypes</span><span class="o">.</span><span class="n">MLFLOW_MODEL</span><span class="p">,</span>
+    <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">'AUC'</span><span class="p">:</span> <span class="n">best_run_metrics</span><span class="p">[</span><span class="s1">'AUC'</span><span class="p">],</span> <span class="s1">'Accuracy'</span><span class="p">:</span> <span class="n">best_run_metrics</span><span class="p">[</span><span class="s1">'Accuracy'</span><span class="p">]},</span>
+<span class="p">)</span>
+<span class="n">registered_model</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+<span class="c1"># List registered models</span>
+<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"diabetes_model"</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">'version:'</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote>
+<p><strong>More Information</strong>: For more information about hyperparameter tuning with sweep jobs, see the <a href="https://learn.microsoft.com/azure/machine-learning/how-to-tune-hyperparameters?view=azureml-api-2">Azure ML documentation</a>.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<nav class="przejscia">
+<a class="wstecz" href="07b-creating-a-batch-inferencing-service.html"><span>Poprzednie</span>Creating a Batch Inferencing Service</a>
+<a class="do-spisu" href="index.html">Spis ćwiczeń</a>
+<a class="dalej" href="08b-using-automated-machine-learning.html"><span>Następne</span>Using Automated Machine Learning</a>
+</nav>
+</div></main>
+
+</body>
+</html>
